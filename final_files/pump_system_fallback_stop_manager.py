@@ -166,6 +166,7 @@ class FallbackStopManager:
                     {
                         "symbol": record.symbol,
                         "side": "SELL",
+                        "positionSide": "LONG",
                         "type": "MARKET",
                         "quantity": decimal_to_str(quantity),
                         "reduceOnly": "true",

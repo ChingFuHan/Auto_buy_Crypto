@@ -216,6 +216,7 @@ class OrderService:
                 {
                     "symbol": symbol,
                     "side": "BUY",
+                    "positionSide": "LONG",
                     "type": "MARKET",
                     "quantity": decimal_to_str(sizing.quantity),
                     "newOrderRespType": "RESULT",
@@ -281,57 +282,33 @@ class OrderService:
             self.logger.error("[BLOCKED] missing stop reference low symbol=%s", symbol)
             return False
 
-        params = {
-            "symbol": symbol,
-            "side": "SELL",
-            "type": "STOP_MARKET",
-            "stopPrice": decimal_to_str(stop_price),
-            "workingType": self.settings.stop_working_type,
-            "closePosition": "true",
-            "priceProtect": "FALSE",
-            "newClientOrderId": f"stop_{symbol.lower()}_{market_order.get('orderId', 'na')}",
-        }
-        self.logger.info("native stop source symbol=%s stop_low=%s working_type=%s", symbol, stop_price, self.settings.stop_working_type)
+        quantity = market_order.get("origQty") or market_order.get("executedQty")
+        if not quantity:
+            self.logger.error("[BLOCKED] missing quantity in market order symbol=%s", symbol)
+            return False
 
-        for attempt in range(1, self.settings.stop_order_retry_count + 1):
-            try:
-                result = await self.exchange_client.create_order(params)
-                self.logger.info("native stop success symbol=%s attempt=%s result=%s", symbol, attempt, result)
-                if self.notifier is not None:
-                    await self.notifier.send_trade(
-                        "STOP_ORDER_SUCCESS",
-                        symbol=symbol,
-                        side="SELL",
-                        stop_price=stop_price,
-                        working_type=self.settings.stop_working_type,
-                        order_id=result.get("orderId"),
-                        details={"attempt": attempt},
-                    )
-                return True
-            except Exception as exc:
-                self.logger.error("native stop retry symbol=%s attempt=%s error=%s", symbol, attempt, exc)
-                if self.notifier is not None:
-                    await self.notifier.send_error(
-                        "STOP_ORDER_RETRY",
-                        symbol=symbol,
-                        side="SELL",
-                        stop_price=stop_price,
-                        working_type=self.settings.stop_working_type,
-                        order_id=market_order.get("orderId"),
-                        error_message=str(exc),
-                        details={"attempt": f"{attempt}/{self.settings.stop_order_retry_count}"},
-                    )
-        if self.notifier is not None:
-            await self.notifier.send_error(
-                "STOP_ORDER_FAILED",
-                symbol=symbol,
-                side="SELL",
-                stop_price=stop_price,
-                working_type=self.settings.stop_working_type,
-                order_id=market_order.get("orderId"),
-                error_message="native_stop_failed_after_retries",
+        limit_price = stop_price - Decimal("1")
+
+        try:
+            stop_order = await self.exchange_client.create_order(
+                {
+                    "symbol": symbol,
+                    "side": "SELL",
+                    "positionSide": "LONG",
+                    "type": "STOP_LOSS_LIMIT",
+                    "stopPrice": decimal_to_str(stop_price),
+                    "price": decimal_to_str(limit_price),
+                    "quantity": str(quantity),
+                    "timeInForce": "GTC",
+                    "workingType": "CONTRACT_PRICE",
+                    "newClientOrderId": f"stop_{symbol.lower()}_{int(utc_now().timestamp())}",
+                }
             )
-        return False
+            self.logger.info("native stop order placed symbol=%s stop_price=%s limit_price=%s order_id=%s", symbol, stop_price, limit_price, stop_order.get("orderId"))
+            return True
+        except Exception as exc:
+            self.logger.error("native stop order failed symbol=%s stop_price=%s error=%s", symbol, stop_price, exc)
+            return False
 
     @staticmethod
     def _extract_available_balance(account_info: dict) -> Decimal:

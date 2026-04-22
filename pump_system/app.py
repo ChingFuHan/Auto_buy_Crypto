@@ -105,6 +105,9 @@ class TradingApplication:
         try:
             await self._bootstrap(run_backfill=False)
             await self.order_service.execute_manual_function_test()
+            self.logger.info("[INFO] manual test entry completed, keeping app running for stop monitoring")
+            self._start_background_tasks()
+            await self.stop_event.wait()
         except Exception as exc:
             self.logger.error("[BLOCKED] manual function test failed error=%s", exc)
             await self.notifier.send_error("MANUAL_FUNCTION_TEST_FAILED", error_message=str(exc))

@@ -141,6 +141,10 @@ class BinanceClient:
 
     async def get_leverage_bracket(self, symbol: str) -> dict[str, Any]:
         data = await self._request("GET", "/fapi/v1/leverageBracket", signed=True, params={"symbol": symbol})
+        if isinstance(data, list):
+            if not data:
+                raise BinanceAPIError(f"leverage_bracket_empty symbol={symbol}")
+            return dict(data[0])
         return dict(data)
 
     async def set_margin_type(self, symbol: str, margin_type: str = "CROSSED") -> dict[str, Any]:
@@ -166,6 +170,9 @@ class BinanceClient:
 
     async def create_order(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self._request("POST", "/fapi/v1/order", signed=True, params=params)
+
+    async def create_conditional_order(self, params: dict[str, Any]) -> dict[str, Any]:
+        return await self._request("POST", "/fapi/v1/takeProfitAndStopLoss", signed=True, params=params)
 
     async def get_mark_price(self, symbol: str) -> Decimal:
         data = await self._request("GET", "/fapi/v1/premiumIndex", signed=False, params={"symbol": symbol})
