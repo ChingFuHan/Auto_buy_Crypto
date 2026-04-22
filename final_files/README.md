@@ -152,7 +152,7 @@ TELEGRAM_CHAT_ID=***
 - 因最小合法下單不足跳過
 - 因 function test mode 被攔下真實下單
 - entry 成功 / entry 失敗
-- 原生 stop retry / stop 成功 / stop 失敗
+- 原生 stop 掛單成功 / 原生 stop 觸發平倉 / 原生 stop 遺失 / stop 失敗
 - fallback stop 啟動 / 觸發 / 平倉成功 / 平倉失敗 / blocked
 - DB 寫入失敗
 - Binance API retry / blocked
@@ -359,9 +359,18 @@ TELEGRAM_CHAT_ID=***
 ### 原生止損
 
 - 類型固定 `STOP_MARKET`
+- Binance 目前官方等價實作為 `POST /fapi/v1/algoOrder`
+  - `algoType=CONDITIONAL`
+  - `type=STOP_MARKET`
+  - `triggerPrice=<low price>`
+  - `closePosition=true`
 - `workingType` 可配置，預設 `CONTRACT_PRICE`
 - 止損價固定使用：
   - 入場當下 in-progress 最新 `1m` kline 的即時 `low`
+- Telegram 會回報：
+  - `STOP_ORDER_SUCCESS`：原生 stop 掛單成功
+  - `STOP_ORDER_TRIGGERED`：原生 stop 觸發並完成平倉
+  - `STOP_ORDER_POSITION_CLOSED`：倉位已關閉，但這次沒有確認到 native stop fill
 - 明確禁止：
   - finalized 1m low
   - 前一根 1m low
@@ -377,7 +386,7 @@ TELEGRAM_CHAT_ID=***
    - `CONTRACT_PRICE`：看 staging 中最新 in-progress `1m` low
    - `MARK_PRICE`：查 Binance mark price
 4. 一旦價格跌破 stop：
-   - 送 `MARKET SELL reduceOnly=true`
+   - 送 `MARKET SELL` + `positionSide=LONG`
 5. fallback close 若失敗：
    - 每次 retry 都發 Telegram
    - 最終標記 `BLOCKED`

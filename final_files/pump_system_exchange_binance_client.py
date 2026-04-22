@@ -118,6 +118,13 @@ class BinanceClient:
         data = await self._request("GET", "/fapi/v1/klines", signed=False, params=params)
         return list(data)
 
+    async def get_latest_kline(self, symbol: str, interval: str) -> list[Any]:
+        """Fetch the latest REST kline snapshot, which may still be in progress."""
+        rows = await self.get_klines(symbol=symbol, interval=interval, limit=1)
+        if not rows:
+            raise BinanceAPIError(f"latest_kline_missing symbol={symbol} interval={interval}")
+        return rows[-1]
+
     async def get_account_info(self) -> dict[str, Any]:
         return await self._request("GET", "/fapi/v2/account", signed=True)
 
@@ -164,8 +171,28 @@ class BinanceClient:
     async def create_order(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self._request("POST", "/fapi/v1/order", signed=True, params=params)
 
+    async def create_algo_order(self, params: dict[str, Any]) -> dict[str, Any]:
+        return await self._request("POST", "/fapi/v1/algoOrder", signed=True, params=params)
+
     async def create_conditional_order(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self._request("POST", "/fapi/v1/takeProfitAndStopLoss", signed=True, params=params)
+
+    async def get_open_algo_orders(
+        self,
+        symbol: str | None = None,
+        algo_type: str | None = None,
+    ) -> list[dict[str, Any]]:
+        params: dict[str, Any] = {}
+        if symbol:
+            params["symbol"] = symbol
+        if algo_type:
+            params["algoType"] = algo_type
+        data = await self._request("GET", "/fapi/v1/openAlgoOrders", signed=True, params=params)
+        return list(data)
+
+    async def get_all_orders(self, symbol: str, limit: int = 20) -> list[dict[str, Any]]:
+        data = await self._request("GET", "/fapi/v1/allOrders", signed=True, params={"symbol": symbol, "limit": limit})
+        return list(data)
 
     async def get_mark_price(self, symbol: str) -> Decimal:
         data = await self._request("GET", "/fapi/v1/premiumIndex", signed=False, params={"symbol": symbol})

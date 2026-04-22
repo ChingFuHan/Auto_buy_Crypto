@@ -166,6 +166,7 @@ class TradingApplication:
         )
         if self.exchange_client.has_private_api:
             await self.position_state.refresh()
+            await self.order_service.restore_native_stop_watchlist()
         if run_backfill:
             await self.backfill_service.backfill_universe(sorted(self.symbol_registry.data_symbols))
         await self._seed_strategy_history()
@@ -175,6 +176,7 @@ class TradingApplication:
         self.background_tasks = [
             asyncio.create_task(self.staging_store.periodic_flush(self.stop_event)),
             asyncio.create_task(self.fallback_manager.run(self.stop_event)),
+            asyncio.create_task(self.order_service.run_native_stop_monitor(self.stop_event)),
             asyncio.create_task(self._server_time_loop()),
             asyncio.create_task(self._position_refresh_loop()),
             asyncio.create_task(self._symbol_refresh_loop()),

@@ -27,4 +27,6 @@ def configure_logging(log_dir: Path, level: str) -> logging.Logger:
 
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     return logger

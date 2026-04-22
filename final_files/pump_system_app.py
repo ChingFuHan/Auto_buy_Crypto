@@ -101,6 +101,20 @@ class TradingApplication:
         finally:
             await self.shutdown()
 
+    async def manual_test_entry(self) -> None:
+        try:
+            await self._bootstrap(run_backfill=False)
+            await self.order_service.execute_manual_function_test()
+            self.logger.info("[INFO] manual test entry completed, keeping app running for stop monitoring")
+            self._start_background_tasks()
+            await self.stop_event.wait()
+        except Exception as exc:
+            self.logger.error("[BLOCKED] manual function test failed error=%s", exc)
+            await self.notifier.send_error("MANUAL_FUNCTION_TEST_FAILED", error_message=str(exc))
+            raise
+        finally:
+            await self.shutdown()
+
     async def run(self) -> None:
         try:
             await self._bootstrap(run_backfill=self.settings.startup_backfill_enabled)
@@ -152,6 +166,7 @@ class TradingApplication:
         )
         if self.exchange_client.has_private_api:
             await self.position_state.refresh()
+            await self.order_service.restore_native_stop_watchlist()
         if run_backfill:
             await self.backfill_service.backfill_universe(sorted(self.symbol_registry.data_symbols))
         await self._seed_strategy_history()
@@ -161,6 +176,7 @@ class TradingApplication:
         self.background_tasks = [
             asyncio.create_task(self.staging_store.periodic_flush(self.stop_event)),
             asyncio.create_task(self.fallback_manager.run(self.stop_event)),
+            asyncio.create_task(self.order_service.run_native_stop_monitor(self.stop_event)),
             asyncio.create_task(self._server_time_loop()),
             asyncio.create_task(self._position_refresh_loop()),
             asyncio.create_task(self._symbol_refresh_loop()),

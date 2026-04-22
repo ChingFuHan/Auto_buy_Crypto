@@ -46,6 +46,11 @@ class PositionState:
             for order in open_orders:
                 symbol = order["symbol"]
                 counts[symbol] = counts.get(symbol, 0) + 1
+            for symbol in set(counts).union(positions):
+                algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
+                for order in algo_orders:
+                    algo_symbol = order["symbol"]
+                    counts[algo_symbol] = counts.get(algo_symbol, 0) + 1
             self.open_order_counts = counts
 
     async def refresh_symbol(self, symbol: str) -> None:

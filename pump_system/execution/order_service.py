@@ -12,7 +12,7 @@ from pump_system.exchange.binance_client import BinanceClient, BinanceAPIError
 from pump_system.exchange.symbol_registry import SymbolRegistry
 from pump_system.execution.sizing import build_sizing_decision
 from pump_system.fallback_stop.manager import FallbackStopManager
-from pump_system.models import FallbackStopRecord, Kline, SignalDecision, utc_now
+from pump_system.models import FallbackStopRecord, Kline, NativeStopTracker, SignalDecision, utc_now
 from pump_system.state.position_state import PositionState
 from pump_system.strategy.signal_engine import SignalEngine
 from pump_system.utils.decimal_utils import decimal_to_str
@@ -46,6 +46,7 @@ class OrderService:
         self.logger = logging.getLogger("execution.order")
         self._symbol_locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
         self._last_handled_bar: dict[str, str] = {}
+        self._active_native_stops: dict[str, NativeStopTracker] = {}
 
     async def on_market_update(self, symbol: str) -> None:
         if not self.symbol_registry.should_evaluate(symbol):
@@ -66,6 +67,121 @@ class OrderService:
                         symbol=symbol,
                         error_message=str(exc),
                     )
+
+    async def restore_native_stop_watchlist(self) -> None:
+        if not self.exchange_client.has_private_api:
+            return
+
+        for symbol, snapshot in self.position_state.positions.items():
+            if snapshot.quantity <= Decimal("0"):
+                continue
+            algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
+            for order in algo_orders:
+                client_order_id = str(order.get("clientAlgoId", ""))
+                if order.get("orderType") != "STOP_MARKET":
+                    continue
+                if order.get("positionSide") != "LONG":
+                    continue
+                if not client_order_id.startswith("stop_"):
+                    continue
+                self._active_native_stops[symbol] = NativeStopTracker(
+                    symbol=symbol,
+                    client_order_id=client_order_id,
+                    algo_id=str(order.get("algoId", "")),
+                    stop_price=Decimal(str(order.get("triggerPrice", "0"))),
+                    quantity=snapshot.quantity,
+                    working_type=str(order.get("workingType", self.settings.stop_working_type)),
+                    entry_price=snapshot.entry_price,
+                )
+                break
+
+    async def run_native_stop_monitor(self, stop_event: asyncio.Event) -> None:
+        while not stop_event.is_set():
+            await asyncio.sleep(self.settings.fallback_poll_interval_seconds)
+            try:
+                await self.reconcile_native_stops()
+            except Exception as exc:
+                self.logger.error("native stop monitor failed error=%s", exc)
+
+    async def reconcile_native_stops(self) -> None:
+        if not self._active_native_stops or not self.exchange_client.has_private_api:
+            return
+
+        for symbol, tracker in list(self._active_native_stops.items()):
+            quantity = await self._get_current_long_quantity(symbol)
+            algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
+            matching_order = next(
+                (order for order in algo_orders if str(order.get("clientAlgoId", "")) == tracker.client_order_id),
+                None,
+            )
+
+            if quantity > Decimal("0") and matching_order is not None:
+                continue
+
+            if quantity > Decimal("0") and matching_order is None:
+                if tracker.missing_reported:
+                    continue
+                tracker.missing_reported = True
+                self.logger.error("[BLOCKED] native stop missing on exchange symbol=%s client_order_id=%s", symbol, tracker.client_order_id)
+                if self.notifier is not None:
+                    await self.notifier.send_error(
+                        "STOP_ORDER_MISSING",
+                        symbol=symbol,
+                        side="SELL",
+                        quantity=tracker.quantity,
+                        entry_price=tracker.entry_price,
+                        stop_price=tracker.stop_price,
+                        working_type=tracker.working_type,
+                        order_id=tracker.algo_id,
+                        error_message="native_stop_missing_on_exchange",
+                        details={"client_order_id": tracker.client_order_id},
+                    )
+                continue
+
+            closed_order = await self._find_order_by_client_id(symbol, tracker.client_order_id)
+            self._active_native_stops.pop(symbol, None)
+
+            if closed_order is not None and closed_order.get("status") == "FILLED":
+                self.logger.info(
+                    "native stop filled symbol=%s order_id=%s client_order_id=%s",
+                    symbol,
+                    closed_order.get("orderId"),
+                    tracker.client_order_id,
+                )
+                if self.notifier is not None:
+                    await self.notifier.send_trade(
+                        "STOP_ORDER_TRIGGERED",
+                        symbol=symbol,
+                        side="SELL",
+                        quantity=closed_order.get("executedQty") or tracker.quantity,
+                        entry_price=tracker.entry_price,
+                        stop_price=tracker.stop_price,
+                        working_type=tracker.working_type,
+                        order_id=closed_order.get("orderId"),
+                        details={
+                            "client_order_id": tracker.client_order_id,
+                            "fill_price": closed_order.get("avgPrice", ""),
+                        },
+                    )
+                continue
+
+            self.logger.warning(
+                "position closed without native stop fill confirmation symbol=%s client_order_id=%s",
+                symbol,
+                tracker.client_order_id,
+            )
+            if self.notifier is not None:
+                await self.notifier.send_warning(
+                    "STOP_ORDER_POSITION_CLOSED",
+                    symbol=symbol,
+                    side="SELL",
+                    quantity=tracker.quantity,
+                    entry_price=tracker.entry_price,
+                    stop_price=tracker.stop_price,
+                    working_type=tracker.working_type,
+                    order_id=tracker.algo_id,
+                    details={"client_order_id": tracker.client_order_id},
+                )
 
     async def execute_manual_function_test(self) -> None:
         """Submit a real or simulated test entry for FUNCTION_TEST_SYMBOL using live exchange state."""
@@ -98,11 +214,10 @@ class OrderService:
                 await self.notifier.send_error("MANUAL_FUNCTION_TEST_SYMBOL_MISSING", symbol=symbol)
             raise BinanceAPIError(f"function_test_symbol_missing {symbol}")
 
-        klines_1m = await self.exchange_client.get_klines(symbol, "1m", limit=2)
-        if len(klines_1m) < 2:
+        klines_1m = await self.exchange_client.get_klines(symbol, "1m", limit=1)
+        if len(klines_1m) < 1:
             raise BinanceAPIError(f"insufficient_klines symbol={symbol}")
         latest_1m = klines_1m[-1]
-        prev_1m = klines_1m[-2]
         current_1m = Kline(
             symbol=symbol,
             interval="1m",
@@ -121,7 +236,7 @@ class OrderService:
             triggered=True,
             reason="manual_function_test",
             metrics={"mode": "manual_function_test"},
-            stop_reference_low=Decimal(str(prev_1m[3])),  # 上一根已完成 K 線的 low
+            stop_reference_low=current_1m.low_price,
             current_price=current_1m.close_price,
         )
         bar_key = f"manual:{symbol}:{int(utc_now().timestamp())}"
@@ -352,33 +467,74 @@ class OrderService:
             self.logger.error("[BLOCKED] missing stop reference low symbol=%s", symbol)
             return False
 
-        quantity = market_order.get("origQty") or market_order.get("executedQty")
-        if not quantity:
-            self.logger.error("[BLOCKED] missing quantity in market order symbol=%s", symbol)
-            return False
-
-        limit_price = stop_price - Decimal("1")
-
+        client_order_id = f"stop_{symbol.lower()}_{int(utc_now().timestamp())}"
         try:
-            stop_order = await self.exchange_client.create_order(
+            stop_order = await self.exchange_client.create_algo_order(
                 {
+                    "algoType": "CONDITIONAL",
                     "symbol": symbol,
                     "side": "SELL",
                     "positionSide": "LONG",
-                    "type": "STOP_LOSS_LIMIT",
-                    "stopPrice": decimal_to_str(stop_price),
-                    "price": decimal_to_str(limit_price),
-                    "quantity": str(quantity),
-                    "timeInForce": "GTC",
-                    "workingType": "CONTRACT_PRICE",
-                    "newClientOrderId": f"stop_{symbol.lower()}_{int(utc_now().timestamp())}",
+                    "type": "STOP_MARKET",
+                    "triggerPrice": decimal_to_str(stop_price),
+                    "workingType": self.settings.stop_working_type,
+                    "closePosition": "true",
+                    "clientAlgoId": client_order_id,
                 }
             )
-            self.logger.info("native stop order placed symbol=%s stop_price=%s limit_price=%s order_id=%s", symbol, stop_price, limit_price, stop_order.get("orderId"))
+            quantity = Decimal(str(market_order.get("executedQty") or market_order.get("origQty") or "0"))
+            entry_price = Decimal(str(market_order.get("avgPrice") or decision.current_price or "0"))
+            tracker = NativeStopTracker(
+                symbol=symbol,
+                client_order_id=client_order_id,
+                algo_id=str(stop_order.get("algoId", "")),
+                stop_price=stop_price,
+                quantity=quantity,
+                working_type=self.settings.stop_working_type,
+                entry_price=entry_price,
+            )
+            self._active_native_stops[symbol] = tracker
+            self.logger.info(
+                "native stop algo order placed symbol=%s trigger_price=%s algo_id=%s",
+                symbol,
+                stop_price,
+                stop_order.get("algoId"),
+            )
+            if self.notifier is not None:
+                await self.notifier.send_trade(
+                    "STOP_ORDER_SUCCESS",
+                    symbol=symbol,
+                    side="SELL",
+                    quantity=quantity,
+                    entry_price=entry_price,
+                    stop_price=stop_price,
+                    working_type=self.settings.stop_working_type,
+                    order_id=stop_order.get("algoId"),
+                    details={"client_order_id": client_order_id},
+                )
             return True
         except Exception as exc:
             self.logger.error("native stop order failed symbol=%s stop_price=%s error=%s", symbol, stop_price, exc)
             return False
+
+    async def _get_current_long_quantity(self, symbol: str) -> Decimal:
+        payload = await self.exchange_client.get_position_risk(symbol)
+        for item in payload:
+            if item.get("symbol") != symbol:
+                continue
+            if item.get("positionSide") != "LONG":
+                continue
+            quantity = Decimal(str(item.get("positionAmt", "0")))
+            if quantity > Decimal("0"):
+                return quantity.copy_abs()
+        return Decimal("0")
+
+    async def _find_order_by_client_id(self, symbol: str, client_order_id: str) -> dict | None:
+        orders = await self.exchange_client.get_all_orders(symbol, limit=20)
+        for order in reversed(orders):
+            if str(order.get("clientOrderId", "")) == client_order_id:
+                return dict(order)
+        return None
 
     @staticmethod
     def _extract_available_balance(account_info: dict) -> Decimal:

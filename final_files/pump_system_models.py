@@ -176,3 +176,15 @@ class FallbackStopRecord:
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+
+
+@dataclass(slots=True)
+class NativeStopTracker:
+    symbol: str
+    client_order_id: str
+    algo_id: str
+    stop_price: Decimal
+    quantity: Decimal
+    working_type: str
+    entry_price: Decimal
+    missing_reported: bool = False

@@ -55,11 +55,28 @@ class FallbackStopManager:
 
     async def load_existing(self) -> None:
         rows = await self.csv_state.load_rows()
-        self.records = {
+        restored = {
             record.symbol: record
             for record in (FallbackStopRecord.from_row(row) for row in rows)
             if record.active
         }
+        if not restored or not self.exchange_client.has_private_api:
+            self.records = restored
+            self.logger.info("restored fallback stops active=%s", len(self.records))
+            return
+
+        await self.position_state.refresh()
+        active_records: dict[str, FallbackStopRecord] = {}
+        for symbol, record in restored.items():
+            if self.position_state.get_quantity(symbol) > Decimal("0"):
+                active_records[symbol] = record
+                continue
+            record.active = False
+            record.status = "POSITION_ALREADY_CLOSED"
+            record.updated_at = utc_now()
+            await self.csv_state.upsert_row("symbol", record.to_row())
+            self.logger.info("fallback stop removed on restore symbol=%s reason=no_position", symbol)
+        self.records = active_records
         self.logger.info("restored fallback stops active=%s", len(self.records))
 
     async def activate(self, record: FallbackStopRecord) -> None:
@@ -169,7 +186,6 @@ class FallbackStopManager:
                         "positionSide": "LONG",
                         "type": "MARKET",
                         "quantity": decimal_to_str(quantity),
-                        "reduceOnly": "true",
                         "newClientOrderId": f"fallback_{record.symbol.lower()}_{attempt}",
                     }
                 )

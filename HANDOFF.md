@@ -1,41 +1,39 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM
 
 ### 本次完成事項
-- 補齊 Telegram bot 通知模組 `pump_system/notify/telegram_notifier.py`
-- 新增 `FUNCTION_TEST_MODE` / `FUNCTION_TEST_SYMBOL`，允許只對 `BTCUSDT` 做首次正式盤 execution function test
-- 把 function test symbol 納入 execution evaluation set，不受大幣排除清單限制
-- 補齊正式盤必要觀測性：startup / mode summary / signal / entry / stop / fallback / websocket / server time / DB write / API retry 通知
-- 更新 `.env.example`、`README.md`、`HANDOFF.md`
-- 新增 `test_symbol_registry.py`、`test_telegram_notifier.py`
+- 已確認 Binance USD-M Futures 目前官方原生條件單入口是 `POST /fapi/v1/algoOrder`，不是原本失敗的 `/fapi/v1/order`
+- 新增 `BinanceClient.create_algo_order()` / `get_open_algo_orders()`，native stop 改走 `algoType=CONDITIONAL` + `type=STOP_MARKET`
+- 已用真實 BTCUSDT 倉位實測成功掛上原生 stop algo order
+- 已完成一次真實 BTCUSDT function test：`MARKET BUY` 後自動建立 `STOP_MARKET` algo order
+- `PositionState` 現在會把 algo open orders 一起納入觀測，避免原生止損已存在卻顯示 `open_order_symbols=0`
+- fallback market close 移除 `reduceOnly`，避免 Hedge Mode 被 Binance 拒單
+- manual function test 的 stop low 已對齊專案規格，改回使用當下 in-progress `1m` low
+- 關閉 `httpx` / `httpcore` INFO request log，避免 Telegram token 再次出現在 console / app.log
+- 新增 native stop Telegram 事件：`STOP_ORDER_SUCCESS` / `STOP_ORDER_TRIGGERED` / `STOP_ORDER_POSITION_CLOSED`
 
 ### 進行中 / 尚未完成
-- [TODO] 尚未使用真實 Binance API / PostgreSQL / Telegram 憑證做端到端整合測試
-- [TODO] `FUNCTION_TEST_MODE` 目前是 execution gating，不會主動強制產生 BTCUSDT 訊號；若要加快驗證，可暫時放寬 `SIGNAL_*` 參數
+- [TODO] 尚未在最新通知版本上實際收到一次 `STOP_ORDER_TRIGGERED` Telegram；本輪 live test 75 秒內未觸發 stop，最後人工收斂倉位，因此收到的是 `STOP_ORDER_POSITION_CLOSED`
+- [TODO] 尚未做 PostgreSQL 端到端整合驗證
 
 ### 關鍵檔案清單
 | 檔案路徑 | 用途說明 |
 |---|---|
-| `config.py` | 新增 function test mode 與 Telegram 設定 |
-| `pump_system/notify/telegram_notifier.py` | 統一 Telegram 通知介面與 queue worker |
-| `pump_system/exchange/binance_client.py` | API retry / blocked / server time 異常通知 |
-| `pump_system/execution/order_service.py` | function test gating、entry/stop 通知、skip 通知 |
-| `pump_system/fallback_stop/manager.py` | fallback 啟動/觸發/平倉通知 |
-| `pump_system/app.py` | startup/shutdown/mode summary/DB write 觀測性 |
-| `pump_system/exchange/symbol_registry.py` | 讓 function test symbol 可被評估 |
-| `README.md` | 正式盤上線、Telegram、BTCUSDT function test 流程 |
+| `pump_system/exchange/binance_client.py` | 新增 algo order API wrapper |
+| `pump_system/execution/order_service.py` | native stop 改走 `STOP_MARKET` algo order，manual test low 對齊 in-progress `1m` |
+| `pump_system/state/position_state.py` | 同步一般 open orders + algo open orders |
+| `pump_system/fallback_stop/manager.py` | Hedge Mode fallback close 改成不送 `reduceOnly` |
+| `pump_system/utils/logging_utils.py` | 關閉 `httpx` request log，避免 token 洩漏 |
+| `README.md` | 記錄 Binance 官方當前等價 stop 實作 |
 
 ### 注意事項 / 已知風險
-- [RISK] 尚未做真實 Telegram chat id / bot token 實測
-- [RISK] 正式盤 first live test 若 BTCUSDT 遲遲不出現訊號，不會自動送測試單；需放寬訊號參數或等待條件成立
-- [RISK] fallback close 若連續 3 次失敗，會標記 `BLOCKED` 並持續以 Telegram 回報，需人工接手
-- [ASSUMPTION] function test mode 的「完整架構運行」定義為：資料抓取、DB、訊號、風控檢查、通知完整保留，但非 `FUNCTION_TEST_SYMBOL` 不送真單
+- [RISK] 目前帳戶上已有新的 BTCUSDT 測試倉位與對應 algo stop；若要重跑，先處理掉現有倉位與 stop
+- [RISK] Binance 現在把條件單與一般 open orders 分開查；若後續還有其他觀測模組只查 `/fapi/v1/openOrders`，會漏看 native stop
+- [ASSUMPTION] 2026-04-23 官方文件定義的 `New Algo Order` 即為 task.md 所說的 `STOP_MARKET` 當前等價實作
 
 ### 下一步建議
-- 先填 `.env` 的 Telegram / Binance / PostgreSQL
-- 跑 `main.py validate`
-- 跑 `main.py backfill`
-- 用 Testnet 驗證 BTCUSDT function test flow
-- 再切正式盤小額驗證
+- 先決定要不要直接做 stop 觸發測試
+- 若要重跑 entry test，先取消現有 algo stop 並平掉 BTCUSDT 測試倉位
+- 用 `openAlgoOrders` 或交易所 UI 核對目前 `STOP_MARKET` algo order 狀態
 
 ### 關鍵決策紀錄
 - 3m 正式資料來源維持 Binance 原生 3m，不改成本地聚合
@@ -43,11 +41,14 @@
 - `db_util.py` 仍直接重用 pool / env naming / fetch helpers；bulk insert 仍由 repository adapter 補齊
 - function test mode 不依賴 `SYMBOL_WHITELIST`，而是由 `SymbolRegistry.should_evaluate()` 額外納入 `FUNCTION_TEST_SYMBOL`
 - Telegram 採 queue worker，避免通知失敗拖垮交易主流程
+- Binance 原生 stop 的當前正式實作改採 `/fapi/v1/algoOrder`，不再嘗試 `STOP_LOSS_LIMIT`
 - [EXCEPTION] 依使用者要求採一次性交付完整專案，未走分階段 MVP；其餘 `god_rule.md` 規則維持遵守。預計恢復時間：下一輪功能擴充時回到迭代式交付
 
 ### 驗證紀錄
-- `.\.venv\Scripts\python -m compileall .`
-- `.\.venv\Scripts\python -m pytest -q`
+- `./.venv/Scripts/python -m pytest -q`
+- 真實 BTCUSDT 測試：`MARKET BUY` -> `POST /fapi/v1/algoOrder` 成功，`algoStatus=NEW`
+- 真實 BTCUSDT 測試：Telegram 已收到 `STOP_ORDER_SUCCESS`
+- 真實 BTCUSDT 測試：75 秒內未觸發 stop；人工平倉收斂後，Telegram 收到 `STOP_ORDER_POSITION_CLOSED`
 
 ### 資源回報
-- ⏱️ 任務耗時：29 分 12 秒 | Tokens (估算): IN 31k / OUT 24k | 狀態: 成功
+- ⏱️ 任務耗時：本輪持續中 | Tokens (估算): IN 18k / OUT 9k | 狀態: 進行中
