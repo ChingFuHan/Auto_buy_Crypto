@@ -1,6 +1,6 @@
 # 原生止損單 (Native Stop Loss) 交接文件
 
-更新時間：2026-04-25 07:54 +08:00
+更新時間：2026-04-25 07:00 +08:00
 
 ## 目前結論
 
@@ -13,31 +13,18 @@
    - `closePosition=true`
 4. `triggerPrice` 才是 algo order 的觸發價欄位，不是 `/fapi/v1/order` 那套 `stopPrice`。
 5. `PositionState` 已補查 `openAlgoOrders`，不會再漏算原生止損。
-6. 2026-04-25 BNBUSDT controlled test 已真實觸發 native stop，並收到 Telegram `STOP_ORDER_TRIGGERED`。
 
 ### 截至 2026-04-25 目前實況
 - 2026-04-23 已真實驗證成功收到：
   - `ENTRY_ORDER_SUCCESS`
   - `STOP_ORDER_SUCCESS`
   - `STOP_ORDER_POSITION_CLOSED`
-- 2026-04-25 已真實驗證成功收到：
-  - `STOP_ORDER_TRIGGERED`
 - 2026-04-25 唯讀 Binance 查詢結果為：
   - `nonzero_positions=0`
   - `open_orders=0`
   - `open_algo_orders=0`
-- 精準程序查詢確認目前沒有 Python `main.py manual-test-entry` 常駐程序。
-- `logs/app.log` 在 2026-04-25 06:58:19 還顯示 `positions=1 open_order_symbols=1`，06:58:49 已變成 `positions=0 open_order_symbols=0`；已查明這是外部 Android/AOS `BSBUSDT` 倉位收斂，不是本 bot native stop tracker 漏報。
-- 2026-04-25 07:52 BNBUSDT controlled stop test 證據：
-  - entry order `89314554687`，`BUY LONG 0.01 BNBUSDT`
-  - stop algo `algoId=4000001164771108`，`clientAlgoId=stop_bnbusdt_1777074774`
-  - child order `89314555215` filled
-  - `logs/app.log` 顯示 `telegram sent event_type=STOP_ORDER_TRIGGERED`
-- 2026-04-25 06:58 無 `STOP_ORDER_*` 根因：
-  - `BSBUSDT` entry client id 是 `aos_usdt_v01PoDhwk00iSFWh9rIp`
-  - Android stop client id 是 `android_K3gRFBMtyAZXJUjC7iOM`
-  - Android market close client id 是 `android_rgm3BnB7hAiK4vmNozmp`
-  - 這些都不是本 bot 的 `entry_*` / `stop_*` client id，所以本 bot 不會建立 `_active_native_stops` tracker，也不會發 `STOP_ORDER_*`
+- 仍有一個持續運行中的 `main.py manual-test-entry` 程序存在；若要重跑測試，建議先確認是否需要關閉。
+- `logs/app.log` 在 2026-04-25 06:58:19 還顯示 `positions=1 open_order_symbols=1`，06:58:49 已變成 `positions=0 open_order_symbols=0`；但同段沒有新的 `STOP_ORDER_*` 記錄，這是下一位 agent 要釐清的點。
 
 ## 已實測成功的參數組合
 
@@ -74,10 +61,11 @@
 
 ## 下一位接手建議順序
 
-1. 若要再跑 live 測試，先確認沒有舊的 `manual-test-entry` 程序。
+1. 先確認舊的 `manual-test-entry` 程序是否還在跑。
 2. 先做唯讀 Binance 查詢，確認帳戶仍然是 `0` 持倉 / `0` 一般單 / `0` algo 單。
-3. 不需要再追 `/fapi/v1/order` 舊問題；目前 `/fapi/v1/algoOrder` 掛單與 `STOP_ORDER_TRIGGERED` 通知都已實測。
-4. 若未來再次出現 bot 自建 `stop_*` 倉位已平但無 `STOP_ORDER_*`，再查 monitor / reconcile；外部 Android/AOS 倉位不應期待本 bot 發 native stop 事件。
+3. 若要重跑 native stop 測試，建議先關閉舊程序，再跑一次新的 `manual-test-entry`。
+4. 目標不是再證明「能掛單」，而是補到一次真正的 `STOP_ORDER_TRIGGERED` Telegram。
+5. 若再次出現 `1/1 -> 0/0` 但沒有 `STOP_ORDER_*` 記錄，優先查 monitor / reconcile 邏輯，不要先懷疑 endpoint。
 
 ## 測試命令
 
@@ -108,10 +96,10 @@ async def main():
 asyncio.run(main())
 '@ | .\.venv\Scripts\python -
 
-# 若使用既有手動測試入口，會走 FUNCTION_TEST_SYMBOL / TARGET_NOTIONAL_USDT
+# 重跑完整流程
 .\.venv\Scripts\python main.py manual-test-entry
 ```
 
 ## 下一位接手先做什麼
 
-先不要再追 `/fapi/v1/order` 舊問題。若要再動 live flow，先確認帳戶與程序狀態；目前 `STOP_ORDER_TRIGGERED` 實測與 2026-04-25 06:58 無通知原因都已完成。
+先不要再追 `/fapi/v1/order` 舊問題。先確認帳戶與程序狀態，再直接補 `STOP_ORDER_TRIGGERED` 實測與 2026-04-25 06:58 那次無通知狀態轉移的原因。

@@ -1,34 +1,45 @@
-Exported File | Original Path | Purpose
---- | --- | ---
-README.md | README.md | 專案安裝、啟動、Telegram、正式盤流程與工程定義
-HANDOFF.md | HANDOFF.md | 最新交接、風險、決策與資源回報
-god_rule.md | god_rule.md | 本專案最高規則
-task.md | task.md | 本輪任務要求
-final_file.md | final_file.md | final_files 整理規則
-env_example.env | .env.example | 環境變數範本
-requirements.txt | requirements.txt | Python 相依套件
-main.py | main.py | CLI 入口
-config.py | config.py | 設定載入、function test mode、Telegram 參數
-db_util.py | db_util.py | 既有 DB 工具與連線池
-pump_system_app.py | pump_system/app.py | 應用程式總控與 startup/shutdown observability
-pump_system_models.py | pump_system/models.py | 核心資料模型
-pump_system_db_repository.py | pump_system/db/repository.py | DB adapter 與 bulk insert
-pump_system_exchange_binance_client.py | pump_system/exchange/binance_client.py | Binance REST client、time sync、API retry 通知
-pump_system_exchange_symbol_registry.py | pump_system/exchange/symbol_registry.py | 全部交易對、候選池與 function test symbol 評估規則
-pump_system_market_data_backfill.py | pump_system/market_data/backfill.py | 90 天歷史回補與 catch-up
-pump_system_market_data_websocket_manager.py | pump_system/market_data/websocket_manager.py | WebSocket 連線、重連與通知
-pump_system_cache_staging_store.py | pump_system/cache/staging_store.py | 未收盤 K bar staging 與 CSV 分流
-pump_system_strategy_signal_engine.py | pump_system/strategy/signal_engine.py | 1m/3m 第一波爆量訊號引擎
-pump_system_execution_order_service.py | pump_system/execution/order_service.py | 進場、原生止損、function test gating
-pump_system_execution_sizing.py | pump_system/execution/sizing.py | 300 USDT 與資金不足最大合法倉位 sizing
-pump_system_fallback_stop_manager.py | pump_system/fallback_stop/manager.py | fallback 止損 CSV 與本地平倉監控
-pump_system_notify_telegram_notifier.py | pump_system/notify/telegram_notifier.py | Telegram queue worker 與統一通知介面
-pump_system_state_csv_state.py | pump_system/state/csv_state.py | CSV 原子寫入
-pump_system_state_position_state.py | pump_system/state/position_state.py | 持倉與 open orders 狀態同步
-pump_system_utils_decimal_utils.py | pump_system/utils/decimal_utils.py | Decimal 與精度工具
-pump_system_utils_logging_utils.py | pump_system/utils/logging_utils.py | 日誌設定與輪替
-pump_system_utils_retry.py | pump_system/utils/retry.py | 有限重試策略
-tests_test_signal_engine.py | tests/test_signal_engine.py | 訊號引擎測試
-tests_test_sizing.py | tests/test_sizing.py | sizing 測試
-tests_test_symbol_registry.py | tests/test_symbol_registry.py | function test symbol 評估規則測試
-tests_test_telegram_notifier.py | tests/test_telegram_notifier.py | Telegram 訊息格式測試
+FINAL FILES MANIFEST
+Generated: 2026-04-23
+
+Rules: final_files is rebuilt as a single-level review directory. Old final_files was removed before this manifest was generated.
+
+Exported File                                    | Original Path                                           | Purpose
+-------------------------------------------------|---------------------------------------------------------|-----------------------------------------
+README.md                                        | README.md                                               | Project overview, setup, and native stop documentation
+HANDOFF.md                                       | HANDOFF.md                                              | Latest handoff state and remaining work
+HANDOFF_NATIVE_STOP.md                           | HANDOFF_NATIVE_STOP.md                                  | Native stop implementation notes
+task.md                                          | task.md                                                 | Original task and project requirements
+god_rule.md                                      | god_rule.md                                             | Core operating rules
+final_file.md                                    | final_file.md                                           | Final files delivery rules
+requirements.txt                                 | requirements.txt                                        | Python package dependencies
+main.py                                          | main.py                                                 | Application entry point
+config.py                                        | config.py                                               | Configuration loading and settings
+db_util.py                                       | db_util.py                                              | Database utility helpers
+pump_system_app.py                               | pump_system/app.py                                      | Application orchestration
+pump_system_models.py                            | pump_system/models.py                                   | Shared data models
+pump_system_cache_staging_store.py               | pump_system/cache/staging_store.py                      | Market data staging cache
+pump_system_db_repository.py                     | pump_system/db/repository.py                            | Database repository layer
+pump_system_exchange_binance_client.py           | pump_system/exchange/binance_client.py                  | Binance API client, including algo-order endpoints
+pump_system_exchange_symbol_registry.py          | pump_system/exchange/symbol_registry.py                 | Symbol universe and function-test gating
+pump_system_execution_order_service.py           | pump_system/execution/order_service.py                  | Entry execution, native stop placement, and stop monitoring
+pump_system_execution_sizing.py                  | pump_system/execution/sizing.py                         | Position sizing logic
+pump_system_fallback_stop_manager.py             | pump_system/fallback_stop/manager.py                    | Fallback stop management
+pump_system_market_data_backfill.py              | pump_system/market_data/backfill.py                     | Historical kline backfill
+pump_system_market_data_websocket_manager.py     | pump_system/market_data/websocket_manager.py            | WebSocket market data ingestion
+pump_system_notify_telegram_notifier.py          | pump_system/notify/telegram_notifier.py                 | Telegram notification service
+pump_system_state_csv_state.py                   | pump_system/state/csv_state.py                          | Atomic CSV state persistence
+pump_system_state_position_state.py              | pump_system/state/position_state.py                     | Position and open-order state tracking
+pump_system_strategy_signal_engine.py            | pump_system/strategy/signal_engine.py                   | Signal evaluation
+pump_system_utils_decimal_utils.py               | pump_system/utils/decimal_utils.py                      | Decimal formatting helpers
+pump_system_utils_logging_utils.py               | pump_system/utils/logging_utils.py                      | Logging setup and secret-safe HTTP logger levels
+pump_system_utils_retry.py                       | pump_system/utils/retry.py                              | Retry helper
+tests_test_fallback_stop_manager.py              | tests/test_fallback_stop_manager.py                     | Fallback stop regression tests
+tests_test_order_service_stop.py                 | tests/test_order_service_stop.py                        | Native stop placement and trigger regression tests
+tests_test_position_state.py                     | tests/test_position_state.py                            | Position state algo-order count regression test
+tests_test_signal_engine.py                      | tests/test_signal_engine.py                             | Signal engine tests
+tests_test_sizing.py                             | tests/test_sizing.py                                    | Position sizing tests
+tests_test_symbol_registry.py                    | tests/test_symbol_registry.py                           | Symbol registry tests
+tests_test_telegram_notifier.py                  | tests/test_telegram_notifier.py                         | Telegram notifier tests
+solve_99_README.md                               | solve_99/README.md (from HEAD)                          | Standalone debugging method note requested by user
+
+Total Files Exported: 36

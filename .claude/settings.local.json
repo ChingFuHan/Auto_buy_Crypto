@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf \"C:\\\\Users\\\\User\\\\Documents\\\\Auto_buy_Crypto/final_files\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\User\\\\Documents\\\\Auto_buy_Crypto/final_files\")",
+      "Bash(cp README.md final_files/)",
+      "Bash(cp HANDOFF.md final_files/)",
+      "Bash(cp HANDOFF_NATIVE_STOP.md final_files/)",
+      "Bash(cp task.md final_files/)",
+      "Bash(cp god_rule.md final_files/)",
+      "Bash(cp pump_system/app.py final_files/pump_system_app.py)",
+      "Bash(cp pump_system/models.py final_files/pump_system_models.py)",
+      "Bash(cp pump_system/cache/staging_store.py final_files/pump_system_cache_staging_store.py)",
+      "Bash(cp pump_system/db/repository.py final_files/pump_system_db_repository.py)",
+      "Bash(cp pump_system/exchange/binance_client.py final_files/pump_system_exchange_binance_client.py)",
+      "Bash(cp tests/test_fallback_stop_manager.py final_files/tests_test_fallback_stop_manager.py)",
+      "Bash(cp tests/test_order_service_stop.py final_files/tests_test_order_service_stop.py)",
+      "Bash(cp tests/test_position_state.py final_files/tests_test_position_state.py)",
+      "Bash(cp tests/test_signal_engine.py final_files/tests_test_signal_engine.py)",
+      "Bash(cp tests/test_sizing.py final_files/tests_test_sizing.py)",
+      "Bash(cp snapshots/HANDOFF.md final_files/snapshots_HANDOFF.md)",
+      "Bash(cp snapshots/README.md final_files/snapshots_README.md)",
+      "Bash(cp snapshots/ROLLBACK.txt final_files/snapshots_ROLLBACK.txt)",
+      "Bash(cp snapshots/requirements.txt final_files/snapshots_requirements.txt)",
+      "Bash(cp \"snapshots/20260422_222122/god_rule.md\" final_files/snapshots_20260422_222122_god_rule.md)",
+      "Bash(cp *)"
+    ]
+  }
+}

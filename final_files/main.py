@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
         "command",
         nargs="?",
         default="run",
-        choices=("run", "backfill", "validate"),
+        choices=("run", "backfill", "validate", "manual-test-entry"),
         help="run service, backfill only, or validate wiring",
     )
     return parser
@@ -29,6 +29,9 @@ def main() -> None:
         return
     if args.command == "validate":
         asyncio.run(app.validate_only())
+        return
+    if args.command == "manual-test-entry":
+        asyncio.run(app.manual_test_entry())
         return
     asyncio.run(app.run())
 
