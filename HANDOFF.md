@@ -1,163 +1,81 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM
 
-更新時間：2026-04-25 07:54 +08:00
+更新時間：2026-04-26 05:08 +08:00
+
+## 本輪補充 (2026-04-26 交接 commit)
+
+### 本輪確認
+- 使用者已確認「近120資料已補齊」。
+- 當前共識下一步：先維持基線驗證，再進入 P1 `algo history fallback` 實作。
+
+### 下一步執行順序（鎖定）
+1. 跑 `tests/test_algo_fill_regression.py` 確認基線。
+2. 實作 `BinanceClient.get_historical_algo_orders()`。
+3. 在 `order_service` native stop reconcile 接入 history fallback。
+4. 將 `test_reconcile_triggered_via_algo_history_fallback` 從 `xfail` 推進為 pass。
+
+### 範圍約束
+- 本 commit 僅交接紀錄，不修改交易邏輯、`.env`、Binance 帳戶/API、DB 歷史資料表。
 
 ### 一句話現況
-- 核心架構已完成，原生止損已從舊的 `/fapi/v1/order` 修正為 `/fapi/v1/algoOrder`，主流程可跑。
-- 2026-04-25 已完成真實 BNBUSDT controlled stop test，確認 `MARKET BUY -> STOP_MARKET algo order -> native stop fill`，Telegram 已收到 `STOP_ORDER_TRIGGERED`。
-- 2026-04-25 已完成 PostgreSQL 端到端分流驗證，確認 in-progress 只進本地 CSV，finalized 1m/3m 進既有 DB 表。
-- 2026-04-25 重新核對後，單元測試為 `11 passed`，Binance 帳戶目前唯讀查詢為 `0` 非零持倉 / `0` 一般 open orders / `0` algo orders。
+- 原生止損正式路徑已改為 `/fapi/v1/algoOrder`，2026-04-25 BNBUSDT controlled stop test 已確認 `STOP_ORDER_TRIGGERED`。
+- PostgreSQL finalized / in-progress 分流已完成驗證；目前最主要未完項是 algo history fallback。
+- 2026-04-26 已完成 `HANDOFF.md` 熱區整理，完整舊內容已搬到 `HANDOFF_ARCHIVE.md`。
 
-### 本輪已重新確認的事實
-- `pump_system/` 主程式沒有新的未提交程式碼 diff；目前 git dirty 主要集中在既有 handoff / `final_files/` 匯出物與筆記檔。
-- 精準程序查詢確認目前沒有 Python `main.py manual-test-entry` 常駐程序。
-- 我用唯讀 Binance 查詢再次確認後，當下帳戶狀態確實是：
-  - `nonzero_positions=0`
-  - `open_orders=0`
-  - `open_algo_orders=0`
-- 2026-04-25 07:52 BNBUSDT controlled stop test：
-  - entry order `89314554687`，`BUY LONG 0.01 BNBUSDT`，avgPrice `636.50000`
-  - stop algo `algoId=4000001164771108`，`clientAlgoId=stop_bnbusdt_1777074774`，triggerPrice `636.490`
-  - native stop fill child order `89314555215`
-  - `logs/app.log` 顯示 `telegram sent event_type=STOP_ORDER_TRIGGERED`
-- PostgreSQL E2E 使用測試 symbol `E2ETSTUSDT`：
-  - in-progress 1m/3m 經 periodic flush 後只出現在 `data/inprogress_1m.csv` / `data/inprogress_3m.csv`，DB 仍為 0 筆
-  - finalized 1m/3m 經 `_flush_finalized_batches()` 後分別寫入 `public.semi_auto_price_future_1m` / `public.semi_auto_price_future_3m` 各 1 筆
-  - finalized 後 CSV 測試 rows 被移除，DB 測試 rows 已清理回 0 筆
-- 2026-04-25 06:58 的 `1/1 -> 0/0` 已查明：
-  - 實際 symbol 是 `BSBUSDT`
-  - 2026-04-24 16:45:32 有外部 `aos_usdt_...` client order 建立 `BUY LONG 349 BSBUSDT`
-  - 2026-04-24 16:45:53 有外部 Android `STOP_MARKET` closePosition stop，client id `android_K3gRFBMtyAZXJUjC7iOM`
-  - 2026-04-25 06:58:21 Android 市價減倉單 `orderId=420103041` / `clientOrderId=android_rgm3BnB7hAiK4vmNozmp` 成交，原 Android stop 同時被取消
-  - 因為這組倉位與 stop 不是本 bot 建立的 `entry_*` / `stop_*` tracker，bot 只有 position sync 看到 `1/1 -> 0/0`，不會產生新的 `STOP_ORDER_*` log
-- `data/fallback_stop_state.csv` 目前只留下歷史紀錄，最新狀態是 `POSITION_ALREADY_CLOSED`，不是 active fallback。
+### 本次完成事項
+- 建立 `HANDOFF_ARCHIVE.md`，完整保存整理前的 `HANDOFF.md` 全文。
+- 將 `HANDOFF.md` 重寫為熱區摘要，移除重複段落與過期 metadata。
+- 建立整理前快照：`/home/xiaohan/.copilot/session-state/98e3f459-54f5-4a55-a214-f6ba0bb9ca08/files/handoff-backups/HANDOFF.pre-archive.20260426-0500.md`
 
-### 已完成事項
-- 已確認 Binance USD-M Futures 目前官方原生條件單入口是 `POST /fapi/v1/algoOrder`，不是原本失敗的 `/fapi/v1/order`。
-- 已新增 `BinanceClient.create_algo_order()` / `get_open_algo_orders()`，native stop 改走 `algoType=CONDITIONAL` + `type=STOP_MARKET`。
-- 已用真實 BTCUSDT 倉位實測成功掛上原生 stop algo order。
-- 已完成至少一次真實 BTCUSDT function test：`MARKET BUY` 後自動建立 `STOP_MARKET` algo order。
-- `PositionState` 現在會把 algo open orders 一起納入觀測，避免原生止損已存在卻顯示 `open_order_symbols=0`。
-- fallback market close 已移除 `reduceOnly`，避免 Hedge Mode 被 Binance 拒單。
-- manual function test 的 stop low 已對齊專案規格，改回使用當下 in-progress `1m` low。
-- 已關閉 `httpx` / `httpcore` INFO request log，避免 Telegram token 再次出現在 console / `app.log`。
-- 已新增 native stop Telegram 事件：
-  - `STOP_ORDER_SUCCESS`
-  - `STOP_ORDER_TRIGGERED`
-  - `STOP_ORDER_POSITION_CLOSED`
-- 已用 BNBUSDT controlled test 實際收到 `STOP_ORDER_TRIGGERED` Telegram。
-- 已完成 PostgreSQL E2E 分流驗證，並清理測試 rows。
-- 已釐清 2026-04-25 06:58 無 `STOP_ORDER_*` 的原因是外部 Android/AOS BSBUSDT 倉位收斂，不是本 bot native stop monitor 漏報。
-- 已補齊回歸測試：
-  - native stop 走 algo endpoint
-  - native stop trigger 通知
-  - algo order 計入 position state
-  - fallback stale state 清理
-
-### 目前真正還沒完成的事
-- 暫無本輪 blocker。下一步若要擴充，建議補一個不打實盤、但覆蓋 algo history 查詢欄位的 integration-style regression test，避免未來 Binance response 變動時漏掉 native stop fill 判斷。
-
-### 下一位 agent 應先做什麼
-1. 若要再做實盤測試，仍先查程序與 Binance 帳戶狀態，確認 `0` 持倉 / `0` 一般單 / `0` algo 單。
-2. 若要長時間跑主程式，先確認使用者是否允許 live production mode 繼續交易。
-3. 若要改 native stop monitor，保留目前已實測成功的 `/fapi/v1/algoOrder` 路徑與 `STOP_ORDER_TRIGGERED` Telegram 行為。
-
-### 建議的第一批命令
-
-```powershell
-# 1. 查目前是否還有舊的 manual-test-entry 常駐程序
-Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*main.py manual-test-entry*' } | Select-Object ProcessId, CommandLine
-
-# 2. 重新跑單元測試
-.\.venv\Scripts\python -m pytest -q
-
-# 3. 唯讀查 Binance 帳戶狀態
-@'
-import asyncio
-from config import load_settings
-from pump_system.exchange.binance_client import BinanceClient
-
-async def main():
-    client = BinanceClient(load_settings())
-    try:
-        positions = await client.get_position_risk()
-        open_orders = await client.get_open_orders()
-        open_algo = await client.get_open_algo_orders(algo_type='CONDITIONAL')
-        nonzero = [p for p in positions if abs(float(p.get('positionAmt', '0') or 0)) > 0]
-        print({'nonzero_positions': len(nonzero), 'open_orders': len(open_orders), 'open_algo_orders': len(open_algo)})
-        print(nonzero[:5])
-    finally:
-        await client.close()
-
-asyncio.run(main())
-'@ | .\.venv\Scripts\python -
-
-# 4. 若決定重跑功能測試
-.\.venv\Scripts\python main.py manual-test-entry
-
-# 5. 若要做 DB / wiring 驗證
-.\.venv\Scripts\python main.py validate
-.\.venv\Scripts\python main.py backfill
-```
+### 進行中 / 尚未完成
+- [TODO] `tests/test_algo_fill_regression.py::test_reconcile_triggered_via_algo_history_fallback` 仍為 `xfail`。
+- [TODO] 若實作 P1，需在 `pump_system/exchange/binance_client.py` 新增 `get_historical_algo_orders()`，並在 `pump_system/execution/order_service.py` 的 native stop reconcile 補上 algo history fallback。
+- [SKIP] P2 open orders 統一接口屬未來防禦；目前 `PositionState.refresh()` 已正確同時查一般 open orders 與 algo open orders，不是當前 bug。
 
 ### 關鍵檔案清單
 | 檔案路徑 | 用途說明 |
 |---|---|
-| `pump_system/exchange/binance_client.py` | algo order API wrapper，包含 `/fapi/v1/algoOrder` 與 `/fapi/v1/openAlgoOrders` |
-| `pump_system/execution/order_service.py` | entry、native stop 掛單、native stop monitor、manual function test |
-| `pump_system/state/position_state.py` | 同步一般 open orders + algo open orders |
-| `pump_system/fallback_stop/manager.py` | fallback stop CSV 狀態與本地平倉 |
-| `pump_system/app.py` | bootstrap、background tasks、DB flush、manual-test-entry 入口 |
-| `pump_system/utils/logging_utils.py` | 關閉高風險 HTTP request log |
-| `tests/test_order_service_stop.py` | native stop endpoint / trigger regression tests |
-| `tests/test_position_state.py` | algo order count regression test |
-| `README.md` | 記錄官方當前 stop 等價實作與 workingType 說明 |
-| `logs/app.log` | 真實流程與近期狀態變化的第一手證據 |
+| `HANDOFF_ARCHIVE.md` | 2026-04-26 前完整交接歷史；整理前全文已封存 |
+| `tests/test_algo_fill_regression.py` | algo fill fallback 的 xfail 測試與目標行為 |
+| `pump_system/exchange/binance_client.py` | algo order 相關 API wrapper；P1 需補 historical algo query |
+| `pump_system/execution/order_service.py` | native stop reconcile 與 `STOP_ORDER_TRIGGERED` 判定 |
+| `pump_system/state/position_state.py` | 目前已正確同時查一般 open orders + algo open orders |
+| `README.md` | 專案規格與 stop / data flow / Telegram / runbook 說明 |
 
 ### 注意事項 / 已知風險
-- [RISK] Binance 把條件單與一般 open orders 分開查；若後續還有其他觀測模組只查 `/fapi/v1/openOrders`，仍會漏看 native stop。
-- [RISK] 若 Binance 未來改變 algo trigger 後 child order 的 `clientOrderId` 對應方式，目前 `_find_order_by_client_id()` 可能需要改成同時查 `/fapi/v1/algoOrder` 的 `actualOrderId` / `actualQty` / `actualPrice` 欄位。
-- [ASSUMPTION] 2026-04-23 官方文件定義的 `New Algo Order` 即為 task.md 所說的 `STOP_MARKET` 當前等價實作。
+- [RISK] 若 Binance child order 的 `clientOrderId` 不再對齊原始 `clientAlgoId`，目前流程會降級成 `STOP_ORDER_POSITION_CLOSED`；P1 即是針對此情境補強。
+- [RISK] `BinanceClient.get_open_orders()` 目前不支援 `symbol` 參數；若之後做 P2，不可直接照舊 handoff 範例貼上。
+- [SKIP] 本輪只整理文件與交接，未碰交易邏輯、`.env`、Binance/API、DB。
+
+### 最近已確認基線
+- 2026-04-25：`python -m pytest -q` -> `18 passed, 1 xfailed`
+- 2026-04-25：BNBUSDT controlled stop test 成功，`MARKET BUY -> /fapi/v1/algoOrder STOP_MARKET -> native stop filled`
+- 2026-04-25：PostgreSQL E2E 確認 in-progress 只留 CSV、finalized 1m/3m 才進 DB
+- 2026-04-26：靜態核對確認 `PositionState.refresh()` 已同時查一般單與 algo 單，P2 不是當前 bug
+
+### 下一步建議
+1. 優先實作 P1 algo history fallback，移除 `xfail`，讓 stop fill 在 child order `clientOrderId` 改變時仍可準確確認。
+2. 若要做 P2，先修正 `get_open_orders(symbol=...)` 設計，再補 README 的 unified open-orders 指引。
+3. 繼續保留 `/fapi/v1/algoOrder` 與既有 `STOP_ORDER_TRIGGERED` Telegram 行為，不要回退舊路徑。
 
 ### 關鍵決策紀錄
-- 3m 正式資料來源維持 Binance 原生 3m，不改成本地聚合。
-- DB 僅存 finalized bars；in-progress bars 固定留在 `data/inprogress_1m.csv` / `data/inprogress_3m.csv`。
-- `db_util.py` 仍直接重用 pool / env naming / fetch helpers；bulk insert 仍由 repository adapter 補齊。
-- function test mode 不依賴 `SYMBOL_WHITELIST`，而是由 `SymbolRegistry.should_evaluate()` 額外納入 `FUNCTION_TEST_SYMBOL`。
-- Telegram 採 queue worker，避免通知失敗拖垮交易主流程。
-- Binance 原生 stop 的正式實作改採 `/fapi/v1/algoOrder`，不再嘗試 `STOP_LOSS_LIMIT`。
-- [EXCEPTION] 依使用者要求採一次性交付完整專案，未走分階段 MVP；其餘 `god_rule.md` 規則維持遵守。預計恢復時間：下一輪功能擴充時回到迭代式交付。
-
-### 驗證紀錄
-- 2026-04-25：`.\.venv\Scripts\python -m pytest -q` -> `11 passed`
-- 2026-04-25：精準程序查詢確認沒有 Python `main.py manual-test-entry` 常駐程序
-- 2026-04-25：唯讀 Binance 查詢確認 `0` 非零持倉 / `0` 一般 open orders / `0` algo orders
-- 2026-04-25：BNBUSDT controlled stop test `BUY LONG 0.01 -> /fapi/v1/algoOrder STOP_MARKET -> native stop filled`，Telegram 收到 `STOP_ORDER_TRIGGERED`
-- 2026-04-25：PostgreSQL E2E 使用 `E2ETSTUSDT` 確認 in-progress 只進 CSV、finalized 1m/3m 寫入 DB 後清理回 0 筆
-- 2026-04-25：查明 06:58 `1/1 -> 0/0` 是外部 Android/AOS `BSBUSDT` 倉位收斂，不是本 bot stop tracker 漏報
-- 2026-04-23：真實 BTCUSDT 測試 `MARKET BUY` -> `POST /fapi/v1/algoOrder` 成功，`algoStatus=NEW`
-- 2026-04-23：Telegram 已收到 `STOP_ORDER_SUCCESS`
-- 2026-04-23：75 秒內未觸發 stop；人工平倉收斂後，Telegram 收到 `STOP_ORDER_POSITION_CLOSED`
-
-### 目前工作樹狀態
-- `git status` 當下 dirty 項目如下：
-  - `M HANDOFF.md`
-  - `M HANDOFF_NATIVE_STOP.md`
-  - `M final_files/HANDOFF.md`
-  - `M final_files/MANIFEST.txt`
-  - `D final_files/env_example.env`
-  - `M final_files/main.py`
-  - `D solve_99/README.md`
-  - `?? .claude/`
-  - `?? Fix Leverage Bracket Error.txt`
-  - `?? final_files/HANDOFF_NATIVE_STOP.md`
-  - `?? final_files/solve_99_README.md`
-- 我檢查時 `pump_system/` 主程式本體沒有未提交 diff；本輪沒有改程式碼。
-
-### 可直接轉貼給下個 agent 的話
-「請先讀 `HANDOFF.md` 和 `HANDOFF_NATIVE_STOP.md`。原生止損根因已查完並修成 `/fapi/v1/algoOrder`，且 2026-04-25 BNBUSDT controlled test 已實際收到 `STOP_ORDER_TRIGGERED` Telegram。PostgreSQL E2E 已確認 finalized / in-progress 分流正常。2026-04-25 06:58 的 `1/1 -> 0/0` 是外部 Android/AOS `BSBUSDT` 倉位收斂，不是本 bot `stop_*` tracker 漏報。若要再測實盤，請先確認沒有 `main.py manual-test-entry` 常駐程序，並用唯讀查詢確認 Binance 帳戶仍是 `0` 持倉 / `0` 一般單 / `0` algo 單。」
+- 原生 stop 的正式實作固定走 Binance `/fapi/v1/algoOrder`，不再回退 `/fapi/v1/order`。
+- DB 僅保存 finalized bars；in-progress bars 固定留在 `data/inprogress_1m.csv` / `data/inprogress_3m.csv`。
+- function test mode 仍只允許 `FUNCTION_TEST_SYMBOL` 真實下單，其餘 symbol 只做評估與通知。
+- `HANDOFF_ARCHIVE.md` 現在是完整歷史冷區；`HANDOFF.md` 僅保留最新熱區摘要。
 
 ### 資源回報
-- ⏱️ 任務耗時：本輪 controlled stop / PostgreSQL E2E / 06:58 調查與文件更新約 60 分鐘
-- Tokens (估算)：IN 35k / OUT 10k
-- 狀態：可交接，本輪指定驗證已完成
+- ⏱️ 任務耗時：估算 20 分鐘（文件整理 / 歸檔 / 熱區重寫）
+- 🪙 Tokens (估算)：平台未提供
+- 💰 狀態：成功
+
+---
+
+## 本輪 (2026-04-26) - Handoff 歸檔嚴格確認
+
+### 確認結論
+- 已靜態核對 `HANDOFF.md` / `HANDOFF_ARCHIVE.md` / pre-archive 快照 / P1 相關程式與測試；未跑 pytest、未連 Binance、未查 DB、未改交易邏輯與 `.env`。
+- `HANDOFF.md` 追加本段前 55 行，追加後仍低於 100 行，符合熱區摘要用途；`HANDOFF_ARCHIVE.md` 目前 495 行，已建立且包含舊 handoff 主要內容。
+- [RISK] `HANDOFF_ARCHIVE.md` 並非整理前快照的 byte-for-byte 原文附加：與 pre-archive 快照相比，多了幾個 Markdown code fence / whitespace 格式調整，舊內容語意大致保留，但嚴格來說不應描述為「完全原樣封存」。
+- P1 狀態仍正確：`get_historical_algo_orders()` 尚未在 `BinanceClient` 實作，`test_reconcile_triggered_via_algo_history_fallback` 仍為 strict xfail。
+- P2 判斷仍正確：目前 `PositionState.refresh()` 已同時查一般 open orders 與 algo open orders；`BinanceClient.get_open_orders()` 仍不支援 `symbol` 參數。
