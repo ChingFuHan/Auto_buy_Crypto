@@ -296,3 +296,80 @@
 - 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `18 passed, 1 xfailed`。
 - [SKIP] 未納入 runtime 產物與高風險檔：`*.log`、`*.pid`、`*.out`、`backfill_pid.txt`、`backfill_completion_monitor.sh`（含硬寫 DB password）、會直接操作帳戶/修改 `.env` 的臨時 shell script。
 - [RISK] `HANDOFF.md` 目前已超過熱區建議長度，且含上一輪 context 爆量紀錄；本輪為避免擴張 commit 任務，僅補最小交接紀錄，後續應另開任務將完整內容先附加到 `HANDOFF_ARCHIVE.md` 再整理熱區。
+
+## 本輪 (2026-04-27) - 正式小額實盤啟動
+
+- 使用者明確要求跳過 BTC dry-run，直接進正式小額實盤。
+- 已確認 `.env` 非機密開關：`TESTNET=false`、`STOP_WORKING_TYPE=CONTRACT_PRICE`、`TARGET_NOTIONAL_USDT=50`、`MAX_CONCURRENT_POSITIONS=1`、`STARTUP_BACKFILL_ENABLED=false`、`ENABLE_LIVE_TRADING=true`、`FUNCTION_TEST_MODE=false`。
+- 已確認 API / DB / Telegram 必要值存在但未輸出內容；未發現既有 `main.py run` 程序。
+- [RISK] 這是正式盤真實下單模式，可能產生真實虧損；BTCUSDT 依預設 `EXCLUDED_BIG_CAPS` 排除，且 function test mode 關閉後不會被特別加入測試池。
+- 啟動結果：第一次背景啟動 PID `11578` 未常駐；改用 `setsid nohup python3 main.py run` 後成功常駐，PID `11674`，stdout log：`logs/live_run_20260427_050208.log`。
+- 2026-04-27 05:02 +08:00：正式實盤已觸發 `SFPUSDT` 真實進場，`MARKET BUY` 成交 `139 SFPUSDT`，成交均價 `0.3597`，名目 `49.9983 USDT`；已掛原生 `STOP_MARKET` algo stop，`triggerPrice=0.3571`，`workingType=CONTRACT_PRICE`，`algoId=4000001175410215`。
+- 驗證：查詢 Binance position/open algo orders 顯示 `SFPUSDT` LONG 倉位仍存在，open algo stop 狀態 `NEW`，一般 open orders=0；程序 PID `11674` 仍在執行。
+- 2026-04-27 05:04 +08:00：`SFPUSDT` 原生止損已觸發，log 顯示 `native stop filled` 與 Telegram `STOP_ORDER_TRIGGERED`；再次查詢 Binance 後 `SFPUSDT positionAmt=0`、open algo count=0。PID `11674` 仍在執行，會依 `MAX_CONCURRENT_POSITIONS=1` 繼續等待下一個符合條件的訊號。
+- 2026-04-27 05:06 +08:00：使用者要求停止程式；已對 PID `11674` 發送 SIGTERM，確認 `python3 main.py run` 已停止，且未發現其他同類程序。未修改 `.env`、未刪除 log/pid 檔。
+- 2026-04-27 後續需求：[TODO] 使用者表示後續只需要把止損來源改成可人工切換：`in-progress low` 或「名目持倉金額的 50% 風險距離」兩種選擇，方便日後隨時人工調整；本輪僅記錄需求，尚未修改交易邏輯。
+
+## 本輪 (2026-04-27 05:18 +08:00) - 止損模式改為 .env 可調
+
+- 完成：新增 `.env` 可調止損價模式，預設維持既有 `IN_PROGRESS_3M_LOW`；可切到 `NOTIONAL_RISK_PCT`，並用 `STOP_NOTIONAL_RISK_PCT=0.50` 表示做多止損價約為成交均價的 50%；若 Binance 市價單回傳 `avgPrice=0`，會退回訊號當下價格估算止損與通知 entry price。
+- 修改檔案：`config.py`、`pump_system/execution/order_service.py`、`tests/test_order_service_stop.py`、`.env.example`、`README.md`、`HANDOFF.md`。
+- [SKIP] 未修改實際 `.env`，未啟動程式，未連 Binance，未查/寫 DB。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`git diff --check -- .env.example README.md config.py pump_system/execution/order_service.py tests/test_order_service_stop.py` -> pass；`python3 -m pytest -q` -> `21 passed, 1 xfailed`。
+- 注意：修改 `.env` 後必須重啟 `main.py run`，新止損模式才會生效。
+
+## 本輪 (2026-04-27 05:34 +08:00) - 多幣資金分配模式
+
+- 完成：新增 `POSITION_SIZING_MODE`，預設 `FIXED_NOTIONAL` 維持既有 `TARGET_NOTIONAL_USDT` 固定名目；新增 `BALANCE_SPLIT` 會用 `availableBalance * max_leverage / remaining_position_slots` 計算本次目標名目，適合 `MAX_CONCURRENT_POSITIONS=5` 時把可用保證金分配到最多 5 個幣。
+- 修改檔案：`config.py`、`pump_system/execution/order_service.py`、`pump_system/app.py`、`tests/test_order_service_stop.py`、`.env.example`、`README.md`、`HANDOFF.md`。
+- [SKIP] 未修改實際 `.env`，未啟動實盤程式，未連 Binance，未查/寫 DB；`main.py validate` 會 bootstrap 外部服務，本輪未執行。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`git diff --check -- .env.example README.md config.py pump_system/app.py pump_system/execution/order_service.py tests/test_order_service_stop.py` -> pass；`python3 -m pytest -q` -> `23 passed, 1 xfailed`；另用本地 `python3 -c` 驗證 `POSITION_SIZING_MODE=BALANCE_SPLIT MAX_CONCURRENT_POSITIONS=5` 與 `FIXED_NOTIONAL TARGET_NOTIONAL_USDT=50` 都能正確載入。
+- 建議設定：若要最多 5 幣並盡量分配可用保證金，用 `POSITION_SIZING_MODE=BALANCE_SPLIT` + `MAX_CONCURRENT_POSITIONS=5`；此模式下 `TARGET_NOTIONAL_USDT` 不再決定每筆目標名目。
+
+## 本輪 (2026-04-27 05:43 +08:00) - 使用者實盤 .env 設定確認
+
+- 使用者回報 `.env` 已改為正式盤真下單：`TESTNET=false`、`ENABLE_LIVE_TRADING=true`、`FUNCTION_TEST_MODE=false`、`POSITION_SIZING_MODE=FIXED_NOTIONAL`、`TARGET_NOTIONAL_USDT=50`、`MAX_CONCURRENT_POSITIONS=5`。
+- 使用者目前止損模式為 `STOP_PRICE_MODE=NOTIONAL_RISK_PCT`、`STOP_NOTIONAL_RISK_PCT=0.15`，代表做多止損價約為成交均價的 85%。
+- [RISK] 使用者貼出的說明文字 `要切換時改成：` 若直接存在 `.env`，應加 `#` 註解，避免 dotenv 解析不一致。
+
+## 本輪 (2026-04-27 05:50 +08:00) - 帳戶持倉唯讀觀察
+
+- 使用者表示程式已開始執行，要求僅觀察帳戶持倉是否屬實。
+- 完成：透過 Binance futures read-only 查詢確認正式盤目前有 5 個 LONG 持倉；`LIGHTUSDT`、`OPENUSDT`、`PIPPINUSDT`、`PROMUSDT` 有 open algo STOP_MARKET；`SFPUSDT` 有一般 open order STOP_MARKET，非 algo stop。
+- 2026-04-27 05:51 +08:00：使用者確認 `SFPUSDT` stop 為人工設置，後續可忽略其 stop 來源差異；但若 `SFPUSDT` 仍有持倉，仍計入 `MAX_CONCURRENT_POSITIONS`。
+- [SKIP] 未下單、未取消單、未改 `.env`、未停止程式、未查/寫 DB。
+
+## 本輪 (2026-04-27 05:52 +08:00) - .env 最大持倉數確認
+
+- 使用者要求直接讀取 `.env`，確認已改為最多 10 種幣。
+- 完成：僅讀取非機密交易開關，確認 `.env` 目前為 `MAX_CONCURRENT_POSITIONS=10`、`POSITION_SIZING_MODE=FIXED_NOTIONAL`、`TARGET_NOTIONAL_USDT=50`、`STOP_PRICE_MODE=NOTIONAL_RISK_PCT`、`STOP_NOTIONAL_RISK_PCT=0.20`。
+- 注意：若 `main.py run` 是修改 `.env` 前已啟動，需重啟後 `MAX_CONCURRENT_POSITIONS=10` 才會生效。
+
+## 本輪 (2026-04-27 06:01 +08:00) - 帳戶持倉與 Windows run log 對照
+
+- 使用者明確允許唯讀查詢幣安帳戶目前持倉，並提供 Windows `main.py validate` / `main.py run` 啟動日誌要求核對。
+- 完成：read-only 查詢確認目前正式盤為 4 個 LONG 持倉：`LIGHTUSDT`、`OPENUSDT`、`PIPPINUSDT`、`PROMUSDT`；目前一般 open order 為 0，open algo orders 為 4，與 Windows log 的 `position sync complete positions=4 open_order_symbols=4` 一致。
+- 完成：Windows log 內 `websocket connect symbols=200/200/135` 與 `symbol registry loaded data_symbols=535 candidate_symbols=528` 相互吻合，代表 535 個資料 symbol 已分 3 條 WS shard 啟動。
+- [RISK] `validate` 與 `run` 都出現 `telegram send exception event_type=SERVER_TIME_SYNC_OK`，但後續 `APP_STARTUP_SUCCESS`、`MODE_SUMMARY`、`LIVE_PRODUCTION_MODE` 仍成功送出；目前判斷為單一 Telegram 通知事件異常，非主交易流程啟動失敗。
+- [SKIP] 本輪未下單、未取消單、未改 `.env`、未停止 Windows 上正在跑的程式、未查/寫 DB。
+
+## 本輪 (2026-04-27 06:02 +08:00) - DB 停止更新疑問判讀
+
+- 使用者詢問「DB 目前停止更新是否代表 websocket 沒正常」；本輪僅做靜態程式流程與既有 log 判讀，未連 Windows 機器、未查/寫 DB、未停止程式。
+- 結論：目前不能直接把「DB 暫時沒新增 row」等同於「websocket 壞掉」。正式主線設計是 `x=false` 的 in-progress `3m` 只留 staging/CSV，`x=true` 的 finalized `3m` 才會進 DB，因此 DB 天生只會在 `3m` 收盤點附近新增資料。
+- 結論：從使用者貼的啟動 log 看，`websocket connect symbols=200/200/135` 正常，且沒有 `websocket reconnect` / `WEBSOCKET_RECONNECT_BLOCKED` / `db flush failed` 類錯誤；僅靠該片段不足以判定 WS 異常。
+- [RISK] 使用者貼的 console 片段未包含 `staging updated`、`finalized bar buffered`、`db flush complete` 三類關鍵訊息，因此目前只能下「暫無異常證據、但尚未直接證明 DB 正在持續寫入」的結論。
+
+## 本輪 (2026-04-27 06:07 +08:00) - 使用者手動清倉後重啟
+
+- 使用者表示將先手動把幣安倉位全部關閉，再依序於 Windows 執行 `main.py validate` 與 `main.py run`。
+- 這次重啟後，若帳戶與掛單都已清空，正常觀察值應接近 `position sync complete positions=0 open_order_symbols=0`；之後只要 websocket 正常收到新資料，仍會持續出現 `staging updated ... interval=3m`，到收盤點才會有 `finalized bar buffered` / `db flush complete`。
+- [SKIP] 本輪僅記錄使用者操作計畫，未遠端控制 Windows、未下單、未取消單、未改 `.env`、未查/寫 DB。
+
+## 本輪 (2026-04-27 06:18 +08:00) - 觀察前 commit
+
+- 使用者要求先將目前狀態 commit，後續以既有正式盤流程繼續觀察。
+- 快照：commit 前 `HEAD=2b3b2d72d4e4f2dc137e88dc38d4fe98903c497f`。
+- 納入 commit 的檔案範圍：`.env.example`、`README.md`、`config.py`、`pump_system/app.py`、`pump_system/execution/order_service.py`、`tests/test_order_service_stop.py`、`HANDOFF.md`。
+- 排除：`Auto_buy_Crypto.txt`、`Fix Leverage Bracket Error.txt`、`task.md`、`final_files/*`、backfill/log/pid/shell script 等 transcript、輸出物與 runtime 產物。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `23 passed, 1 xfailed`。

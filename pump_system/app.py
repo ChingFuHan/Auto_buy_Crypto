@@ -315,6 +315,7 @@ class TradingApplication:
                 "enable_live_trading": self.settings.enable_live_trading,
                 "function_test_mode": self.settings.function_test_mode,
                 "function_test_symbol": self.settings.function_test_symbol,
+                "position_sizing_mode": self.settings.position_sizing_mode,
                 "stop_working_type": self.settings.stop_working_type,
                 "max_concurrent_positions": self.settings.max_concurrent_positions,
                 "target_notional_usdt": self.settings.target_notional_usdt,

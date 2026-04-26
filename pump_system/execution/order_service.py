@@ -15,7 +15,7 @@ from pump_system.fallback_stop.manager import FallbackStopManager
 from pump_system.models import FallbackStopRecord, Kline, NativeStopTracker, SignalDecision, utc_now
 from pump_system.state.position_state import PositionState
 from pump_system.strategy.signal_engine import SignalEngine
-from pump_system.utils.decimal_utils import decimal_to_str
+from pump_system.utils.decimal_utils import decimal_to_str, floor_to_step
 
 if TYPE_CHECKING:
     from pump_system.notify.telegram_notifier import TelegramNotifier
@@ -256,13 +256,15 @@ class OrderService:
             return
 
         if self.notifier is not None:
+            signal_details = dict(decision.metrics)
+            signal_details["stop_price_mode"] = self.settings.stop_price_mode
             await self.notifier.send_info(
                 "SIGNAL_TRIGGERED",
                 symbol=symbol,
                 side="BUY",
                 entry_price=decision.current_price,
                 stop_price=decision.stop_reference_low,
-                details=decision.metrics,
+                details=signal_details,
             )
 
         await self.position_state.refresh_symbol(symbol)
@@ -320,11 +322,22 @@ class OrderService:
             if self.notifier is not None:
                 await self.notifier.send_error("AVAILABLE_BALANCE_MISSING", symbol=symbol, error_message=str(exc))
             raise
+        target_notional = self._resolve_target_notional(available_balance, max_leverage)
+        self.logger.info(
+            "target notional resolved symbol=%s mode=%s target_notional=%s available_balance=%s max_leverage=%s active_positions=%s max_positions=%s",
+            symbol,
+            self.settings.position_sizing_mode,
+            target_notional,
+            available_balance,
+            max_leverage,
+            self.position_state.active_position_count(),
+            self.settings.max_concurrent_positions,
+        )
         sizing = build_sizing_decision(
             symbol_info=symbol_info,
             price=decision.current_price or current_bar.close_price,
             available_balance=available_balance,
-            target_notional=self.settings.target_notional_usdt,
+            target_notional=target_notional,
             max_leverage=max_leverage,
         )
         self.logger.info("quantity plan symbol=%s result=%s", symbol, sizing)
@@ -344,6 +357,11 @@ class OrderService:
 
         if self.settings.function_test_mode and self.settings.enable_live_trading and symbol != self.settings.function_test_symbol:
             self._last_handled_bar[symbol] = bar_key
+            estimated_stop_price = self._resolve_stop_price(
+                symbol_info,
+                decision,
+                {"avgPrice": decimal_to_str(decision.current_price or current_bar.close_price), "executedQty": decimal_to_str(sizing.quantity)},
+            )
             self.logger.warning("[SKIP] function test mode blocked live order symbol=%s test_symbol=%s", symbol, self.settings.function_test_symbol)
             if self.notifier is not None:
                 await self.notifier.send_warning(
@@ -352,19 +370,29 @@ class OrderService:
                     side="BUY",
                     quantity=sizing.quantity,
                     entry_price=decision.current_price,
-                    stop_price=decision.stop_reference_low,
+                    stop_price=estimated_stop_price or decision.stop_reference_low,
                     working_type=self.settings.stop_working_type,
-                    details={"function_test_symbol": self.settings.function_test_symbol},
+                    details={
+                        "function_test_symbol": self.settings.function_test_symbol,
+                        "position_sizing_mode": self.settings.position_sizing_mode,
+                        "stop_price_mode": self.settings.stop_price_mode,
+                    },
                 )
             return
 
         if not self.settings.enable_live_trading:
             self._last_handled_bar[symbol] = bar_key
+            estimated_stop_price = self._resolve_stop_price(
+                symbol_info,
+                decision,
+                {"avgPrice": decimal_to_str(decision.current_price or current_bar.close_price), "executedQty": decimal_to_str(sizing.quantity)},
+            )
             self.logger.warning(
-                "[SKIP] live trading disabled; simulated entry symbol=%s qty=%s stop=%s leverage=%s used_max_affordable=%s",
+                "[SKIP] live trading disabled; simulated entry symbol=%s qty=%s stop=%s stop_price_mode=%s leverage=%s used_max_affordable=%s",
                 symbol,
                 sizing.quantity,
-                decision.stop_reference_low,
+                estimated_stop_price or decision.stop_reference_low,
+                self.settings.stop_price_mode,
                 sizing.leverage,
                 sizing.used_max_affordable,
             )
@@ -416,14 +444,25 @@ class OrderService:
                 )
             return
         self.logger.info("market entry success symbol=%s result=%s", symbol, market_order)
+        entry_price = self._resolve_entry_price(decision, market_order)
+        stop_price = self._resolve_stop_price(symbol_info, decision, market_order)
+        if stop_price is None:
+            raw_fallback_stop = decision.stop_reference_low or current_bar.low_price
+            stop_price = floor_to_step(raw_fallback_stop, symbol_info.tick_size)
+            self.logger.error(
+                "[RISK] configured stop price unavailable; falling back to in-progress 3m low symbol=%s fallback_stop=%s stop_price_mode=%s",
+                symbol,
+                stop_price,
+                self.settings.stop_price_mode,
+            )
         if self.notifier is not None:
             await self.notifier.send_trade(
                 "ENTRY_ORDER_SUCCESS",
                 symbol=symbol,
                 side="BUY",
                 quantity=sizing.quantity,
-                entry_price=market_order.get("avgPrice") or decision.current_price,
-                stop_price=decision.stop_reference_low,
+                entry_price=entry_price if entry_price > Decimal("0") else decision.current_price,
+                stop_price=stop_price,
                 order_id=market_order.get("orderId"),
                 details={
                     "used_max_affordable": sizing.used_max_affordable,
@@ -431,22 +470,24 @@ class OrderService:
                     "requested_notional": sizing.requested_notional,
                     "final_notional": sizing.final_notional,
                     "leverage": sizing.leverage,
+                    "position_sizing_mode": self.settings.position_sizing_mode,
+                    "stop_price_mode": self.settings.stop_price_mode,
                 },
             )
 
         self._last_handled_bar[symbol] = bar_key
-        stop_ok = await self._place_exchange_stop(symbol, decision, market_order)
+        stop_ok = await self._place_exchange_stop(symbol, decision, market_order, stop_price)
         if stop_ok:
             return
 
         fallback_record = FallbackStopRecord(
             symbol=symbol,
-            stop_price=decision.stop_reference_low or current_bar.low_price,
+            stop_price=stop_price,
             quantity=Decimal(str(market_order.get("executedQty", sizing.quantity))),
             working_type=self.settings.stop_working_type,
             active=True,
             status="ACTIVE",
-            entry_price=Decimal(str(market_order.get("avgPrice", decision.current_price))),
+            entry_price=entry_price,
             entry_order_id=str(market_order.get("orderId", "")),
             last_price=decision.current_price,
             retry_count=self.settings.stop_order_retry_count,
@@ -456,10 +497,16 @@ class OrderService:
         )
         await self.fallback_manager.activate(fallback_record)
 
-    async def _place_exchange_stop(self, symbol: str, decision: SignalDecision, market_order: dict) -> bool:
-        stop_price = decision.stop_reference_low
+    async def _place_exchange_stop(
+        self,
+        symbol: str,
+        decision: SignalDecision,
+        market_order: dict,
+        stop_price: Decimal | None = None,
+    ) -> bool:
+        stop_price = stop_price if stop_price is not None else decision.stop_reference_low
         if stop_price is None:
-            self.logger.error("[BLOCKED] missing stop reference low symbol=%s", symbol)
+            self.logger.error("[BLOCKED] missing stop price symbol=%s stop_price_mode=%s", symbol, self.settings.stop_price_mode)
             return False
 
         client_order_id = f"stop_{symbol.lower()}_{int(utc_now().timestamp())}"
@@ -478,7 +525,7 @@ class OrderService:
                 }
             )
             quantity = Decimal(str(market_order.get("executedQty") or market_order.get("origQty") or "0"))
-            entry_price = Decimal(str(market_order.get("avgPrice") or decision.current_price or "0"))
+            entry_price = self._resolve_entry_price(decision, market_order)
             tracker = NativeStopTracker(
                 symbol=symbol,
                 client_order_id=client_order_id,
@@ -505,12 +552,49 @@ class OrderService:
                     stop_price=stop_price,
                     working_type=self.settings.stop_working_type,
                     order_id=stop_order.get("algoId"),
-                    details={"client_order_id": client_order_id},
+                    details={
+                        "client_order_id": client_order_id,
+                        "stop_price_mode": self.settings.stop_price_mode,
+                    },
                 )
             return True
         except Exception as exc:
             self.logger.error("native stop order failed symbol=%s stop_price=%s error=%s", symbol, stop_price, exc)
             return False
+
+    @staticmethod
+    def _resolve_entry_price(decision: SignalDecision, market_order: dict) -> Decimal:
+        entry_price = Decimal(str(market_order.get("avgPrice") or "0"))
+        if entry_price <= Decimal("0") and decision.current_price is not None:
+            return decision.current_price
+        return entry_price
+
+    def _resolve_target_notional(self, available_balance: Decimal, max_leverage: int) -> Decimal:
+        if self.settings.position_sizing_mode == "FIXED_NOTIONAL":
+            return self.settings.target_notional_usdt
+        if self.settings.position_sizing_mode == "BALANCE_SPLIT":
+            active_positions = self.position_state.active_position_count()
+            remaining_slots = max(self.settings.max_concurrent_positions - active_positions, 1)
+            return (available_balance * Decimal(max_leverage)) / Decimal(remaining_slots)
+        self.logger.error("[BLOCKED] unsupported position sizing mode mode=%s", self.settings.position_sizing_mode)
+        return self.settings.target_notional_usdt
+
+    def _resolve_stop_price(self, symbol_info, decision: SignalDecision, market_order: dict) -> Decimal | None:
+        if self.settings.stop_price_mode == "IN_PROGRESS_3M_LOW":
+            raw_stop = decision.stop_reference_low
+        elif self.settings.stop_price_mode == "NOTIONAL_RISK_PCT":
+            entry_price = self._resolve_entry_price(decision, market_order)
+            if entry_price <= Decimal("0"):
+                return None
+            raw_stop = entry_price * (Decimal("1") - self.settings.stop_notional_risk_pct)
+        else:
+            self.logger.error("[BLOCKED] unsupported stop price mode mode=%s", self.settings.stop_price_mode)
+            return None
+
+        if raw_stop is None or raw_stop <= Decimal("0"):
+            return None
+        stop_price = floor_to_step(raw_stop, symbol_info.tick_size)
+        return stop_price if stop_price > Decimal("0") else None
 
     async def _get_current_long_quantity(self, symbol: str) -> Decimal:
         payload = await self.exchange_client.get_position_risk(symbol)

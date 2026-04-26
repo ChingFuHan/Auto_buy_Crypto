@@ -85,10 +85,13 @@ class Settings:
     telegram_bot_token: str
     telegram_chat_id: str
     db_name: str
+    position_sizing_mode: str
     target_notional_usdt: Decimal
     max_concurrent_positions: int
     stop_order_retry_count: int
     stop_working_type: str
+    stop_price_mode: str
+    stop_notional_risk_pct: Decimal
     server_time_sync_enabled: bool
     server_time_resync_interval_seconds: int
     max_server_time_offset_ms: int
@@ -135,9 +138,21 @@ class Settings:
 
 
 def load_settings() -> Settings:
+    position_sizing_mode = os.getenv("POSITION_SIZING_MODE", "FIXED_NOTIONAL").strip().upper()
+    if position_sizing_mode not in {"FIXED_NOTIONAL", "BALANCE_SPLIT"}:
+        raise ValueError("POSITION_SIZING_MODE must be FIXED_NOTIONAL or BALANCE_SPLIT")
+    max_concurrent_positions = _env_int("MAX_CONCURRENT_POSITIONS", 3)
+    if max_concurrent_positions < 1:
+        raise ValueError("MAX_CONCURRENT_POSITIONS must be greater than or equal to 1")
     stop_working_type = os.getenv("STOP_WORKING_TYPE", "CONTRACT_PRICE").strip().upper()
     if stop_working_type not in {"CONTRACT_PRICE", "MARK_PRICE"}:
         raise ValueError("STOP_WORKING_TYPE must be CONTRACT_PRICE or MARK_PRICE")
+    stop_price_mode = os.getenv("STOP_PRICE_MODE", "IN_PROGRESS_3M_LOW").strip().upper()
+    if stop_price_mode not in {"IN_PROGRESS_3M_LOW", "NOTIONAL_RISK_PCT"}:
+        raise ValueError("STOP_PRICE_MODE must be IN_PROGRESS_3M_LOW or NOTIONAL_RISK_PCT")
+    stop_notional_risk_pct = _env_decimal("STOP_NOTIONAL_RISK_PCT", "0.50")
+    if stop_notional_risk_pct <= Decimal("0") or stop_notional_risk_pct >= Decimal("1"):
+        raise ValueError("STOP_NOTIONAL_RISK_PCT must be greater than 0 and less than 1")
 
     return Settings(
         base_dir=BASE_DIR,
@@ -156,10 +171,13 @@ def load_settings() -> Settings:
         telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", "").strip(),
         telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", "").strip(),
         db_name=os.getenv("DB_NAME", "daily"),
+        position_sizing_mode=position_sizing_mode,
         target_notional_usdt=_env_decimal("TARGET_NOTIONAL_USDT", "300"),
-        max_concurrent_positions=_env_int("MAX_CONCURRENT_POSITIONS", 3),
+        max_concurrent_positions=max_concurrent_positions,
         stop_order_retry_count=_env_int("STOP_ORDER_RETRY_COUNT", 3),
         stop_working_type=stop_working_type,
+        stop_price_mode=stop_price_mode,
+        stop_notional_risk_pct=stop_notional_risk_pct,
         server_time_sync_enabled=_env_bool("SERVER_TIME_SYNC_ENABLED", True),
         server_time_resync_interval_seconds=_env_int("SERVER_TIME_RESYNC_INTERVAL_SECONDS", 300),
         max_server_time_offset_ms=_env_int("MAX_SERVER_TIME_OFFSET_MS", 5000),

@@ -1,5 +1,6 @@
 import asyncio
 from decimal import Decimal
+from types import SimpleNamespace
 
 from config import load_settings
 from pump_system.execution.order_service import OrderService
@@ -27,7 +28,11 @@ class DummyExchangeClient:
 
 
 class DummyPositionState:
-    pass
+    def __init__(self, active_count: int = 0) -> None:
+        self.active_count = active_count
+
+    def active_position_count(self) -> int:
+        return self.active_count
 
 
 class DummySymbolRegistry:
@@ -105,6 +110,145 @@ def test_native_stop_uses_algo_order_endpoint(monkeypatch) -> None:
     assert exchange_client.params["closePosition"] == "true"
     assert exchange_client.params["clientAlgoId"].startswith("stop_btcusdt_")
     assert notifier.trade_events[0][0] == "STOP_ORDER_SUCCESS"
+
+
+def test_resolve_stop_price_can_use_notional_risk_pct(monkeypatch) -> None:
+    monkeypatch.setenv("STOP_PRICE_MODE", "NOTIONAL_RISK_PCT")
+    monkeypatch.setenv("STOP_NOTIONAL_RISK_PCT", "0.50")
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+    decision = SignalDecision(
+        symbol="SFPUSDT",
+        triggered=True,
+        reason="test",
+        stop_reference_low=Decimal("0.3571"),
+        current_price=Decimal("0.3597"),
+    )
+
+    stop_price = service._resolve_stop_price(
+        SimpleNamespace(tick_size=Decimal("0.0001")),
+        decision,
+        {"executedQty": "139", "avgPrice": "0.3597"},
+    )
+
+    assert stop_price == Decimal("0.1798")
+
+
+def test_resolve_stop_price_uses_signal_price_when_fill_avg_is_zero(monkeypatch) -> None:
+    monkeypatch.setenv("STOP_PRICE_MODE", "NOTIONAL_RISK_PCT")
+    monkeypatch.setenv("STOP_NOTIONAL_RISK_PCT", "0.25")
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+    decision = SignalDecision(
+        symbol="SFPUSDT",
+        triggered=True,
+        reason="test",
+        stop_reference_low=Decimal("0.3571"),
+        current_price=Decimal("0.3597"),
+    )
+
+    stop_price = service._resolve_stop_price(
+        SimpleNamespace(tick_size=Decimal("0.0001")),
+        decision,
+        {"executedQty": "139", "avgPrice": "0"},
+    )
+
+    assert stop_price == Decimal("0.2697")
+
+
+def test_resolve_stop_price_defaults_to_in_progress_3m_low(monkeypatch) -> None:
+    monkeypatch.delenv("STOP_PRICE_MODE", raising=False)
+    monkeypatch.delenv("STOP_NOTIONAL_RISK_PCT", raising=False)
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+    decision = SignalDecision(
+        symbol="SFPUSDT",
+        triggered=True,
+        reason="test",
+        stop_reference_low=Decimal("0.35719"),
+        current_price=Decimal("0.3597"),
+    )
+
+    stop_price = service._resolve_stop_price(
+        SimpleNamespace(tick_size=Decimal("0.0001")),
+        decision,
+        {"executedQty": "139", "avgPrice": "0.3597"},
+    )
+
+    assert stop_price == Decimal("0.3571")
+
+
+def test_resolve_target_notional_uses_fixed_mode(monkeypatch) -> None:
+    monkeypatch.setenv("POSITION_SIZING_MODE", "FIXED_NOTIONAL")
+    monkeypatch.setenv("TARGET_NOTIONAL_USDT", "50")
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(active_count=4),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+
+    target_notional = service._resolve_target_notional(
+        available_balance=Decimal("100"),
+        max_leverage=10,
+    )
+
+    assert target_notional == Decimal("50")
+
+
+def test_resolve_target_notional_splits_balance_by_remaining_slots(monkeypatch) -> None:
+    monkeypatch.setenv("POSITION_SIZING_MODE", "BALANCE_SPLIT")
+    monkeypatch.setenv("MAX_CONCURRENT_POSITIONS", "5")
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(active_count=2),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+
+    target_notional = service._resolve_target_notional(
+        available_balance=Decimal("60"),
+        max_leverage=10,
+    )
+
+    assert target_notional == Decimal("200")
 
 
 def test_reconcile_native_stop_reports_trigger_to_telegram() -> None:

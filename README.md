@@ -111,10 +111,19 @@ DB_NAME=daily
 - `STOP_WORKING_TYPE`
   - `CONTRACT_PRICE`：原生止損以合約價格觸發；fallback 監控使用 3m in-progress low。
   - `MARK_PRICE`：原生止損以標記價格觸發；fallback 監控改查 mark price。
+- `STOP_PRICE_MODE`
+  - `IN_PROGRESS_3M_LOW`：止損價使用入場當下 in-progress `3m` kline 的即時 `low`。
+  - `NOTIONAL_RISK_PCT`：止損價使用成交均價依名目風險比例計算。
+- `STOP_NOTIONAL_RISK_PCT`
+  - 預設 `0.50`，只在 `STOP_PRICE_MODE=NOTIONAL_RISK_PCT` 時生效。
+  - 做多時計算式：`stop = filled_avg_entry_price * (1 - STOP_NOTIONAL_RISK_PCT)`，再依 tick size 向下合法化。
 - `TARGET_NOTIONAL_USDT`
-  - 預設 300。
+  - 預設 300；在 `POSITION_SIZING_MODE=FIXED_NOTIONAL` 時，代表每筆目標名目。
 - `MAX_CONCURRENT_POSITIONS`
   - 已持倉達上限時，新訊號直接丟棄，不排隊。
+- `POSITION_SIZING_MODE`
+  - `FIXED_NOTIONAL`：每筆優先使用 `TARGET_NOTIONAL_USDT`。
+  - `BALANCE_SPLIT`：每筆用 `availableBalance * 該幣最大槓桿 / 剩餘可開倉位數`，適合 `MAX_CONCURRENT_POSITIONS=5` 時盡量把保證金分配到最多 5 個幣。
 - `API_RETRY_MAX_ATTEMPTS`
   - 預設 3，遵守 `god_rule.md`。
 
@@ -271,7 +280,7 @@ TELEGRAM_CHAT_ID=***
 
 - 偵測第一波啟動的即時爆量與短時間拉升。
 - 做較大週期確認，降低單根 1m 假突破噪音。
-- 提供入場當下唯一合法的止損 low 來源。
+- 提供 `STOP_PRICE_MODE=IN_PROGRESS_3M_LOW` 時的止損 low 來源。
 
 ### 最終進場訊號工程定義
 
@@ -297,11 +306,16 @@ TELEGRAM_CHAT_ID=***
 - 保證金模式固定切 `CROSSED`。
 - 入場方式固定 `MARKET`。
 
-### 300 USDT 與資金不足最大化進場
+### 固定名目與資金分配進場
 
 - 先計算 `availableBalance * max_leverage`。
-- 若足夠，目標名目用 `TARGET_NOTIONAL_USDT`。
-- 若不足，直接把剩餘可用保證金可支撐的最大名目全部用上，不預留額外安全餘額。
+- `POSITION_SIZING_MODE=FIXED_NOTIONAL`：
+  - 若足夠，目標名目用 `TARGET_NOTIONAL_USDT`。
+  - 若不足，直接把剩餘可用保證金可支撐的最大名目全部用上，不預留額外安全餘額。
+- `POSITION_SIZING_MODE=BALANCE_SPLIT`：
+  - 目標名目用 `availableBalance * max_leverage / remaining_position_slots`。
+  - `remaining_position_slots = MAX_CONCURRENT_POSITIONS - active_position_count`，最小視為 1。
+  - 例：`MAX_CONCURRENT_POSITIONS=5`、目前 0 倉、可用保證金 100 USDT、該幣最大槓桿 10x，第一筆目標名目為 `100 * 10 / 5 = 200 USDT`。
 - 再依 `MARKET_LOT_SIZE / LOT_SIZE / MIN_NOTIONAL` 做 quantity 合法化。
 - 只有在「連最小合法下單都不成立」時才跳過。
 
@@ -343,8 +357,10 @@ TELEGRAM_CHAT_ID=***
   - `triggerPrice=<low price>`
   - `closePosition=true`
 - `workingType` 可配置，預設 `CONTRACT_PRICE`
-- 止損價固定使用：
-  - 入場當下 in-progress 最新 `3m` kline 的即時 `low`
+- 止損價由 `.env` 的 `STOP_PRICE_MODE` 決定：
+  - `IN_PROGRESS_3M_LOW`：使用入場當下 in-progress 最新 `3m` kline 的即時 `low`。
+  - `NOTIONAL_RISK_PCT`：使用成交均價按 `STOP_NOTIONAL_RISK_PCT` 換算；例如 `0.50` 代表止損距離約等於名目持倉金額的 50%，止損價約為成交均價的 50%。
+- 修改 `.env` 後必須重啟程式，新設定才會生效。
 - Telegram 會回報：
   - `STOP_ORDER_SUCCESS`：原生 stop 掛單成功
   - `STOP_ORDER_TRIGGERED`：原生 stop 觸發並完成平倉
@@ -486,6 +502,8 @@ TELEGRAM_CHAT_ID=***
 - 已完成至少一次 `main.py backfill`
 - 已在 Testnet 驗證 entry / stop / fallback / Telegram
 - `STOP_WORKING_TYPE` 已確認
+- `STOP_PRICE_MODE` / `STOP_NOTIONAL_RISK_PCT` 已確認
+- `POSITION_SIZING_MODE` 已確認
 - `MAX_CONCURRENT_POSITIONS` 已確認
 - `TARGET_NOTIONAL_USDT` 已確認
 
