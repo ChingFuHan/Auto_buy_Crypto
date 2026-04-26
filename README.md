@@ -15,7 +15,6 @@ Auto_buy_Crypto/
 ├── requirements.txt
 ├── data/
 │   ├── fallback_stop_state.csv
-│   ├── inprogress_1m.csv
 │   └── inprogress_3m.csv
 ├── logs/
 │   └── app.log
@@ -110,7 +109,7 @@ DB_NAME=daily
   - 預設 `BTCUSDT`。
   - 即使它在大幣排除清單內，function test mode 仍會把它加入 execution evaluation set。
 - `STOP_WORKING_TYPE`
-  - `CONTRACT_PRICE`：原生止損以合約價格觸發；fallback 監控使用 1m in-progress low。
+  - `CONTRACT_PRICE`：原生止損以合約價格觸發；fallback 監控使用 3m in-progress low。
   - `MARK_PRICE`：原生止損以標記價格觸發；fallback 監控改查 mark price。
 - `TARGET_NOTIONAL_USDT`
   - 預設 300。
@@ -191,13 +190,11 @@ TELEGRAM_CHAT_ID=***
 
 - 目標 DB 預設 `daily`。
 - 連線資訊完全由 `.env` 控制。
-- 僅使用既有兩張表：
-  - `public.semi_auto_price_future_1m`
-  - `public.semi_auto_price_future_3m`
+- 3m-only 正式主線只使用既有 `public.semi_auto_price_future_3m`。
+- `public.semi_auto_price_future_1m` 屬舊版/歷史相容表，3m-only 主線不再寫入。
 
 寫入規則：
 
-- `1m` finalized bars -> `public.semi_auto_price_future_1m`
 - `3m` finalized bars -> `public.semi_auto_price_future_3m`
 - `code` = Binance symbol
 - `da` = bar open time
@@ -224,9 +221,7 @@ TELEGRAM_CHAT_ID=***
 
 1. 啟動先校時。
 2. 抓 `exchangeInfo`，建立全部 USDT 永續 universe。
-3. 對每個 symbol 同時回補：
-   - `1m`
-   - `3m`
+3. 對每個 symbol 回補 `3m`
 4. 「最近 90 天」定義：
    - Binance server time / UTC 往回推 `90 * 24` 小時
    - 不用本地時區日界切分
@@ -236,7 +231,7 @@ TELEGRAM_CHAT_ID=***
 
 ## 增量更新流程
 
-- WebSocket 接 Binance 原生 `1m` / `3m` kline stream。
+- WebSocket 只接 Binance 原生 `3m` kline stream。
 - `x=false` 的 in-progress bar 只留在 staging / CSV。
 - `x=true` 的 finalized bar 才進 DB batch writer。
 - WebSocket 重連後：
@@ -249,9 +244,7 @@ TELEGRAM_CHAT_ID=***
 ## finalized bars 與 in-progress bars 分流
 
 - PostgreSQL：
-  - 只存 finalized `1m` / `3m`
-- `data/inprogress_1m.csv`
-  - 只存未收盤 `1m`
+  - 只存 finalized `3m`
 - `data/inprogress_3m.csv`
   - 只存未收盤 `3m`
 - `data/fallback_stop_state.csv`
@@ -272,43 +265,28 @@ TELEGRAM_CHAT_ID=***
 - 不做 1m 本地聚合 3m。
 - 因此不存在正式資料來源混用。
 
-## 1m / 3m 訊號搭配說明
-
-### 1m 的用途
-
-- 偵測第一波啟動的即時爆量與短時間拉升。
-- 提供入場當下唯一合法的止損 low 來源。
+## 3m-only 訊號說明
 
 ### 3m 的用途
 
-- 做較大週期同步確認，降低單一 1m 假突破噪音。
+- 偵測第一波啟動的即時爆量與短時間拉升。
+- 做較大週期確認，降低單根 1m 假突破噪音。
+- 提供入場當下唯一合法的止損 low 來源。
 
 ### 最終進場訊號工程定義
 
-1. `1m` 壓縮背景成立：
-   - 最近 `SIGNAL_1M_LOOKBACK` finalized bars 的平均 range% <= `SIGNAL_1M_COMPRESSION_ATR_PCT_MAX`
-   - 且總 range% <= `SIGNAL_1M_COMPRESSION_RANGE_PCT_MAX`
-2. `3m` 壓縮背景成立：
-   - 最近 `SIGNAL_3M_LOOKBACK` finalized bars 同樣通過壓縮門檻
-3. `1m` 爆量成立：
-   - 當前 in-progress `1m` volume / 最近 finalized `1m` 平均 volume >= `SIGNAL_1M_VOLUME_MULTIPLE`
-4. `3m` 爆量成立：
+1. `3m` 壓縮背景成立：
+   - 最近 `SIGNAL_3M_LOOKBACK` finalized bars 的平均 range% <= `SIGNAL_3M_COMPRESSION_ATR_PCT_MAX`
+   - 且總 range% <= `SIGNAL_3M_COMPRESSION_RANGE_PCT_MAX`
+2. `3m` 爆量成立：
    - 當前 in-progress `3m` volume / 最近 finalized `3m` 平均 volume >= `SIGNAL_3M_VOLUME_MULTIPLE`
-5. `1m` 上拉與突破成立：
-   - 當前 in-progress `1m` 報酬 >= `SIGNAL_1M_RETURN_PCT_MIN`
-   - 且高點突破最近 `SIGNAL_1M_BREAKOUT_LOOKBACK` finalized `1m` 高點
-6. `3m` 同步確認成立：
+3. `3m` 上拉與突破成立：
    - 當前 in-progress `3m` 報酬 >= `SIGNAL_3M_RETURN_PCT_MIN`
    - 且高點突破最近 `SIGNAL_3M_BREAKOUT_LOOKBACK` finalized `3m` 高點
-7. 第一波過熱排除：
-   - 最近 5 根 finalized `1m` 的總 range% <= `SIGNAL_PRIOR_RUNUP_LIMIT_PCT`
+4. 第一波過熱排除：
+   - 最近 5 根 finalized `3m` 的總 range% <= `SIGNAL_PRIOR_RUNUP_LIMIT_PCT`
    - 當前 in-progress `3m` 報酬 <= `SIGNAL_3M_OVERHEAT_LIMIT_PCT`
-   - 連續上漲 finalized `1m` 根數 <= `SIGNAL_MAX_RECENT_GREEN_BARS`
-
-### 1m / 3m 不同步時怎麼處理
-
-- 固定工程定義：同一時點兩個 timeframe 必須同時成立。
-- 不做 `1m` 先過、之後等待 `3m` 補過的模糊 carry-forward。
+   - 連續上漲 finalized `3m` 根數 <= `SIGNAL_MAX_RECENT_GREEN_BARS`
 
 ## 下單規則
 
@@ -341,7 +319,7 @@ TELEGRAM_CHAT_ID=***
 
 - `FUNCTION_TEST_MODE=true` 時：
   - 系統仍抓全部資料
-  - 仍跑完整 1m / 3m 訊號
+  - 仍跑完整 3m-only 訊號
   - 仍寫 DB finalized bars
   - 仍維持 fallback / Telegram / time sync / reconnect
   - 但只有 `FUNCTION_TEST_SYMBOL` 可以真的送 entry / stop / fallback close
@@ -366,15 +344,15 @@ TELEGRAM_CHAT_ID=***
   - `closePosition=true`
 - `workingType` 可配置，預設 `CONTRACT_PRICE`
 - 止損價固定使用：
-  - 入場當下 in-progress 最新 `1m` kline 的即時 `low`
+  - 入場當下 in-progress 最新 `3m` kline 的即時 `low`
 - Telegram 會回報：
   - `STOP_ORDER_SUCCESS`：原生 stop 掛單成功
   - `STOP_ORDER_TRIGGERED`：原生 stop 觸發並完成平倉
   - `STOP_ORDER_POSITION_CLOSED`：倉位已關閉，但這次沒有確認到 native stop fill
 - 明確禁止：
-  - finalized 1m low
-  - 前一根 1m low
-  - 3m low
+  - finalized 3m low
+  - 前一根 3m low
+  - 1m low
 
 ### fallback 止損
 
@@ -383,7 +361,7 @@ TELEGRAM_CHAT_ID=***
    - 寫入 `data/fallback_stop_state.csv`
    - 啟動 fallback monitor
 3. fallback monitor：
-   - `CONTRACT_PRICE`：看 staging 中最新 in-progress `1m` low
+   - `CONTRACT_PRICE`：看 staging 中最新 in-progress `3m` low
    - `MARK_PRICE`：查 Binance mark price
 4. 一旦價格跌破 stop：
    - 送 `MARKET SELL` + `positionSide=LONG`
@@ -490,7 +468,7 @@ TELEGRAM_CHAT_ID=***
 ## 未收盤 K bar 暫存驗證方式
 
 1. 啟動系統
-2. 觀察 `data/inprogress_1m.csv` / `data/inprogress_3m.csv`
+2. 觀察 `data/inprogress_3m.csv`
 3. 未收盤 bar 應持續更新 high / low / close / volume
 4. bar 收盤後：
    - staging CSV 該列消失
@@ -504,7 +482,7 @@ TELEGRAM_CHAT_ID=***
 - `FUNCTION_TEST_MODE=true`
 - `FUNCTION_TEST_SYMBOL=BTCUSDT`
 - `daily` DB 可連線
-- `public.semi_auto_price_future_1m` / `3m` 已存在
+- `public.semi_auto_price_future_3m` 已存在
 - 已完成至少一次 `main.py backfill`
 - 已在 Testnet 驗證 entry / stop / fallback / Telegram
 - `STOP_WORKING_TYPE` 已確認

@@ -29,7 +29,6 @@ class TradingApplication:
     """Main application composition root."""
 
     TABLE_BY_INTERVAL = {
-        "1m": "public.semi_auto_price_future_1m",
         "3m": "public.semi_auto_price_future_3m",
     }
 
@@ -76,9 +75,9 @@ class TradingApplication:
         )
         self.stop_event = asyncio.Event()
         self.background_tasks: list[asyncio.Task] = []
-        self._pending_finalized: dict[str, list[Kline]] = {"1m": [], "3m": []}
+        self._pending_finalized: dict[str, list[Kline]] = {"3m": []}
         self._pending_lock = asyncio.Lock()
-        self._db_flush_failures: dict[str, int] = {"1m": 0, "3m": 0}
+        self._db_flush_failures: dict[str, int] = {"3m": 0}
 
     async def validate_only(self) -> None:
         try:
@@ -259,7 +258,7 @@ class TradingApplication:
     async def _flush_finalized_batches(self) -> None:
         async with self._pending_lock:
             pending = {interval: list(rows) for interval, rows in self._pending_finalized.items()}
-            self._pending_finalized = {"1m": [], "3m": []}
+            self._pending_finalized = {"3m": []}
         for interval, bars in pending.items():
             if not bars:
                 continue
@@ -298,20 +297,14 @@ class TradingApplication:
 
     async def _seed_strategy_history(self) -> None:
         symbols = sorted(self.symbol_registry.evaluation_symbols())
-        one_m_bars = self.repository.fetch_recent_klines(
-            "public.semi_auto_price_future_1m",
-            symbols,
-            self.settings.kline_seed_limit,
-            "1m",
-        )
         three_m_bars = self.repository.fetch_recent_klines(
             "public.semi_auto_price_future_3m",
             symbols,
             self.settings.kline_seed_limit,
             "3m",
         )
-        await self.staging_store.seed_finalized_bars(one_m_bars + three_m_bars)
-        self.logger.info("seeded rolling history 1m=%s 3m=%s", len(one_m_bars), len(three_m_bars))
+        await self.staging_store.seed_finalized_bars(three_m_bars)
+        self.logger.info("seeded rolling history 3m=%s", len(three_m_bars))
 
     async def _send_startup_notifications(self) -> None:
         await self.notifier.send_info("APP_STARTUP_SUCCESS")

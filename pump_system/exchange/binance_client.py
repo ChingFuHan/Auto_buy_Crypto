@@ -43,6 +43,7 @@ class BinanceClient:
         self.time_offset_ms = 0
         self.last_sync_epoch_ms = 0
         self.last_sync_rtt_ms = 0
+        self.rate_limit_wait_until_ms = 0.0
 
     @property
     def has_private_api(self) -> bool:
@@ -217,6 +218,31 @@ class BinanceClient:
             params["signature"] = self._sign(params)
 
         for attempt in range(1, self.retry_policy.max_attempts + 1):
+            now_ms = time.time() * 1000
+
+            # Check if we're still in rate limit wait window
+            if self.rate_limit_wait_until_ms > now_ms:
+                remaining_ms = self.rate_limit_wait_until_ms - now_ms
+                wait_sec = remaining_ms / 1000.0
+                self.logger.warning(
+                    "rate limit 429 detected, waiting %0.1f sec until next minute method=%s path=%s",
+                    wait_sec,
+                    method,
+                    path,
+                )
+                if self.notifier is not None:
+                    await self.notifier.send_warning(
+                        "BINANCE_API_RATE_LIMIT_WAIT",
+                        error_message=f"Rate limited. Waiting {wait_sec:.1f}s before retry.",
+                        details={
+                            "method": method,
+                            "path": path,
+                            "wait_seconds": f"{wait_sec:.1f}",
+                        },
+                    )
+                await asyncio.sleep(wait_sec + 0.5)
+                continue
+
             try:
                 response = await self.client.request(method, path, params=params)
                 data = self._decode_response(response)
@@ -224,7 +250,35 @@ class BinanceClient:
                     raise self._to_error(response.status_code, data)
                 return data
             except (httpx.HTTPError, BinanceAPIError) as exc:
+                is_rate_limit = "status=429" in str(exc)
                 retryable = self._is_retryable(exc)
+
+                if is_rate_limit:
+                    now_ms = time.time() * 1000
+                    self.rate_limit_wait_until_ms = now_ms + 60_000
+
+                    remaining_ms = max(0, self.rate_limit_wait_until_ms - now_ms)
+                    wait_sec = remaining_ms / 1000.0
+                    self.logger.warning(
+                        "rate limit 429 detected, waiting %0.1f sec until next minute method=%s path=%s error=%s",
+                        wait_sec,
+                        method,
+                        path,
+                        exc,
+                    )
+                    if self.notifier is not None:
+                        await self.notifier.send_warning(
+                            "BINANCE_API_RATE_LIMIT_WAIT",
+                            error_message=f"Rate limited. Waiting {wait_sec:.1f}s before retry.",
+                            details={
+                                "method": method,
+                                "path": path,
+                                "wait_seconds": f"{wait_sec:.1f}",
+                            },
+                        )
+                    await asyncio.sleep(wait_sec + 0.5)
+                    continue
+
                 if attempt >= self.retry_policy.max_attempts or not retryable:
                     self.logger.error(
                         "request failed method=%s path=%s attempt=%s/%s error=%s",

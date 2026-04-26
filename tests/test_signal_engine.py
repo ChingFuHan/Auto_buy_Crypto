@@ -36,38 +36,34 @@ def make_bar(
     )
 
 
-def test_signal_triggers_when_both_timeframes_align() -> None:
+def test_signal_triggers_from_3m_only_context() -> None:
     settings = load_settings()
     engine = SignalEngine(settings.strategy)
 
-    finalized_1m = [
-        make_bar(i, "1m", "1.00", "1.002", "0.998", "1.00", "100")
-        for i in range(20)
-    ]
     finalized_3m = [
         make_bar(i * 3, "3m", "1.00", "1.004", "0.996", "1.00", "300")
         for i in range(20)
     ]
-    current_1m = make_bar(20, "1m", "1.00", "1.05", "0.999", "1.04", "450", closed=False)
     current_3m = make_bar(60, "3m", "1.00", "1.06", "0.998", "1.05", "900", closed=False)
 
-    decision = engine.evaluate("TESTUSDT", finalized_1m, current_1m, finalized_3m, current_3m)
+    decision = engine.evaluate("TESTUSDT", finalized_3m, current_3m)
 
     assert decision.triggered is True
-    assert decision.stop_reference_low == Decimal("0.999")
+    assert decision.stop_reference_low == Decimal("0.998")
+    assert decision.metrics["mode"] == "3m_only"
+    assert decision.metrics["stop_source"] == "in_progress_3m_low"
 
 
 def test_signal_blocks_when_3m_context_is_missing() -> None:
     settings = load_settings()
     engine = SignalEngine(settings.strategy)
 
-    finalized_1m = [
-        make_bar(i, "1m", "1.00", "1.01", "0.99", "1.00", "100")
+    finalized_3m = [
+        make_bar(i * 3, "3m", "1.00", "1.004", "0.996", "1.00", "300")
         for i in range(20)
     ]
-    current_1m = make_bar(20, "1m", "1.00", "1.05", "0.999", "1.04", "450", closed=False)
 
-    decision = engine.evaluate("TESTUSDT", finalized_1m, current_1m, [], None)
+    decision = engine.evaluate("TESTUSDT", finalized_3m, None)
 
     assert decision.triggered is False
-    assert decision.reason == "missing_in_progress_bars"
+    assert decision.reason == "missing_in_progress_3m"

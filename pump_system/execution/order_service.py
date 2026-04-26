@@ -214,20 +214,20 @@ class OrderService:
                 await self.notifier.send_error("MANUAL_FUNCTION_TEST_SYMBOL_MISSING", symbol=symbol)
             raise BinanceAPIError(f"function_test_symbol_missing {symbol}")
 
-        klines_1m = await self.exchange_client.get_klines(symbol, "1m", limit=1)
-        if len(klines_1m) < 1:
+        klines_3m = await self.exchange_client.get_klines(symbol, "3m", limit=1)
+        if len(klines_3m) < 1:
             raise BinanceAPIError(f"insufficient_klines symbol={symbol}")
-        latest_1m = klines_1m[-1]
-        current_1m = Kline(
+        latest_3m = klines_3m[-1]
+        current_3m = Kline(
             symbol=symbol,
-            interval="1m",
+            interval="3m",
             open_time=utc_now(),
             close_time=utc_now(),
-            open_price=Decimal(str(latest_1m[1])),
-            high_price=Decimal(str(latest_1m[2])),
-            low_price=Decimal(str(latest_1m[3])),
-            close_price=Decimal(str(latest_1m[4])),
-            volume=Decimal(str(latest_1m[5])),
+            open_price=Decimal(str(latest_3m[1])),
+            high_price=Decimal(str(latest_3m[2])),
+            low_price=Decimal(str(latest_3m[3])),
+            close_price=Decimal(str(latest_3m[4])),
+            volume=Decimal(str(latest_3m[5])),
             closed=False,
             event_time=utc_now(),
         )
@@ -236,27 +236,22 @@ class OrderService:
             triggered=True,
             reason="manual_function_test",
             metrics={"mode": "manual_function_test"},
-            stop_reference_low=current_1m.low_price,
-            current_price=current_1m.close_price,
+            stop_reference_low=current_3m.low_price,
+            current_price=current_3m.close_price,
         )
         bar_key = f"manual:{symbol}:{int(utc_now().timestamp())}"
-        await self._execute_trade(symbol, decision, current_1m, symbol_info, bar_key)
+        await self._execute_trade(symbol, decision, current_3m, symbol_info, bar_key)
 
     async def _evaluate_symbol(self, symbol: str) -> None:
-        one_m_limit = max(self.settings.strategy.one_m_lookback, self.settings.strategy.one_m_breakout_lookback, 5)
-        three_m_limit = max(self.settings.strategy.three_m_lookback, self.settings.strategy.three_m_breakout_lookback, 3)
-        finalized_1m, current_1m, finalized_3m, current_3m = await self.staging_store.get_signal_snapshot(
-            symbol,
-            one_m_limit,
-            three_m_limit,
-        )
+        three_m_limit = max(self.settings.strategy.three_m_lookback, self.settings.strategy.three_m_breakout_lookback, 5)
+        finalized_3m, current_3m = await self.staging_store.get_signal_snapshot(symbol, three_m_limit)
 
-        decision = self.signal_engine.evaluate(symbol, finalized_1m, current_1m, finalized_3m, current_3m)
+        decision = self.signal_engine.evaluate(symbol, finalized_3m, current_3m)
         self.logger.info("signal check symbol=%s triggered=%s reason=%s metrics=%s", symbol, decision.triggered, decision.reason, decision.metrics)
-        if not decision.triggered or current_1m is None:
+        if not decision.triggered or current_3m is None:
             return
 
-        bar_key = f"{symbol}:{current_1m.open_time.isoformat()}"
+        bar_key = f"{symbol}:{current_3m.open_time.isoformat()}"
         if self._last_handled_bar.get(symbol) == bar_key:
             return
 
@@ -289,13 +284,13 @@ class OrderService:
         symbol_info = self.symbol_registry.get(symbol)
         if symbol_info is None:
             return
-        await self._execute_trade(symbol, decision, current_1m, symbol_info, bar_key)
+        await self._execute_trade(symbol, decision, current_3m, symbol_info, bar_key)
 
     async def _execute_trade(
         self,
         symbol: str,
         decision: SignalDecision,
-        current_1m: Kline,
+        current_bar: Kline,
         symbol_info,
         bar_key: str,
     ) -> None:
@@ -327,7 +322,7 @@ class OrderService:
             raise
         sizing = build_sizing_decision(
             symbol_info=symbol_info,
-            price=decision.current_price or current_1m.close_price,
+            price=decision.current_price or current_bar.close_price,
             available_balance=available_balance,
             target_notional=self.settings.target_notional_usdt,
             max_leverage=max_leverage,
@@ -446,7 +441,7 @@ class OrderService:
 
         fallback_record = FallbackStopRecord(
             symbol=symbol,
-            stop_price=decision.stop_reference_low or current_1m.low_price,
+            stop_price=decision.stop_reference_low or current_bar.low_price,
             quantity=Decimal(str(market_order.get("executedQty", sizing.quantity))),
             working_type=self.settings.stop_working_type,
             active=True,

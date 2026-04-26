@@ -21,13 +21,12 @@ UTC = timezone.utc
 
 
 class BackfillService:
-    """REST backfill for 90-day finalized 1m and 3m futures klines."""
+    """REST backfill for 90-day finalized 3m futures klines."""
 
     TABLE_BY_INTERVAL = {
-        "1m": "public.semi_auto_price_future_1m",
         "3m": "public.semi_auto_price_future_3m",
     }
-    INTERVAL_MS = {"1m": 60_000, "3m": 180_000}
+    INTERVAL_MS = {"3m": 180_000}
 
     def __init__(
         self,
@@ -45,7 +44,7 @@ class BackfillService:
         self.logger = logging.getLogger("market_data.backfill")
 
     async def backfill_universe(self, symbols: list[str]) -> None:
-        """Backfill all USDT perpetual symbols for 1m and 3m without overwriting history."""
+        """Backfill all USDT perpetual symbols for 3m without overwriting history."""
         if not symbols:
             return
         if self.notifier is not None:
@@ -53,7 +52,7 @@ class BackfillService:
                 "BACKFILL_STARTED",
                 details={
                     "symbol_count": len(symbols),
-                    "intervals": "1m,3m",
+                    "intervals": "3m",
                     "backfill_days": self.settings.backfill_days,
                 },
             )
@@ -79,7 +78,7 @@ class BackfillService:
         tasks = [
             asyncio.create_task(runner(symbol, interval))
             for symbol in symbols
-            for interval in ("1m", "3m")
+            for interval in self.TABLE_BY_INTERVAL
         ]
         inserted_counts = await asyncio.gather(*tasks)
         total_inserted = sum(inserted_counts)
@@ -88,7 +87,7 @@ class BackfillService:
                 "BACKFILL_COMPLETED",
                 details={
                     "symbol_count": len(symbols),
-                    "intervals": "1m,3m",
+                    "intervals": "3m",
                     "inserted_rows": total_inserted,
                 },
             )
@@ -99,7 +98,7 @@ class BackfillService:
             return
         server_now_ms = int(time.time() * 1000) + self.exchange_client.time_offset_ms
         for symbol in symbols:
-            for interval in ("1m", "3m"):
+            for interval in self.TABLE_BY_INTERVAL:
                 last_open = await self.staging_store.last_finalized_open_time(symbol, interval)
                 if last_open is None:
                     continue
