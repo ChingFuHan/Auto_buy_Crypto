@@ -486,3 +486,6 @@
 - 確認目前正式主線：`STRATEGY_INTERVAL` 現在支援 `3m` / `15m`，且程式 fallback default 已改為 `15m`；對應 DB 表、WebSocket、backfill、staging CSV、訊號判斷與 stop trigger 都跟主週期一起切換。
 - 確認目前熱區風險：`SIGNAL_15M_*` 雖已獨立，但數值仍先沿用 3m 同級預設，尚未完成 15m 專屬校準；另外 P1 `algo history fallback` 仍未實作，`tests/test_algo_fill_regression.py` 仍保留 1 個 xfail。
 - [SKIP] 本輪未跑測試、未啟動程式、未連 Binance、未查/寫 DB、未改 `.env`、未改交易邏輯；僅補交接紀錄。
+
+- 2026-04-28 10:43-10:51 +08:00：完成 DB 時區遷移 UTC+0 → UTC+8（commit `6cbfc04`）。三張 semi_auto_price_future_*m 表全部 da +8h；`Kline.db_timestamp` 改為轉成 UTC+8 naive 存入 DB；`repository.py` 讀取時將 da 視為 UTC+8 aware；`backfill.py` 時間比較邏輯同步調整。已停程式→DB migration→程式改動→測試 36 passed。現在 DB 觀看時間都是 UTC+8 對齊，無需心算時差。
+
