@@ -4,6 +4,7 @@
 
 ## 接手必讀 / Active Watch Items
 
+- 2026-04-28 11:31 +08:00：新增 **Always-Sync 持續時間同步服務**（`pump_system/sync/time_sync_manager.py`）。`main.py run` 執行期間無需停止，TimeSyncManager 會每 60 秒自動檢查並同步時間。三層監控：HEALTHY (≤3s 靜默) / WARNING (3-8s 每 5 次通知) / CRITICAL (>8s 立即通知)。詳見 `ALWAYS_SYNC_TIME.md`。整合測試通過（36 passed 1 xfailed）。
 - 2026-04-28 11:27 +08:00：新增時間同步診斷工具 `time_sync_diagnostic.py`。之前使用者回報 `SERVER_TIME_OFFSET_BLOCKED (offset_ms: 101933)`，經診斷現已恢復正常（offset: +23 ms）。詳見 `TIME_SYNC_TROUBLESHOOT.md`；若再次發生類似問題，執行 `python3 time_sync_diagnostic.py --repeat 3` 快速診斷。
 - `DAMUSDT` near-miss 案例已確認不是候選池漏單，也不是交易所規格問題；2026-04-27 log 有 74 筆 `signal check symbol=DAMUSDT`，`triggered=True` 為 0。
 - 它沒進場的原因是主策略偏抓「第一段爆發」：`vol_ratio_3m`、`ret_3m_pct`、`range_3m_pct` 未同時達標；雖有 7 次 `breakout_3m=True`，但仍被成交量、推動幅度與壓縮條件擋下。
