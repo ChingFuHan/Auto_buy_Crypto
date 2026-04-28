@@ -28,16 +28,17 @@ class StagingStore:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self.interval = settings.strategy_interval
         self.logger = logging.getLogger("cache.staging")
         self._lock = asyncio.Lock()
         self._stores = {
-            "3m": AtomicCsvState(settings.staging_3m_csv_path, self.FIELDNAMES),
+            self.interval: AtomicCsvState(settings.strategy_staging_csv_path, self.FIELDNAMES),
         }
-        self._in_progress: dict[str, dict[str, Kline]] = {"3m": {}}
+        self._in_progress: dict[str, dict[str, Kline]] = {self.interval: {}}
         self._history: dict[str, dict[str, deque[Kline]]] = {
-            "3m": defaultdict(lambda: deque(maxlen=settings.kline_seed_limit * 4)),
+            self.interval: defaultdict(lambda: deque(maxlen=settings.kline_seed_limit * 4)),
         }
-        self._dirty: dict[str, bool] = {"3m": False}
+        self._dirty: dict[str, bool] = {self.interval: False}
 
     async def load_runtime_state(self) -> None:
         """Restore last seen in-progress bars from CSV."""
@@ -46,7 +47,11 @@ class StagingStore:
             async with self._lock:
                 for row in rows:
                     self._in_progress[interval][row["symbol"]] = self._row_to_kline(row)
-        self.logger.info("restored staging rows 3m=%s", len(self._in_progress["3m"]))
+        self.logger.info(
+            "restored staging rows interval=%s rows=%s",
+            self.interval,
+            len(self._in_progress[self.interval]),
+        )
 
     async def seed_finalized_bars(self, bars: list[Kline]) -> None:
         """Seed rolling memory from DB or REST catch-up."""
@@ -78,11 +83,11 @@ class StagingStore:
         for interval in self._stores:
             await self._flush_interval(interval)
 
-    async def get_signal_snapshot(self, symbol: str, three_m_limit: int) -> tuple[list[Kline], Kline | None]:
+    async def get_signal_snapshot(self, symbol: str, limit: int) -> tuple[list[Kline], Kline | None]:
         async with self._lock:
-            three_m = list(self._history["3m"].get(symbol, deque()))[-three_m_limit:]
-            current_3m = self._in_progress["3m"].get(symbol)
-            return three_m, current_3m
+            history = list(self._history[self.interval].get(symbol, deque()))[-limit:]
+            current = self._in_progress[self.interval].get(symbol)
+            return history, current
 
     async def last_finalized_open_time(self, symbol: str, interval: str) -> datetime | None:
         async with self._lock:
@@ -91,12 +96,12 @@ class StagingStore:
 
     async def contract_trigger_price(self, symbol: str) -> tuple[str, object]:
         async with self._lock:
-            current_3m = self._in_progress["3m"].get(symbol)
-            if current_3m is not None:
-                return "in_progress_3m_low", current_3m.low_price
-            history = self._history["3m"].get(symbol)
+            current = self._in_progress[self.interval].get(symbol)
+            if current is not None:
+                return f"in_progress_{self.interval}_low", current.low_price
+            history = self._history[self.interval].get(symbol)
             if history:
-                return "last_finalized_3m_close", history[-1].close_price
+                return f"last_finalized_{self.interval}_close", history[-1].close_price
         return "missing", None
 
     def _upsert_history(self, interval: str, bar: Kline) -> None:

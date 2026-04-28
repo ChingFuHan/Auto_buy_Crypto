@@ -1,0 +1,27 @@
+[2026-04-25 13:27:14] Completion monitor started (PID=23291, check every 900s, target 528 symbols)
+[2026-04-25 13:27:16] SNAPSHOT: symbols_1m=36/528 symbols_3m=35 rows_1m=4690932 rows_3m=1523764 total_rows=6214696 rate_limits=24 supervisor=no status=RUNNING
+[2026-04-25 13:27:16] Supervisor not running, restarting...
+[2026-04-25 13:27:16] Supervisor restarted PID=23340
+[2026-04-25 13:42:18] SNAPSHOT: symbols_1m=43/528 symbols_3m=42 rows_1m=5595484 rows_3m=1826272 total_rows=7421756 rate_limits=30 supervisor=no status=RUNNING
+[2026-04-25 13:42:18] Supervisor not running, restarting...
+[2026-04-25 13:42:18] Supervisor restarted PID=24454
+[2026-04-25 13:57:20] SNAPSHOT: symbols_1m=63/528 symbols_3m=62 rows_1m=8122060 rows_3m=2690440 total_rows=10812500 rate_limits=49 supervisor=yes status=RUNNING
+[2026-04-25 14:12:22] SNAPSHOT: symbols_1m=79/528 symbols_3m=79 rows_1m=10253901 rows_3m=3376506 total_rows=13630407 rate_limits=69 supervisor=yes status=RUNNING
+[2026-04-25 14:27:25] SNAPSHOT: symbols_1m=96/528 symbols_3m=95 rows_1m=12312132 rows_3m=4077100 total_rows=16389232 rate_limits=89 supervisor=yes status=RUNNING
+[2026-04-25 14:42:28] SNAPSHOT: symbols_1m=113/528 symbols_3m=113 rows_1m=14476928 rows_3m=4820150 total_rows=19297078 rate_limits=109 supervisor=yes status=RUNNING
+[2026-04-25 14:57:32] SNAPSHOT: symbols_1m=132/528 symbols_3m=131 rows_1m=16737613 rows_3m=5538894 total_rows=22276507 rate_limits=129 supervisor=yes status=RUNNING
+[2026-04-25 15:12:39] SNAPSHOT: symbols_1m=149/528 symbols_3m=148 rows_1m=18943860 rows_3m=6281294 total_rows=25225154 rate_limits=149 supervisor=yes status=RUNNING
+[2026-04-25 15:27:44] SNAPSHOT: symbols_1m=166/528 symbols_3m=166 rows_1m=21156710 rows_3m=7025693 total_rows=28182403 rate_limits=169 supervisor=yes status=RUNNING
+[2026-04-25 15:42:49] SNAPSHOT: symbols_1m=183/528 symbols_3m=183 rows_1m=23266957 rows_3m=7751960 total_rows=31018917 rate_limits=189 supervisor=yes status=RUNNING
+[2026-04-25 15:57:54] SNAPSHOT: symbols_1m=200/528 symbols_3m=199 rows_1m=25412601 rows_3m=8443159 total_rows=33855760 rate_limits=211 supervisor=yes status=RUNNING
+[2026-04-25 16:13:05] SNAPSHOT: symbols_1m=218/528 symbols_3m=217 rows_1m=27561944 rows_3m=9181923 total_rows=36743867 rate_limits=231 supervisor=yes status=RUNNING
+[2026-04-25 16:28:15] SNAPSHOT: symbols_1m=234/528 symbols_3m=234 rows_1m=29747448 rows_3m=9914208 total_rows=39661656 rate_limits=251 supervisor=yes status=RUNNING
+[2026-04-25 16:43:26] SNAPSHOT: symbols_1m=252/528 symbols_3m=251 rows_1m=31963698 rows_3m=10646141 total_rows=42609839 rate_limits=271 supervisor=yes status=RUNNING
+[2026-04-25 16:58:40] SNAPSHOT: symbols_1m=269/528 symbols_3m=268 rows_1m=34162148 rows_3m=11363276 total_rows=45525424 rate_limits=291 supervisor=yes status=RUNNING
+[2026-04-25 17:13:54] SNAPSHOT: symbols_1m=285/528 symbols_3m=285 rows_1m=36297395 rows_3m=12060475 total_rows=48357870 rate_limits=311 supervisor=yes status=RUNNING
+[2026-04-25 17:29:08] SNAPSHOT: symbols_1m=303/528 symbols_3m=302 rows_1m=38444196 rows_3m=12811260 total_rows=51255456 rate_limits=331 supervisor=yes status=RUNNING
+[2026-04-25 17:44:23] SNAPSHOT: symbols_1m=319/528 symbols_3m=318 rows_1m=40567840 rows_3m=13502458 total_rows=54070298 rate_limits=351 supervisor=yes status=RUNNING
+[2026-04-25 17:59:44] SNAPSHOT: symbols_1m=335/528 symbols_3m=335 rows_1m=42715087 rows_3m=14210658 total_rows=56925745 rate_limits=371 supervisor=yes status=RUNNING
+[2026-04-25 18:15:02] SNAPSHOT: symbols_1m=353/528 symbols_3m=353 rows_1m=44882633 rows_3m=14959357 total_rows=59841990 rate_limits=391 supervisor=yes status=RUNNING
+[2026-04-25 18:30:24] SNAPSHOT: symbols_1m=371/528 symbols_3m=371 rows_1m=47205160 rows_3m=15705182 total_rows=62910342 rate_limits=411 supervisor=yes status=RUNNING
+[2026-04-25 18:45:48] SNAPSHOT: symbols_1m=389/528 symbols_3m=388 rows_1m=49436407 rows_3m=16439581 total_rows=65875988 rate_limits=433 supervisor=yes status=RUNNING

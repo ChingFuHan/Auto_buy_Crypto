@@ -1,0 +1,111 @@
+[2026-04-25 12:35:26,423] [INFO] [cache.staging] restored staging rows 1m=0 3m=0
+[2026-04-25 12:35:26,425] [INFO] [fallback.stop] restored fallback stops active=0
+[2026-04-25 12:35:26,582] [INFO] [exchange.binance] server time synced offset_ms=38 rtt_ms=156
+[2026-04-25 12:35:26,665] [INFO] [app] symbol registry loaded data_symbols=535 candidate_symbols=528
+[2026-04-25 12:35:27,250] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,305] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,361] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,421] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,478] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,533] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,587] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,642] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,698] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,753] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,809] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,868] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=3m inserted=2
+[2026-04-25 12:35:27,927] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=1m inserted=7
+[2026-04-25 12:35:27,980] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,036] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,070] [INFO] [notify.telegram] telegram sent event_type=SERVER_TIME_SYNC_OK
+[2026-04-25 12:35:28,092] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,159] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,215] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,278] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,344] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,397] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,495] [INFO] [notify.telegram] telegram sent event_type=BACKFILL_STARTED
+[2026-04-25 12:35:28,520] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,580] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,703] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=3m inserted=2
+[2026-04-25 12:35:28,825] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=1m inserted=7
+[2026-04-25 12:35:28,953] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=3m inserted=2
+[2026-04-25 12:35:29,073] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=1m inserted=7
+[2026-04-25 12:35:29,206] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=3m inserted=2
+[2026-04-25 12:35:29,326] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=1m inserted=7
+[2026-04-25 12:35:29,379] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=3m inserted=2
+[2026-04-25 12:35:29,509] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=1m inserted=7
+[2026-04-25 12:35:29,582] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=3m inserted=2
+[2026-04-25 12:35:29,635] [INFO] [market_data.backfill] backfill completed symbol=4USDT interval=1m inserted=7
+[2026-04-25 12:35:29,689] [INFO] [market_data.backfill] backfill completed symbol=4USDT interval=3m inserted=2
+[2026-04-25 12:35:29,808] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=1m inserted=7
+[2026-04-25 12:35:29,865] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=3m inserted=2
+[2026-04-25 12:35:29,920] [INFO] [market_data.backfill] backfill completed symbol=ACEUSDT interval=1m inserted=7
+[2026-04-25 12:35:29,973] [INFO] [market_data.backfill] backfill completed symbol=ACEUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,032] [INFO] [market_data.backfill] backfill completed symbol=ACHUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,097] [INFO] [market_data.backfill] backfill completed symbol=ACHUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,154] [INFO] [market_data.backfill] backfill completed symbol=ACTUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,214] [INFO] [market_data.backfill] backfill completed symbol=ACTUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,268] [INFO] [market_data.backfill] backfill completed symbol=ACUUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,324] [INFO] [market_data.backfill] backfill completed symbol=ACUUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,386] [INFO] [market_data.backfill] backfill completed symbol=ACXUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,440] [INFO] [market_data.backfill] backfill completed symbol=ACXUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,501] [INFO] [market_data.backfill] backfill completed symbol=ADAUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,554] [INFO] [market_data.backfill] backfill completed symbol=ADAUSDT interval=3m inserted=2
+[2026-04-25 12:35:30,610] [INFO] [market_data.backfill] backfill completed symbol=AERGOUSDT interval=1m inserted=7
+[2026-04-25 12:35:30,659] [INFO] [market_data.backfill] backfill completed symbol=AERGOUSDT interval=3m inserted=2
+[2026-04-25 12:35:31,182] [INFO] [market_data.backfill] backfill completed symbol=AEROUSDT interval=1m inserted=314
+[2026-04-25 12:35:31,242] [INFO] [market_data.backfill] backfill completed symbol=AEROUSDT interval=3m inserted=2
+[2026-04-25 12:35:34,948] [INFO] [market_data.backfill] backfill completed symbol=AEVOUSDT interval=1m inserted=3106
+[2026-04-25 12:35:35,004] [INFO] [market_data.backfill] backfill completed symbol=AEVOUSDT interval=3m inserted=2
+[2026-04-25 12:35:42,214] [INFO] [market_data.backfill] backfill completed symbol=AGLDUSDT interval=1m inserted=6906
+[2026-04-25 12:35:43,895] [INFO] [market_data.backfill] backfill completed symbol=AGLDUSDT interval=3m inserted=1501
+[2026-04-25 12:35:59,135] [INFO] [market_data.backfill] backfill completed symbol=AGTUSDT interval=1m inserted=12999
+[2026-04-25 12:36:03,682] [INFO] [market_data.backfill] backfill completed symbol=AGTUSDT interval=3m inserted=4399
+[2026-04-25 12:36:16,790] [INFO] [market_data.backfill] backfill completed symbol=AIAUSDT interval=1m inserted=12999
+[2026-04-25 12:36:21,110] [INFO] [market_data.backfill] backfill completed symbol=AIAUSDT interval=3m inserted=4399
+[2026-04-25 12:36:34,274] [INFO] [market_data.backfill] backfill completed symbol=AINUSDT interval=1m inserted=12999
+[2026-04-25 12:36:39,198] [INFO] [market_data.backfill] backfill completed symbol=AINUSDT interval=3m inserted=4399
+[2026-04-25 12:36:50,412] [WARNING] [exchange.binance] request retry method=GET path=/fapi/v1/klines attempt=1/3 delay=1.0s error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 12:36:51,464] [WARNING] [exchange.binance] request retry method=GET path=/fapi/v1/klines attempt=2/3 delay=2.0s error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 12:36:51,577] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RETRY
+[2026-04-25 12:36:51,993] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RETRY
+[2026-04-25 12:36:53,541] [ERROR] [exchange.binance] request failed method=GET path=/fapi/v1/klines attempt=3/3 error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 12:36:53,544] [ERROR] [app] [BLOCKED] backfill bootstrap failed error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 12:36:53,693] [WARNING] [exchange.binance] request retry method=GET path=/fapi/v1/klines attempt=1/3 delay=1.0s error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 12:36:53,961] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_BLOCKED
+[2026-04-25 12:36:54,382] [INFO] [notify.telegram] telegram sent event_type=BACKFILL_BOOTSTRAP_FAILED
+[2026-04-25 12:36:54,796] [INFO] [notify.telegram] telegram sent event_type=APP_SHUTDOWN
+Traceback (most recent call last):
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/main.py", line 40, in <module>
+    main()
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/main.py", line 28, in main
+    asyncio.run(app.backfill_only())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/app.py", line 96, in backfill_only
+    await self._bootstrap(run_backfill=True)
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/app.py", line 171, in _bootstrap
+    await self.backfill_service.backfill_universe(sorted(self.symbol_registry.data_symbols))
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/market_data/backfill.py", line 84, in backfill_universe
+    inserted_counts = await asyncio.gather(*tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/market_data/backfill.py", line 77, in runner
+    return await self._backfill_symbol_interval(symbol, interval, table_name, start_ms, server_now_ms)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/market_data/backfill.py", line 132, in _backfill_symbol_interval
+    rows = await self.exchange_client.get_klines(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/exchange/binance_client.py", line 118, in get_klines
+    data = await self._request("GET", "/fapi/v1/klines", signed=False, params=params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/sf_agent_sanbox_vm/Auto_buy_Crypto/pump_system/exchange/binance_client.py", line 224, in _request
+    raise self._to_error(response.status_code, data)
+pump_system.exchange.binance_client.BinanceAPIError: status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.

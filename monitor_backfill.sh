@@ -1,0 +1,29 @@
+#!/bin/bash
+# 監控 backfill 進度
+
+LOG_FILE=$(ls -t backfill_*.log 2>/dev/null | head -1)
+
+echo "════════════════════════════════════════════════════════════════"
+echo "Backfill 進度監控 - $(date '+%Y-%m-%d %H:%M:%S')"
+echo "════════════════════════════════════════════════════════════════"
+echo ""
+
+# 統計完成的符號數
+COMPLETED=$(grep -c "backfill completed" "$LOG_FILE" 2>/dev/null || echo 0)
+echo "✅ 已完成符號對: $COMPLETED"
+
+# 統計插入的總行數
+TOTAL_INSERTED=$(grep "backfill completed" "$LOG_FILE" 2>/dev/null | awk '{sum+=$NF} END {print sum}' || echo 0)
+echo "📊 總插入行數: $TOTAL_INSERTED"
+
+# 檢查是否有 rate limit
+RATE_LIMITS=$(grep -c "429\|rate limit\|RATE_LIMIT" "$LOG_FILE" 2>/dev/null || echo 0)
+echo "⚠️  Rate limit 次數: $RATE_LIMITS"
+
+# 最新 10 行
+echo ""
+echo "最新進度："
+tail -10 "$LOG_FILE" 2>/dev/null | grep -E "backfill completed|RATE_LIMIT|ERROR" || echo "（無新消息）"
+
+echo ""
+echo "════════════════════════════════════════════════════════════════"

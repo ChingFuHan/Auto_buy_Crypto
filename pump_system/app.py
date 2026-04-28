@@ -19,6 +19,7 @@ from pump_system.models import Kline
 from pump_system.notify.telegram_notifier import TelegramNotifier
 from pump_system.state.position_state import PositionState
 from pump_system.strategy.signal_engine import SignalEngine
+from pump_system.sync.time_sync_manager import TimeSyncManager
 from pump_system.utils.logging_utils import configure_logging
 
 
@@ -75,6 +76,13 @@ class TradingApplication:
             on_kline=self._handle_kline_payload,
             on_reconnect=self._handle_reconnect,
             notifier=self.notifier,
+        )
+        self.time_sync_manager = TimeSyncManager(
+            exchange_client=self.exchange_client,
+            notifier=self.notifier,
+            resync_interval_seconds=settings.server_time_resync_interval_seconds,
+            warning_threshold_ms=3000,
+            critical_threshold_ms=8000,
         )
         self.stop_event = asyncio.Event()
         self.background_tasks: list[asyncio.Task] = []
@@ -181,7 +189,7 @@ class TradingApplication:
             asyncio.create_task(self.staging_store.periodic_flush(self.stop_event)),
             asyncio.create_task(self.fallback_manager.run(self.stop_event)),
             asyncio.create_task(self.order_service.run_native_stop_monitor(self.stop_event)),
-            asyncio.create_task(self._server_time_loop()),
+            asyncio.create_task(self.time_sync_manager.run(self.stop_event)),
             asyncio.create_task(self._position_refresh_loop()),
             asyncio.create_task(self._symbol_refresh_loop()),
             asyncio.create_task(self._db_flush_loop()),
@@ -208,18 +216,9 @@ class TradingApplication:
         await self.notifier.send_info("WEBSOCKET_CATCHUP_COMPLETED", details={"symbol_count": len(symbols)})
 
     async def _server_time_loop(self) -> None:
+        """已移轉至 TimeSyncManager - 此方法保留以便向後相容"""
         while not self.stop_event.is_set():
             await asyncio.sleep(self.settings.server_time_resync_interval_seconds)
-            try:
-                healthy = await self.exchange_client.ensure_time_sync(force=True)
-                if not healthy:
-                    await self.notifier.send_error(
-                        "SERVER_TIME_RESYNC_BLOCKED",
-                        details={"offset_ms": self.exchange_client.time_offset_ms},
-                    )
-            except Exception as exc:
-                self.logger.error("server time resync failed error=%s", exc)
-                await self.notifier.send_error("SERVER_TIME_RESYNC_FAILED", error_message=str(exc))
 
     async def _position_refresh_loop(self) -> None:
         while not self.stop_event.is_set():

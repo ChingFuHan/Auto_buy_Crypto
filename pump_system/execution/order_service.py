@@ -214,20 +214,21 @@ class OrderService:
                 await self.notifier.send_error("MANUAL_FUNCTION_TEST_SYMBOL_MISSING", symbol=symbol)
             raise BinanceAPIError(f"function_test_symbol_missing {symbol}")
 
-        klines_3m = await self.exchange_client.get_klines(symbol, "3m", limit=1)
-        if len(klines_3m) < 1:
+        interval = self.settings.strategy_interval
+        klines = await self.exchange_client.get_klines(symbol, interval, limit=1)
+        if len(klines) < 1:
             raise BinanceAPIError(f"insufficient_klines symbol={symbol}")
-        latest_3m = klines_3m[-1]
-        current_3m = Kline(
+        latest = klines[-1]
+        current_bar = Kline(
             symbol=symbol,
-            interval="3m",
+            interval=interval,
             open_time=utc_now(),
             close_time=utc_now(),
-            open_price=Decimal(str(latest_3m[1])),
-            high_price=Decimal(str(latest_3m[2])),
-            low_price=Decimal(str(latest_3m[3])),
-            close_price=Decimal(str(latest_3m[4])),
-            volume=Decimal(str(latest_3m[5])),
+            open_price=Decimal(str(latest[1])),
+            high_price=Decimal(str(latest[2])),
+            low_price=Decimal(str(latest[3])),
+            close_price=Decimal(str(latest[4])),
+            volume=Decimal(str(latest[5])),
             closed=False,
             event_time=utc_now(),
         )
@@ -236,22 +237,22 @@ class OrderService:
             triggered=True,
             reason="manual_function_test",
             metrics={"mode": "manual_function_test"},
-            stop_reference_low=current_3m.low_price,
-            current_price=current_3m.close_price,
+            stop_reference_low=current_bar.low_price,
+            current_price=current_bar.close_price,
         )
         bar_key = f"manual:{symbol}:{int(utc_now().timestamp())}"
-        await self._execute_trade(symbol, decision, current_3m, symbol_info, bar_key)
+        await self._execute_trade(symbol, decision, current_bar, symbol_info, bar_key)
 
     async def _evaluate_symbol(self, symbol: str) -> None:
-        three_m_limit = max(self.settings.strategy.three_m_lookback, self.settings.strategy.three_m_breakout_lookback, 5)
-        finalized_3m, current_3m = await self.staging_store.get_signal_snapshot(symbol, three_m_limit)
+        signal_limit = max(self.settings.strategy.lookback, self.settings.strategy.breakout_lookback, 5)
+        finalized_bars, current_bar = await self.staging_store.get_signal_snapshot(symbol, signal_limit)
 
-        decision = self.signal_engine.evaluate(symbol, finalized_3m, current_3m)
+        decision = self.signal_engine.evaluate(symbol, finalized_bars, current_bar)
         self.logger.info("signal check symbol=%s triggered=%s reason=%s metrics=%s", symbol, decision.triggered, decision.reason, decision.metrics)
-        if not decision.triggered or current_3m is None:
+        if not decision.triggered or current_bar is None:
             return
 
-        bar_key = f"{symbol}:{current_3m.open_time.isoformat()}"
+        bar_key = f"{symbol}:{current_bar.open_time.isoformat()}"
         if self._last_handled_bar.get(symbol) == bar_key:
             return
 
@@ -286,7 +287,7 @@ class OrderService:
         symbol_info = self.symbol_registry.get(symbol)
         if symbol_info is None:
             return
-        await self._execute_trade(symbol, decision, current_3m, symbol_info, bar_key)
+        await self._execute_trade(symbol, decision, current_bar, symbol_info, bar_key)
 
     async def _execute_trade(
         self,
@@ -450,7 +451,8 @@ class OrderService:
             raw_fallback_stop = decision.stop_reference_low or current_bar.low_price
             stop_price = floor_to_step(raw_fallback_stop, symbol_info.tick_size)
             self.logger.error(
-                "[RISK] configured stop price unavailable; falling back to in-progress 3m low symbol=%s fallback_stop=%s stop_price_mode=%s",
+                "[RISK] configured stop price unavailable; falling back to in-progress %s low symbol=%s fallback_stop=%s stop_price_mode=%s",
+                self.settings.strategy_interval,
                 symbol,
                 stop_price,
                 self.settings.stop_price_mode,
@@ -580,7 +582,7 @@ class OrderService:
         return self.settings.target_notional_usdt
 
     def _resolve_stop_price(self, symbol_info, decision: SignalDecision, market_order: dict) -> Decimal | None:
-        if self.settings.stop_price_mode == "IN_PROGRESS_3M_LOW":
+        if self.settings.stop_price_mode in {"IN_PROGRESS_INTERVAL_LOW", "IN_PROGRESS_3M_LOW", "IN_PROGRESS_15M_LOW"}:
             raw_stop = decision.stop_reference_low
         elif self.settings.stop_price_mode == "NOTIONAL_RISK_PCT":
             entry_price = self._resolve_entry_price(decision, market_order)

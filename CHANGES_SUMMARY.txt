@@ -1,0 +1,147 @@
+═══════════════════════════════════════════════════════════════════════════
+  BACKFILL RATE LIMIT HANDLING - CHANGES SUMMARY
+═══════════════════════════════════════════════════════════════════════════
+
+PROBLEM FIXED
+─────────────
+When running: python3 main.py backfill
+
+The program would crash with error after hitting Binance API rate limit (429):
+  "Too many requests; current limit of IP is 2400 requests per minute"
+
+This happened because the rate limit detection was local to each request,
+not persisting across the entire backfill operation.
+
+SOLUTION IMPLEMENTED
+────────────────────
+Converted rate_limit_wait_until from a LOCAL variable (lost after each 
+request) to an INSTANCE variable (persists across all requests).
+
+Now when rate limit is hit:
+1. Global wait window is set: rate_limit_wait_until_ms = now + 60_000 ms
+2. ALL subsequent requests check this window
+3. If still waiting, they sleep until window expires
+4. After 60+ seconds, they proceed normally
+5. Process continues until all data is downloaded
+
+
+FILES MODIFIED
+──────────────
+1. pump_system/exchange/binance_client.py
+   
+   Change 1: Added instance variable in __init__():
+   ───────────────────────────────────────────────
+   self.rate_limit_wait_until_ms = 0.0
+   
+   
+   Change 2: Modified _request() method:
+   ───────────────────────────────────────────────
+   BEFORE: Local variable
+     rate_limit_wait_until = 0.0
+     
+   AFTER: Instance variable (persists)
+     self.rate_limit_wait_until_ms = now_ms + 60_000
+     
+   Added pre-request check:
+   - Before attempting HTTP request, check if global rate limit window active
+   - If yes, sleep until it expires
+   - This prevents cascading 429 errors from parallel requests
+
+
+FILES CREATED
+──────────────
+1. BACKFILL_RATE_LIMIT_GUIDE.md
+   - Comprehensive guide for using backfill with rate limits
+   - Configuration details
+   - Monitoring and troubleshooting
+
+2. QUICK_START_BACKFILL.md
+   - Quick reference for running backfill
+   - One-line commands
+   - Expected output
+
+
+TESTING VERIFICATION
+────────────────────
+✅ All 19 tests pass: 18 passed, 1 xfailed
+✅ Syntax validation: OK
+✅ Rate limit persistence test: OK
+   - Verified rate_limit_wait_until_ms initialized correctly
+   - Verified state persists across requests
+   - Verified wait window expires correctly
+
+
+USAGE
+─────
+LINUX:
+  cd /media/sf_agent_sanbox_vm/Auto_buy_Crypto
+  source .venv/bin/activate
+  python3 main.py backfill
+
+WINDOWS (PowerShell):
+  cd C:\Users\User\Documents\agent_sanbox_vm\Auto_buy_Crypto
+  .\.venv\Scripts\python.exe main.py backfill
+
+The program will:
+✓ Detect rate limit
+✓ Wait ~60 seconds
+✓ Continue automatically
+✓ Finish all 120 days of data
+
+
+EXPECTED BEHAVIOR
+──────────────────
+Normal (no rate limit):
+  5-10 minutes to complete
+
+With rate limit waits (typical):
+  30-45 minutes (1-3 rate limit hits expected)
+
+Backfill will run to completion WITHOUT manual intervention.
+
+
+MONITORING
+──────────
+tail -f logs/app.log | grep -E "backfill|rate limit|429"
+
+You'll see:
+[INFO] backfill completed symbol=... inserted=...
+[WARNING] rate limit 429 detected, waiting 59.5 sec...
+[INFO] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+
+CONFIGURATION
+──────────────
+In .env, if needed:
+  BACKFILL_CONCURRENCY=5  (lower = fewer rate limits but slower)
+  BACKFILL_DAYS=120       (keep as-is for 120 days data)
+  BACKFILL_LIMIT=1000     (max Binance allows, don't change)
+
+
+BACKWARD COMPATIBILITY
+──────────────────────
+✅ No breaking changes
+✅ All existing code still works
+✅ All tests pass
+✅ Rate limit handling is transparent
+
+
+KEY TECHNICAL DETAILS
+──────────────────────
+Class: BinanceClient
+Instance Variable: rate_limit_wait_until_ms
+
+Initialization: 0.0 (no wait)
+
+When 429 error:
+  rate_limit_wait_until_ms = now_ms + 60_000
+
+Before each request:
+  if rate_limit_wait_until_ms > now_ms:
+    wait until window expires
+    continue request
+
+After window expires:
+  rate_limit_wait_until_ms automatically cleared on next successful request
+
+═══════════════════════════════════════════════════════════════════════════

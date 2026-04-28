@@ -1,0 +1,393 @@
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 12:37:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 12:52:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 13:07:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 13:22:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 13:37:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 13:52:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 13
+
+最新進度：
+[2026-04-25 13:47:14,786] [INFO] [market_data.backfill] backfill completed symbol=ARCUSDT interval=1m inserted=10000
+[2026-04-25 13:47:26,593] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:48:34,702] [INFO] [market_data.backfill] backfill completed symbol=ARIAUSDT interval=1m inserted=1699
+[2026-04-25 13:48:51,722] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:50:26,713] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:51:51,318] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 14:07:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 14:22:51
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 53
+
+最新進度：
+[2026-04-25 14:15:53,191] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:17:25,613] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:18:53,469] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:20:26,473] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:21:52,556] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 14:37:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 14:52:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 93
+
+最新進度：
+[2026-04-25 14:45:50,058] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:47:24,799] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:48:49,738] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:50:24,730] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:51:49,911] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 15:07:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 15:22:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 133
+
+最新進度：
+[2026-04-25 15:15:50,057] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:17:26,133] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:18:51,233] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:20:25,361] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:21:50,288] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 15:37:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 15:52:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 173
+
+最新進度：
+[2026-04-25 15:45:53,022] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:47:26,235] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:48:52,908] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:50:25,895] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:51:52,916] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 16:07:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 16:22:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 213
+
+最新進度：
+[2026-04-25 16:15:50,415] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:17:24,959] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:18:50,292] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:20:25,810] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:21:51,317] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 16:37:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 16:52:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 253
+
+最新進度：
+[2026-04-25 16:45:50,273] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:47:24,804] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:48:49,917] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:50:25,090] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:51:50,012] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 17:07:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 0
+0
+📊 總插入行數: 
+⚠️  Rate limit 次數: 0
+0
+
+最新進度：
+（無新消息）
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 17:22:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 293
+
+最新進度：
+[2026-04-25 17:16:51,180] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:18:25,362] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:19:50,044] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:21:24,926] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:22:50,614] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 17:37:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 313
+
+最新進度：
+[2026-04-25 17:31:52,588] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:33:25,271] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:34:50,755] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:36:25,378] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:37:50,855] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 17:52:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 333
+
+最新進度：
+[2026-04-25 17:46:51,001] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:48:25,145] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:49:50,229] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:51:24,843] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:52:50,022] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 18:07:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 353
+
+最新進度：
+[2026-04-25 18:01:54,006] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:03:25,105] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:04:50,097] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:06:25,107] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:07:51,781] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 18:22:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 373
+
+最新進度：
+[2026-04-25 18:16:50,941] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:18:25,020] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:19:51,151] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:21:25,350] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:22:50,414] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 18:37:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 393
+
+最新進度：
+[2026-04-25 18:31:53,317] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:33:25,005] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:34:50,858] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:36:24,815] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:37:49,953] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════
+════════════════════════════════════════════════════════════════
+Backfill 進度監控 - 2026-04-25 18:52:52
+════════════════════════════════════════════════════════════════
+
+✅ 已完成符號對: 104
+📊 總插入行數: 0
+⚠️  Rate limit 次數: 411
+
+最新進度：
+[2026-04-25 18:45:25,339] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:46:50,873] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:48:24,553] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:49:49,773] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:51:44,833] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+
+════════════════════════════════════════════════════════════════

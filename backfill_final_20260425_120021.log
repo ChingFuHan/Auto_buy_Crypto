@@ -1,0 +1,44 @@
+[2026-04-25 12:00:21,761] [INFO] [cache.staging] restored staging rows 1m=0 3m=0
+[2026-04-25 12:00:21,763] [INFO] [fallback.stop] restored fallback stops active=0
+[2026-04-25 12:00:21,911] [INFO] [exchange.binance] server time synced offset_ms=31 rtt_ms=147
+[2026-04-25 12:00:21,993] [INFO] [app] symbol registry loaded data_symbols=535 candidate_symbols=528
+[2026-04-25 12:00:22,519] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,576] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,595] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,600] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,609] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,612] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,619] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,625] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,628] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,636] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,648] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,672] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,682] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,689] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,694] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,699] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,701] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,710] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,713] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,729] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,734] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,747] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,758] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,765] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,772] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,775] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,779] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,787] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,794] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=1m inserted=11
+[2026-04-25 12:00:22,805] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,821] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=3m inserted=4
+[2026-04-25 12:00:22,843] [INFO] [market_data.backfill] backfill completed symbol=4USDT interval=3m inserted=4
+[2026-04-25 12:00:22,850] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=3m inserted=4
+[2026-04-25 12:00:23,058] [INFO] [market_data.backfill] backfill completed symbol=ACEUSDT interval=3m inserted=4
+[2026-04-25 12:00:23,101] [INFO] [market_data.backfill] backfill completed symbol=ACHUSDT interval=3m inserted=4
+[2026-04-25 12:00:23,730] [INFO] [notify.telegram] telegram sent event_type=SERVER_TIME_SYNC_OK
+[2026-04-25 12:00:24,292] [INFO] [notify.telegram] telegram sent event_type=BACKFILL_STARTED
+[2026-04-25 12:00:26,647] [INFO] [market_data.backfill] backfill completed symbol=ACTUSDT interval=3m inserted=905
+[2026-04-25 12:00:36,853] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=1m inserted=3616
+[2026-04-25 12:00:38,080] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=1m inserted=5316

@@ -1,0 +1,522 @@
+[2026-04-25 13:42:18,707] [INFO] [cache.staging] restored staging rows 1m=0 3m=0
+[2026-04-25 13:42:18,709] [INFO] [fallback.stop] restored fallback stops active=0
+[2026-04-25 13:42:20,566] [INFO] [exchange.binance] server time synced offset_ms=887 rtt_ms=1856
+[2026-04-25 13:42:20,655] [INFO] [app] symbol registry loaded data_symbols=535 candidate_symbols=528
+[2026-04-25 13:42:21,418] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=1m inserted=8
+[2026-04-25 13:42:21,482] [INFO] [market_data.backfill] backfill completed symbol=0GUSDT interval=3m inserted=3
+[2026-04-25 13:42:21,541] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=1m inserted=8
+[2026-04-25 13:42:21,594] [INFO] [market_data.backfill] backfill completed symbol=1000000BOBUSDT interval=3m inserted=3
+[2026-04-25 13:42:21,649] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=1m inserted=8
+[2026-04-25 13:42:21,709] [INFO] [market_data.backfill] backfill completed symbol=1000000MOGUSDT interval=3m inserted=3
+[2026-04-25 13:42:21,775] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=1m inserted=8
+[2026-04-25 13:42:21,831] [INFO] [market_data.backfill] backfill completed symbol=1000BONKUSDT interval=3m inserted=3
+[2026-04-25 13:42:21,885] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=1m inserted=8
+[2026-04-25 13:42:21,937] [INFO] [market_data.backfill] backfill completed symbol=1000CATUSDT interval=3m inserted=3
+[2026-04-25 13:42:21,990] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,045] [INFO] [market_data.backfill] backfill completed symbol=1000CHEEMSUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,104] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,162] [INFO] [market_data.backfill] backfill completed symbol=1000FLOKIUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,218] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,257] [INFO] [notify.telegram] telegram sent event_type=SERVER_TIME_SYNC_OK
+[2026-04-25 13:42:22,273] [INFO] [market_data.backfill] backfill completed symbol=1000LUNCUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,330] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,385] [INFO] [market_data.backfill] backfill completed symbol=1000PEPEUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,437] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,499] [INFO] [market_data.backfill] backfill completed symbol=1000RATSUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,554] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,607] [INFO] [market_data.backfill] backfill completed symbol=1000SATSUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,658] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,689] [INFO] [notify.telegram] telegram sent event_type=BACKFILL_STARTED
+[2026-04-25 13:42:22,712] [INFO] [market_data.backfill] backfill completed symbol=1000SHIBUSDT interval=3m inserted=3
+[2026-04-25 13:42:22,832] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=1m inserted=8
+[2026-04-25 13:42:22,957] [INFO] [market_data.backfill] backfill completed symbol=1000XECUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,077] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=1m inserted=8
+[2026-04-25 13:42:23,198] [INFO] [market_data.backfill] backfill completed symbol=1INCHUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,256] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=1m inserted=8
+[2026-04-25 13:42:23,379] [INFO] [market_data.backfill] backfill completed symbol=1MBABYDOGEUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,435] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=1m inserted=8
+[2026-04-25 13:42:23,557] [INFO] [market_data.backfill] backfill completed symbol=2ZUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,642] [INFO] [market_data.backfill] backfill completed symbol=4USDT interval=1m inserted=8
+[2026-04-25 13:42:23,702] [INFO] [market_data.backfill] backfill completed symbol=4USDT interval=3m inserted=3
+[2026-04-25 13:42:23,759] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=1m inserted=8
+[2026-04-25 13:42:23,822] [INFO] [market_data.backfill] backfill completed symbol=AAVEUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,879] [INFO] [market_data.backfill] backfill completed symbol=ACEUSDT interval=1m inserted=8
+[2026-04-25 13:42:23,933] [INFO] [market_data.backfill] backfill completed symbol=ACEUSDT interval=3m inserted=3
+[2026-04-25 13:42:23,987] [INFO] [market_data.backfill] backfill completed symbol=ACHUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,064] [INFO] [market_data.backfill] backfill completed symbol=ACHUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,132] [INFO] [market_data.backfill] backfill completed symbol=ACTUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,189] [INFO] [market_data.backfill] backfill completed symbol=ACTUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,246] [INFO] [market_data.backfill] backfill completed symbol=ACUUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,302] [INFO] [market_data.backfill] backfill completed symbol=ACUUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,429] [INFO] [market_data.backfill] backfill completed symbol=ACXUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,484] [INFO] [market_data.backfill] backfill completed symbol=ACXUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,539] [INFO] [market_data.backfill] backfill completed symbol=ADAUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,593] [INFO] [market_data.backfill] backfill completed symbol=ADAUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,644] [INFO] [market_data.backfill] backfill completed symbol=AERGOUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,702] [INFO] [market_data.backfill] backfill completed symbol=AERGOUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,755] [INFO] [market_data.backfill] backfill completed symbol=AEROUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,809] [INFO] [market_data.backfill] backfill completed symbol=AEROUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,865] [INFO] [market_data.backfill] backfill completed symbol=AEVOUSDT interval=1m inserted=8
+[2026-04-25 13:42:24,917] [INFO] [market_data.backfill] backfill completed symbol=AEVOUSDT interval=3m inserted=3
+[2026-04-25 13:42:24,996] [INFO] [market_data.backfill] backfill completed symbol=AGLDUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,047] [INFO] [market_data.backfill] backfill completed symbol=AGLDUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,101] [INFO] [market_data.backfill] backfill completed symbol=AGTUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,151] [INFO] [market_data.backfill] backfill completed symbol=AGTUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,204] [INFO] [market_data.backfill] backfill completed symbol=AIAUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,256] [INFO] [market_data.backfill] backfill completed symbol=AIAUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,309] [INFO] [market_data.backfill] backfill completed symbol=AINUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,364] [INFO] [market_data.backfill] backfill completed symbol=AINUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,421] [INFO] [market_data.backfill] backfill completed symbol=AIOTUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,476] [INFO] [market_data.backfill] backfill completed symbol=AIOTUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,536] [INFO] [market_data.backfill] backfill completed symbol=AIOUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,588] [INFO] [market_data.backfill] backfill completed symbol=AIOUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,639] [INFO] [market_data.backfill] backfill completed symbol=AIUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,697] [INFO] [market_data.backfill] backfill completed symbol=AIUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,748] [INFO] [market_data.backfill] backfill completed symbol=AIXBTUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,802] [INFO] [market_data.backfill] backfill completed symbol=AIXBTUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,856] [INFO] [market_data.backfill] backfill completed symbol=AKEUSDT interval=1m inserted=8
+[2026-04-25 13:42:25,907] [INFO] [market_data.backfill] backfill completed symbol=AKEUSDT interval=3m inserted=3
+[2026-04-25 13:42:25,958] [INFO] [market_data.backfill] backfill completed symbol=AKTUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,009] [INFO] [market_data.backfill] backfill completed symbol=AKTUSDT interval=3m inserted=3
+[2026-04-25 13:42:26,063] [INFO] [market_data.backfill] backfill completed symbol=ALCHUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,117] [INFO] [market_data.backfill] backfill completed symbol=ALCHUSDT interval=3m inserted=3
+[2026-04-25 13:42:26,168] [INFO] [market_data.backfill] backfill completed symbol=ALGOUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,224] [INFO] [market_data.backfill] backfill completed symbol=ALGOUSDT interval=3m inserted=3
+[2026-04-25 13:42:26,276] [INFO] [market_data.backfill] backfill completed symbol=ALICEUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,334] [INFO] [market_data.backfill] backfill completed symbol=ALICEUSDT interval=3m inserted=3
+[2026-04-25 13:42:26,423] [INFO] [market_data.backfill] backfill completed symbol=ALLOUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,473] [INFO] [market_data.backfill] backfill completed symbol=ALLOUSDT interval=3m inserted=3
+[2026-04-25 13:42:26,530] [INFO] [market_data.backfill] backfill completed symbol=ALLUSDT interval=1m inserted=8
+[2026-04-25 13:42:26,587] [INFO] [market_data.backfill] backfill completed symbol=ALLUSDT interval=3m inserted=3
+[2026-04-25 13:42:28,510] [INFO] [market_data.backfill] backfill completed symbol=ALPINEUSDT interval=1m inserted=1607
+[2026-04-25 13:42:33,205] [INFO] [market_data.backfill] backfill completed symbol=ALPINEUSDT interval=3m inserted=4399
+[2026-04-25 13:42:46,617] [INFO] [market_data.backfill] backfill completed symbol=ALTUSDT interval=1m inserted=12999
+[2026-04-25 13:42:51,187] [INFO] [market_data.backfill] backfill completed symbol=ALTUSDT interval=3m inserted=4399
+[2026-04-25 13:43:05,002] [INFO] [market_data.backfill] backfill completed symbol=ANIMEUSDT interval=1m inserted=12999
+[2026-04-25 13:43:09,482] [INFO] [market_data.backfill] backfill completed symbol=ANIMEUSDT interval=3m inserted=4399
+[2026-04-25 13:43:23,102] [INFO] [market_data.backfill] backfill completed symbol=ANKRUSDT interval=1m inserted=12999
+[2026-04-25 13:43:27,574] [INFO] [market_data.backfill] backfill completed symbol=ANKRUSDT interval=3m inserted=4399
+[2026-04-25 13:43:40,490] [INFO] [market_data.backfill] backfill completed symbol=APEUSDT interval=1m inserted=12999
+[2026-04-25 13:43:44,884] [INFO] [market_data.backfill] backfill completed symbol=APEUSDT interval=3m inserted=4399
+[2026-04-25 13:43:48,996] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:43:50,193] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:44:59,617] [INFO] [market_data.backfill] backfill completed symbol=API3USDT interval=1m inserted=12999
+[2026-04-25 13:45:04,585] [INFO] [market_data.backfill] backfill completed symbol=API3USDT interval=3m inserted=4399
+[2026-04-25 13:45:18,281] [INFO] [market_data.backfill] backfill completed symbol=APRUSDT interval=1m inserted=12999
+[2026-04-25 13:45:22,981] [INFO] [market_data.backfill] backfill completed symbol=APRUSDT interval=3m inserted=4399
+[2026-04-25 13:45:36,684] [INFO] [market_data.backfill] backfill completed symbol=APTUSDT interval=1m inserted=12999
+[2026-04-25 13:45:41,527] [INFO] [market_data.backfill] backfill completed symbol=APTUSDT interval=3m inserted=4399
+[2026-04-25 13:45:51,187] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:45:52,348] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:46:56,163] [INFO] [market_data.backfill] backfill completed symbol=ARBUSDT interval=1m inserted=12999
+[2026-04-25 13:47:01,149] [INFO] [market_data.backfill] backfill completed symbol=ARBUSDT interval=3m inserted=4399
+[2026-04-25 13:47:14,786] [INFO] [market_data.backfill] backfill completed symbol=ARCUSDT interval=1m inserted=10000
+[2026-04-25 13:47:25,321] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:47:26,593] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:48:34,702] [INFO] [market_data.backfill] backfill completed symbol=ARIAUSDT interval=1m inserted=1699
+[2026-04-25 13:48:50,462] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:48:51,722] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:50:25,455] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:50:26,713] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:51:50,134] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:51:51,318] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:53:23,557] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:53:24,832] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:54:48,120] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:54:49,345] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:56:23,793] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:56:24,963] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:57:49,080] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:57:50,282] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 13:59:23,823] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 13:59:24,992] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:00:48,437] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:00:49,604] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:02:24,978] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:02:26,151] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:03:50,340] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:03:51,522] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:05:24,127] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:05:25,284] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:06:50,599] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:06:51,766] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:08:24,909] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:08:26,071] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:09:50,618] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:09:51,783] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:11:26,148] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:11:27,321] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:12:52,730] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:12:53,901] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:14:25,899] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:14:27,097] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:15:51,986] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:15:53,191] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:17:24,401] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:17:25,613] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:18:52,286] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:18:53,469] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:20:25,311] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:20:26,473] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:21:51,275] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:21:52,556] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:23:25,043] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:23:26,211] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:24:50,534] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:24:51,727] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:26:24,160] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:26:25,400] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:27:50,024] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:27:51,229] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:29:23,969] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:29:25,165] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:30:50,699] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:30:51,874] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:32:24,075] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:32:25,250] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:33:49,614] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:33:50,923] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:35:24,500] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:35:25,693] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:36:49,161] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:36:50,512] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:38:23,673] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:38:24,913] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:39:48,833] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:39:50,017] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:41:23,473] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:41:24,674] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:42:48,550] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:42:49,701] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:44:23,683] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:44:24,866] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:45:48,881] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:45:50,058] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:47:23,495] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:47:24,799] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:48:48,592] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:48:49,738] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:50:23,564] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:50:24,730] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:51:48,674] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:51:49,911] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:53:23,515] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:53:24,751] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:54:48,212] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:54:49,383] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:56:23,599] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:56:24,798] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:57:48,318] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:57:49,491] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 14:59:24,126] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 14:59:25,295] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:00:49,875] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:00:51,053] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:02:24,323] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:02:25,499] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:03:49,647] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:03:50,899] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:05:24,258] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:05:25,438] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:06:49,197] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:06:50,509] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:08:23,307] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:08:24,465] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:09:48,511] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:09:49,732] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:11:23,934] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:11:25,146] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:12:49,335] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:12:50,496] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:14:23,705] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:14:24,894] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:15:48,859] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:15:50,057] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:17:24,934] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:17:26,133] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:18:50,060] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:18:51,233] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:20:24,177] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:20:25,361] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:21:49,122] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:21:50,288] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:23:24,147] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:23:25,321] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:24:49,144] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:24:50,520] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:26:24,137] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:26:25,366] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:27:48,822] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:27:50,016] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:29:23,690] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:29:24,850] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:30:49,957] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:30:51,163] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:32:26,720] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:32:27,894] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:33:51,909] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:33:53,066] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:35:24,293] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:35:25,449] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:36:49,424] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:36:50,724] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:38:24,188] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:38:25,369] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:39:50,287] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:39:51,484] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:41:26,632] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:41:27,821] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:42:54,471] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:42:55,727] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:44:24,622] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:44:25,809] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:45:51,535] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:45:53,022] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:47:25,061] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:47:26,235] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:48:51,716] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:48:52,908] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:50:24,716] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:50:25,895] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:51:51,471] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:51:52,916] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:53:23,863] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:53:25,060] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:54:49,428] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:54:50,620] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:56:23,671] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:56:24,830] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:57:48,812] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:57:49,988] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 15:59:24,037] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 15:59:25,251] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:00:49,692] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:00:50,873] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:02:24,578] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:02:25,806] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:03:49,574] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:03:50,732] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:05:23,880] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:05:25,083] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:06:48,953] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:06:50,111] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:08:23,616] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:08:24,789] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:09:49,376] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:09:50,564] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:11:23,425] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:11:24,600] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:12:48,719] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:12:49,901] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:14:23,906] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:14:25,036] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:15:49,191] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:15:50,415] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:17:23,751] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:17:24,959] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:18:49,101] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:18:50,292] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:20:24,650] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:20:25,810] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:21:50,151] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:21:51,317] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:23:24,061] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:23:25,284] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:24:49,358] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:24:50,532] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:26:24,214] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:26:25,419] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:27:49,656] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:27:50,857] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:29:23,574] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:29:24,780] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:30:49,838] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:30:51,121] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:32:23,325] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:32:24,524] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:33:48,607] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:33:49,790] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:35:24,151] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:35:25,331] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:36:48,860] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:36:50,081] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:38:23,346] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:38:24,530] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:39:48,717] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:39:49,873] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:41:22,703] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:41:23,908] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:42:48,754] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:42:49,954] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:44:23,938] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:44:25,080] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:45:49,005] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:45:50,273] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:47:23,621] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:47:24,804] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:48:48,692] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:48:49,917] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:50:23,884] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:50:25,090] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:51:48,848] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:51:50,012] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:53:23,745] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:53:24,976] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:54:48,772] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:54:49,948] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:56:24,168] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:56:25,327] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:57:48,834] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:57:50,012] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 16:59:23,803] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 16:59:24,991] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:00:49,042] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:00:50,203] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:02:23,632] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:02:24,789] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:03:49,642] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:03:50,849] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:05:25,258] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:05:26,444] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:06:50,238] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:06:51,487] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:09:25,802] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:09:27,022] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:10:57,104] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:10:58,299] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:12:24,490] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:12:25,690] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:13:49,113] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:13:50,296] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:15:24,396] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:15:25,589] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:16:50,002] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:16:51,180] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:18:24,155] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:18:25,362] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:19:48,808] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:19:50,044] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:21:23,720] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:21:24,926] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:22:49,376] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:22:50,614] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:24:24,073] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:24:25,255] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:25:49,643] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:25:50,820] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:27:24,191] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:27:25,403] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:28:49,692] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:28:50,935] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:30:25,862] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:30:27,064] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:31:51,421] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:31:52,588] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:33:24,096] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:33:25,271] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:34:49,581] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:34:50,755] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:36:24,224] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:36:25,378] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:37:49,664] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:37:50,855] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:39:26,811] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:39:27,992] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:40:52,776] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:40:53,960] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:42:23,749] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:42:24,934] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:43:53,452] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:43:54,581] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:45:24,013] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:45:25,156] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:46:49,828] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:46:51,001] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:48:23,975] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:48:25,145] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:49:49,031] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:49:50,229] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:51:23,634] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:51:24,843] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:52:48,844] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:52:50,022] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:54:23,895] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:54:25,107] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:55:49,587] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:55:50,752] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:57:24,027] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:57:25,270] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 17:58:51,888] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 17:58:53,132] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:00:26,790] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:00:27,930] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:01:52,830] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:01:54,006] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:03:23,918] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:03:25,105] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:04:48,950] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:04:50,097] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:06:23,970] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:06:25,107] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:07:50,501] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:07:51,781] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:09:24,149] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:09:25,336] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:10:49,805] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:10:50,971] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:12:24,361] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:12:25,574] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:13:48,906] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:13:50,124] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:15:24,481] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:15:25,649] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:16:49,768] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:16:50,941] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:18:23,853] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:18:25,020] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:19:49,953] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:19:51,151] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:21:24,172] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:21:25,350] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:22:49,233] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:22:50,414] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:24:23,692] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:24:24,861] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:25:50,134] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:25:51,351] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:27:24,383] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:27:25,654] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:28:50,027] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:28:51,273] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:30:26,321] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:30:27,494] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:31:52,152] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:31:53,317] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:33:23,828] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:33:25,005] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:34:49,687] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:34:50,858] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:36:23,623] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:36:24,815] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:37:48,802] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:37:49,953] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:39:23,634] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:39:24,807] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:40:48,594] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:40:49,800] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:42:24,008] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:42:25,215] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:43:49,596] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:43:50,830] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:45:24,159] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:45:25,339] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:46:49,720] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:46:50,873] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:48:23,375] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:48:24,553] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:49:48,619] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:49:49,773] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:51:43,683] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:51:44,833] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT
+[2026-04-25 18:53:47,616] [WARNING] [exchange.binance] rate limit 429 detected, waiting 60.0 sec until next minute method=GET path=/fapi/v1/klines error=status=429 code=-1003 msg=Too many requests; current limit of IP(180.177.8.138) is 2400 requests per minute. Please use the websocket for live updates to avoid polling the API.
+[2026-04-25 18:53:48,806] [INFO] [notify.telegram] telegram sent event_type=BINANCE_API_RATE_LIMIT_WAIT

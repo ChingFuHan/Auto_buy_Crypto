@@ -38,7 +38,7 @@ class WebSocketManager:
         streams: list[str] = []
         for symbol in symbols:
             lower = symbol.lower()
-            streams.append(f"{lower}@kline_3m")
+            streams.append(f"{lower}@kline_{self.settings.strategy_interval}")
 
         chunk_size = max(1, min(self.settings.ws_max_streams_per_connection, 1024))
         for index in range(0, len(streams), chunk_size):
