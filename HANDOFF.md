@@ -4,6 +4,7 @@
 
 ## 接手必讀 / Active Watch Items
 
+- 2026-04-29 +08:00：**[PARAM CHANGE] `return_pct_min` 從 `0.015` 調升至 `0.017`**（`config.py` 3m / 15m 兩組同步）。根因：兩筆真實入場（SFPUSDT、TRUMPUSDT）觸發當下 `ret_pct` 均壓線在 0.015 邊界，K 棒收盤後分別落至 0.01440 / 0.01457，皆破門檻。觸發→收盤最大滑落量 **Δ0.00141**（SFPUSDT），故加 +0.002 緩衝至 0.017。此值對應含義：in-progress K 棒相對上一根收盤已上漲 ≥1.7% 才觸發。副作用：信號頻率降低，正式盤需觀察數日確認是否漏掉有效信號；若過濾太積極可折中至 `0.016`。
 - 2026-04-28 12:08 +08:00：使用者回報 `SERVER_TIME_OFFSET_BLOCKED (offset_ms: 157704)` 在程式啟動初期發生。經診斷確認現已恢復正常 (+36 ms)。根因：TimeSyncManager 啟動時未立即進行同步，而是等待首個 60 秒週期。已改進：(1) 啟動時立即進行第一次同步；(2) 偏移超過 5000ms 時立即重新同步（不等待下一週期）。提交 3b3a4fc。
 - 2026-04-28 11:31 +08:00：新增 **Always-Sync 持續時間同步服務**（`pump_system/sync/time_sync_manager.py`）。`main.py run` 執行期間無需停止，TimeSyncManager 會每 60 秒自動檢查並同步時間。三層監控：HEALTHY (≤3s 靜默) / WARNING (3-8s 每 5 次通知) / CRITICAL (>8s 立即通知)。詳見 `ALWAYS_SYNC_TIME.md`。整合測試通過（36 passed 1 xfailed）。
 - 2026-04-28 11:27 +08:00：新增時間同步診斷工具 `time_sync_diagnostic.py`。之前使用者回報 `SERVER_TIME_OFFSET_BLOCKED (offset_ms: 101933)`，經診斷現已恢復正常（offset: +23 ms）。詳見 `TIME_SYNC_TROUBLESHOOT.md`；若再次發生類似問題，執行 `python3 time_sync_diagnostic.py --repeat 3` 快速診斷。
@@ -492,3 +493,26 @@
 
 - 2026-04-28 10:43-10:51 +08:00：完成 DB 時區遷移 UTC+0 → UTC+8（commit `6cbfc04`）。三張 semi_auto_price_future_*m 表全部 da +8h；`Kline.db_timestamp` 改為轉成 UTC+8 naive 存入 DB；`repository.py` 讀取時將 da 視為 UTC+8 aware；`backfill.py` 時間比較邏輯同步調整。已停程式→DB migration→程式改動→測試 36 passed。現在 DB 觀看時間都是 UTC+8 對齊，無需心算時差。
 
+
+## 本輪 (2026-04-29) - 1000CATUSDT / YBUSDT 規則符合性快查
+
+- 僅做查詢分析：已讀 `god_rule.md`、`README.md`、`HANDOFF.md`，並最小範圍檢查 `config.py`、`pump_system/strategy/signal_engine.py`、`logs/app.log`；未修改交易邏輯、未改 `.env`、未連 API 下新單、未查/寫 DB。
+- 規則來源確認：`SignalEngine` 觸發條件為壓縮、量比、單根漲幅、突破、非過熱、非過度延伸、連陽限制；15m 預設門檻為 `VOLUME_MULTIPLE=2.0`、`RETURN_PCT_MIN=0.015`、`OVERHEAT_LIMIT_PCT=0.060`、`SIGNAL_PRIOR_RUNUP_LIMIT_PCT=0.040`、`SIGNAL_MAX_RECENT_GREEN_BARS=3`。
+- `1000CATUSDT`：在 `logs/app.log` 多次 `signal check ... triggered=True reason=triggered`，例：`vol_ratio_15m≈4.14~4.22`、`ret_15m_pct≈0.055~0.057`、`breakout_15m=True`、`prior_runup_15m_pct≈0.010`，依目前程式規則屬「符合可進場」。
+- `YBUSDT`：同一檔 log 可見兩種狀態：
+  - 一段時間 `triggered=True`（例：`ret_15m_pct≈0.0417`、`vol_ratio_15m≈5.24+`、`breakout_15m=True`）
+  - 後續又回到 `triggered=False`（`15m_not_compressed,15m_volume_too_low,15m_push_too_small,15m_not_breakout`）
+  代表它在某段衝高時確實曾符合觸發規則。
+- 並且已看到 `native stop filled symbol=YBUSDT`，代表 YBUSDT 曾實際進場且之後被止損/止盈邏輯平倉。
+- [RISK] 從規則角度它們是「符合當下門檻才進場」，但這套門檻本質是 momentum breakout，會出現「肉眼感覺已漲一段才追進」的策略特性，不是程式違規。
+
+
+## 本輪 (2026-04-29 03:46 +08:00) - market entry / native stop 合規稽核
+
+- 使用者要求：從 log 找出所有 `market entry success` 或 `native stop algo order placed` 的幣種與時間，並用 DB 重建入場 bar 的信號 metrics，標出不符合條件的入場。
+- 已讀：`god_rule.md`、`README.md`、`HANDOFF.md`，並最小範圍檢查 `SignalEngine`、`config.py`、`KlineRepository`、`models.py`、log 檔與 DB 3m/15m K 線。
+- 執行邊界：只做 log / DB SELECT 唯讀分析；未修改交易邏輯、未改 `.env`、未連交易所 API、未寫入 DB、未下單。
+- 資料來源：排除 `logs/example_audit_data.log`（synthetic 範例假資料）；實際 log 掃描截至 2026-04-29 03:46 +08:00 找到真實 `market entry success` / `native stop algo order placed` 各 2 筆：`SFPUSDT`、`TRUMPUSDT`。
+- DB 重建結果：`SFPUSDT`（2026-04-27 05:00 3m bar）與 `TRUMPUSDT`（2026-04-29 03:30 15m bar）在「DB finalized entry bar」重建 metrics 下皆為不合規，失敗條件都是 `return_min`；log 當下 in-progress metrics 則皆顯示 `triggered=True`。
+- [RISK] 此稽核使用 DB finalized entry bar 重建，和實際下單當秒使用的 in-progress bar 不是同一個時間切片；因此可用來標記「收盤後回看不符合」，不能直接證明下單當秒策略違規。
+- 快照/版本：操作前記錄 git HEAD `62b0465`；本輪只追加本交接段。

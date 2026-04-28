@@ -170,7 +170,7 @@ def _load_strategy_config(interval: str) -> StrategyConfig:
             "atr_pct_max": "0.015",
             "range_pct_max": "0.035",
             "volume_multiple": "2.0",
-            "return_pct_min": "0.015",
+            "return_pct_min": "0.017",
             "overheat_limit_pct": "0.060",
         },
         "15m": {
@@ -179,7 +179,7 @@ def _load_strategy_config(interval: str) -> StrategyConfig:
             "atr_pct_max": "0.015",
             "range_pct_max": "0.035",
             "volume_multiple": "2.0",
-            "return_pct_min": "0.015",
+            "return_pct_min": "0.017",
             "overheat_limit_pct": "0.060",
         },
     }[interval]
