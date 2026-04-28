@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import timezone
+from datetime import timedelta, timezone
 from decimal import Decimal
 from typing import Iterable
 
 from psycopg2.extras import execute_values
 
 import db_util
-from pump_system.models import Kline
+from pump_system.models import Kline, UTC_PLUS_8
 
 
 UTC = timezone.utc
@@ -19,6 +19,7 @@ class KlineRepository:
     ALLOWED_TABLES = {
         "public.semi_auto_price_future_1m",
         "public.semi_auto_price_future_3m",
+        "public.semi_auto_price_future_15m",
     }
 
     def __init__(self, database: str) -> None:
@@ -74,14 +75,14 @@ class KlineRepository:
 
         bars: list[Kline] = []
         for code, da, op, hi, lo, cl, vol in rows:
-            open_time = da.replace(tzinfo=UTC)
-            delta_minutes = 1 if interval == "1m" else 3
+            open_time = da.replace(tzinfo=UTC_PLUS_8)
+            delta_minutes = int(interval[:-1]) if interval.endswith("m") else 0
             bars.append(
                 Kline(
                     symbol=code,
                     interval=interval,
                     open_time=open_time,
-                    close_time=open_time,
+                    close_time=open_time + timedelta(minutes=delta_minutes) - timedelta(milliseconds=1),
                     open_price=Decimal(str(op)),
                     high_price=Decimal(str(hi)),
                     low_price=Decimal(str(lo)),

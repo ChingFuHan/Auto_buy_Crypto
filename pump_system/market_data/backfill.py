@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -11,7 +11,7 @@ from config import Settings
 from pump_system.cache.staging_store import StagingStore
 from pump_system.db.repository import KlineRepository
 from pump_system.exchange.binance_client import BinanceClient
-from pump_system.models import Kline
+from pump_system.models import Kline, UTC_PLUS_8
 
 if TYPE_CHECKING:
     from pump_system.notify.telegram_notifier import TelegramNotifier
@@ -21,12 +21,7 @@ UTC = timezone.utc
 
 
 class BackfillService:
-    """REST backfill for 90-day finalized 3m futures klines."""
-
-    TABLE_BY_INTERVAL = {
-        "3m": "public.semi_auto_price_future_3m",
-    }
-    INTERVAL_MS = {"3m": 180_000}
+    """REST backfill for finalized futures klines on the configured strategy interval."""
 
     def __init__(
         self,
@@ -42,9 +37,12 @@ class BackfillService:
         self.staging_store = staging_store
         self.notifier = notifier
         self.logger = logging.getLogger("market_data.backfill")
+        self.interval = settings.strategy_interval
+        self.table_by_interval = {self.interval: settings.strategy_table_name}
+        self.interval_ms = {self.interval: settings.strategy_interval_ms}
 
     async def backfill_universe(self, symbols: list[str]) -> None:
-        """Backfill all USDT perpetual symbols for 3m without overwriting history."""
+        """Backfill all USDT perpetual symbols for the strategy interval without overwriting history."""
         if not symbols:
             return
         if self.notifier is not None:
@@ -52,7 +50,7 @@ class BackfillService:
                 "BACKFILL_STARTED",
                 details={
                     "symbol_count": len(symbols),
-                    "intervals": "3m",
+                    "intervals": self.interval,
                     "backfill_days": self.settings.backfill_days,
                 },
             )
@@ -60,25 +58,25 @@ class BackfillService:
         start_cutoff = server_now_ms - self.settings.backfill_days * 24 * 60 * 60 * 1000
         latest_map = {
             interval: self.repository.fetch_latest_timestamps(table)
-            for interval, table in self.TABLE_BY_INTERVAL.items()
+            for interval, table in self.table_by_interval.items()
         }
         semaphore = asyncio.Semaphore(self.settings.backfill_concurrency)
 
         async def runner(symbol: str, interval: str) -> int:
             async with semaphore:
-                table_name = self.TABLE_BY_INTERVAL[interval]
+                table_name = self.table_by_interval[interval]
                 existing_da = latest_map[interval].get(symbol)
                 if existing_da is None:
                     start_ms = start_cutoff
                 else:
-                    start_ms = int(existing_da.replace(tzinfo=UTC).timestamp() * 1000) + self.INTERVAL_MS[interval]
+                    start_ms = int(existing_da.replace(tzinfo=UTC_PLUS_8).timestamp() * 1000) + self.interval_ms[interval]
                     start_ms = max(start_ms, start_cutoff)
                 return await self._backfill_symbol_interval(symbol, interval, table_name, start_ms, server_now_ms)
 
         tasks = [
             asyncio.create_task(runner(symbol, interval))
             for symbol in symbols
-            for interval in self.TABLE_BY_INTERVAL
+            for interval in self.table_by_interval
         ]
         inserted_counts = await asyncio.gather(*tasks)
         total_inserted = sum(inserted_counts)
@@ -87,7 +85,7 @@ class BackfillService:
                 "BACKFILL_COMPLETED",
                 details={
                     "symbol_count": len(symbols),
-                    "intervals": "3m",
+                    "intervals": self.interval,
                     "inserted_rows": total_inserted,
                 },
             )
@@ -98,15 +96,15 @@ class BackfillService:
             return
         server_now_ms = int(time.time() * 1000) + self.exchange_client.time_offset_ms
         for symbol in symbols:
-            for interval in self.TABLE_BY_INTERVAL:
+            for interval in self.table_by_interval:
                 last_open = await self.staging_store.last_finalized_open_time(symbol, interval)
                 if last_open is None:
                     continue
-                start_ms = int(last_open.timestamp() * 1000) + self.INTERVAL_MS[interval]
+                start_ms = int(last_open.timestamp() * 1000) + self.interval_ms[interval]
                 await self._backfill_symbol_interval(
                     symbol,
                     interval,
-                    self.TABLE_BY_INTERVAL[interval],
+                    self.table_by_interval[interval],
                     start_ms,
                     server_now_ms,
                     seed_staging=True,
@@ -121,7 +119,7 @@ class BackfillService:
         server_now_ms: int,
         seed_staging: bool = False,
     ) -> int:
-        interval_ms = self.INTERVAL_MS[interval]
+        interval_ms = self.interval_ms[interval]
         current_open_ms = (server_now_ms // interval_ms) * interval_ms
         if start_ms >= current_open_ms:
             return 0

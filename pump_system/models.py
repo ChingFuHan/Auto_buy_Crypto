@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from typing import Any
 
 
 UTC = timezone.utc
+UTC_PLUS_8 = timezone(timedelta(hours=8))
 
 
 def utc_now() -> datetime:
@@ -29,7 +30,7 @@ class Kline:
 
     @property
     def db_timestamp(self) -> datetime:
-        return self.open_time.astimezone(UTC).replace(tzinfo=None)
+        return self.open_time.astimezone(UTC_PLUS_8).replace(tzinfo=None)
 
     @property
     def as_db_row(self) -> tuple[datetime, str, float, float, float, float, float]:
