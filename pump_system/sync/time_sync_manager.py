@@ -70,6 +70,12 @@ class TimeSyncManager:
             self.critical_threshold_ms,
         )
 
+        # 立即進行第一次同步，無需等待 resync_interval
+        try:
+            await self._perform_sync_check()
+        except Exception as exc:
+            self.logger.error("time sync manager initial check failed error=%s", exc)
+
         while not stop_event.is_set():
             try:
                 await asyncio.sleep(self.resync_interval_seconds)
@@ -99,6 +105,21 @@ class TimeSyncManager:
             # 更新最大偏移記錄
             if abs_offset > self.max_offset_ms:
                 self.max_offset_ms = abs_offset
+
+            # 若偏移超過交易所允許範圍 (5000ms)，立即重新同步
+            if abs_offset > self.exchange_client.settings.max_server_time_offset_ms:
+                self.logger.warning(
+                    "time sync offset %d exceeds max_server_time_offset_ms=%d, immediate resync",
+                    abs_offset,
+                    self.exchange_client.settings.max_server_time_offset_ms,
+                )
+                # 立即再同步一次
+                await asyncio.sleep(0.1)
+                offset_ms = await self.exchange_client.sync_server_time()
+                self.sync_count += 1
+                self.last_offset_ms = offset_ms
+                abs_offset = abs(offset_ms)
+                self.logger.info("immediate resync result offset=%+d", offset_ms)
 
             # 判定狀態
             status = self._get_status(abs_offset)
