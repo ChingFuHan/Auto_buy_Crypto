@@ -256,6 +256,15 @@ class OrderService:
         if self._last_handled_bar.get(symbol) == bar_key:
             return
 
+        self.logger.info(
+            "[INFO] SIGNAL_TRIGGERED symbol=%s side=BUY entry_price=%s stop_price=%s mode=%s metrics=%s",
+            symbol,
+            decision.current_price,
+            decision.stop_reference_low,
+            decision.metrics.get("mode", "unknown"),
+            decision.metrics,
+        )
+
         if self.notifier is not None:
             signal_details = dict(decision.metrics)
             signal_details["stop_price_mode"] = self.settings.stop_price_mode
