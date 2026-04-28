@@ -136,8 +136,9 @@ class BinanceClient:
             return [data]
         return list(data)
 
-    async def get_open_orders(self) -> list[dict[str, Any]]:
-        data = await self._request("GET", "/fapi/v1/openOrders", signed=True)
+    async def get_open_orders(self, symbol: str | None = None) -> list[dict[str, Any]]:
+        params = {"symbol": symbol} if symbol else {}
+        data = await self._request("GET", "/fapi/v1/openOrders", signed=True, params=params)
         return list(data)
 
     async def get_leverage_bracket(self, symbol: str) -> dict[str, Any]:

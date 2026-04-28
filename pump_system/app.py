@@ -25,12 +25,15 @@ from pump_system.utils.logging_utils import configure_logging
 UTC = timezone.utc
 
 
+def _format_uptime(seconds: int) -> str:
+    seconds = max(0, int(seconds))
+    hours, remainder = divmod(seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
 class TradingApplication:
     """Main application composition root."""
-
-    TABLE_BY_INTERVAL = {
-        "3m": "public.semi_auto_price_future_3m",
-    }
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -75,9 +78,10 @@ class TradingApplication:
         )
         self.stop_event = asyncio.Event()
         self.background_tasks: list[asyncio.Task] = []
-        self._pending_finalized: dict[str, list[Kline]] = {"3m": []}
+        self._pending_finalized: dict[str, list[Kline]] = {self.settings.strategy_interval: []}
         self._pending_lock = asyncio.Lock()
-        self._db_flush_failures: dict[str, int] = {"3m": 0}
+        self._db_flush_failures: dict[str, int] = {self.settings.strategy_interval: 0}
+        self._app_started_monotonic: float | None = None
 
     async def validate_only(self) -> None:
         try:
@@ -172,6 +176,7 @@ class TradingApplication:
         await self._send_startup_notifications()
 
     def _start_background_tasks(self) -> None:
+        self._app_started_monotonic = time.monotonic()
         self.background_tasks = [
             asyncio.create_task(self.staging_store.periodic_flush(self.stop_event)),
             asyncio.create_task(self.fallback_manager.run(self.stop_event)),
@@ -180,6 +185,7 @@ class TradingApplication:
             asyncio.create_task(self._position_refresh_loop()),
             asyncio.create_task(self._symbol_refresh_loop()),
             asyncio.create_task(self._db_flush_loop()),
+            asyncio.create_task(self._heartbeat_loop()),
         ]
 
     async def _handle_kline_payload(self, payload: dict) -> None:
@@ -255,15 +261,46 @@ class TradingApplication:
             await asyncio.sleep(1)
             await self._flush_finalized_batches()
 
+    async def _heartbeat_loop(self) -> None:
+        if not self.settings.heartbeat_enabled:
+            return
+        interval = self.settings.heartbeat_interval_seconds
+        while not self.stop_event.is_set():
+            await asyncio.sleep(interval)
+            if self.stop_event.is_set():
+                break
+            try:
+                uptime_seconds = (
+                    int(time.monotonic() - self._app_started_monotonic)
+                    if self._app_started_monotonic is not None
+                    else 0
+                )
+                await self.notifier.send_info(
+                    "HEARTBEAT",
+                    details={
+                        "uptime": _format_uptime(uptime_seconds),
+                        "uptime_seconds": uptime_seconds,
+                        "active_positions": self.position_state.active_position_count(),
+                        "strategy_interval": self.settings.strategy_interval,
+                        "live_trading": self.settings.enable_live_trading,
+                        "testnet": self.settings.testnet,
+                        "data_symbols": len(self.symbol_registry.data_symbols),
+                    },
+                )
+            except Exception as exc:
+                self.logger.error("heartbeat send failed error=%s", exc)
+
     async def _flush_finalized_batches(self) -> None:
         async with self._pending_lock:
             pending = {interval: list(rows) for interval, rows in self._pending_finalized.items()}
-            self._pending_finalized = {"3m": []}
+            self._pending_finalized = {self.settings.strategy_interval: []}
         for interval, bars in pending.items():
             if not bars:
                 continue
             try:
-                inserted = self.repository.bulk_insert_klines(self.TABLE_BY_INTERVAL[interval], bars)
+                inserted = await asyncio.to_thread(
+                    self.repository.bulk_insert_klines, self.settings.strategy_table_name, bars
+                )
                 self._db_flush_failures[interval] = 0
                 self.logger.info("db flush complete interval=%s bars=%s inserted=%s", interval, len(bars), inserted)
             except Exception as exc:
@@ -297,14 +334,18 @@ class TradingApplication:
 
     async def _seed_strategy_history(self) -> None:
         symbols = sorted(self.symbol_registry.evaluation_symbols())
-        three_m_bars = self.repository.fetch_recent_klines(
-            "public.semi_auto_price_future_3m",
+        bars = self.repository.fetch_recent_klines(
+            self.settings.strategy_table_name,
             symbols,
             self.settings.kline_seed_limit,
-            "3m",
+            self.settings.strategy_interval,
         )
-        await self.staging_store.seed_finalized_bars(three_m_bars)
-        self.logger.info("seeded rolling history 3m=%s", len(three_m_bars))
+        await self.staging_store.seed_finalized_bars(bars)
+        self.logger.info(
+            "seeded rolling history interval=%s bars=%s",
+            self.settings.strategy_interval,
+            len(bars),
+        )
 
     async def _send_startup_notifications(self) -> None:
         await self.notifier.send_info("APP_STARTUP_SUCCESS")
@@ -316,6 +357,8 @@ class TradingApplication:
                 "function_test_mode": self.settings.function_test_mode,
                 "function_test_symbol": self.settings.function_test_symbol,
                 "position_sizing_mode": self.settings.position_sizing_mode,
+                "strategy_interval": self.settings.strategy_interval,
+                "strategy_table": self.settings.strategy_table_name,
                 "stop_working_type": self.settings.stop_working_type,
                 "max_concurrent_positions": self.settings.max_concurrent_positions,
                 "target_notional_usdt": self.settings.target_notional_usdt,

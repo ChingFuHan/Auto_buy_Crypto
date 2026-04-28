@@ -56,7 +56,7 @@ class _FakeExchange:
         result = [o for o in self.all_orders if o.get("symbol") == symbol]
         return result[-limit:] if len(result) > limit else result
 
-    async def get_open_orders(self) -> list[dict]:
+    async def get_open_orders(self, symbol: str | None = None) -> list[dict]:
         return []
 
     # Placeholder for the future fallback method (not yet implemented in BinanceClient)

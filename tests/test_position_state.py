@@ -18,7 +18,7 @@ class FakeExchangeClient:
             }
         ]
 
-    async def get_open_orders(self):
+    async def get_open_orders(self, symbol: str | None = None):
         return [{"symbol": "BTCUSDT"}, {"symbol": "ALTUSDT"}]
 
     async def get_open_algo_orders(self, symbol=None, algo_type=None):
