@@ -1,8 +1,57 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM
 
-更新時間：2026-04-28
+更新時間：2026-04-29
 
 ## 接手必讀 / Active Watch Items
+
+### 清理與修正（2026-04-29 07:XX +08:00）
+
+- **還原**：`pump_system/execution/order_service.py` 與 `pump_system/state/position_state.py` 未提交改動已還原（`git checkout --`）。原改動有兩個邏輯回歸：(1) `refresh_symbol()` early return 造成 stale position cache；(2) `_throttled_stop` 連鎖污染 `stop_reference_low` 多根 K 棒。
+- **刪除**：`audit_entry_compliance.py`、`audit_entry_detailed.py`、`audit_example_data.py`、`AUDIT_SUMMARY.md`、`ENTRY_COMPLIANCE_AUDIT.html/txt` 全數刪除。這批審計產物混入假資料（`example_audit_data.log`）、方法論錯誤（`checks[-1]`/hardcoded 0.015/`eval()` 解析），結果不可信。
+- **同步門檻**：確認 `.env` 實際值為 `0.015`（`config.py` 預設改了但 env 覆蓋），已同步更新 `.env`、`.env.example`、`.env_template` 三個檔案的 `SIGNAL_3M_RETURN_PCT_MIN` 與 `SIGNAL_15M_RETURN_PCT_MIN` 至 `0.017`。門檻現在三層一致，正式跑實際生效。
+- 本輪變更：僅上述三項，未碰其他交易邏輯、未連 API、未寫 DB。
+
+### 複核：再查上個 Agent 核實結論（2026-04-29 06:54 +08:00）
+
+- 已讀 / 已查：`god_rule.md` RULE 12 / RULE 15、`AGENTS.md`、`README.md`、`HANDOFF.md`、`config.py`、`pump_system/strategy/signal_engine.py`、`pump_system/execution/order_service.py`、`pump_system/state/position_state.py`、`pump_system/fallback_stop/manager.py`、`audit_entry_compliance.py`、`audit_entry_detailed.py`、`audit_example_data.py`、`AUDIT_SUMMARY.md`、`ENTRY_COMPLIANCE_AUDIT.txt`、`tests/` 相關搜尋、`logs/` 目前本地檔案搜尋結果。
+- 結論：上一段核實的主結論**大致正確**：未提交審計腳本 / 報告不可信；`position_state.py` 與 `order_service.py` 的未提交程式改動不應直接保留；`9e0013b` 只能判定為「目前未被推翻」，不能說已完整證明正確。
+- 補充發現 1：`audit_entry_compliance.py` 不只漏 `app.log.1~5`，還有更多方法論問題：用 `eval(rest[:200])` 解析 log、以 symbol 覆蓋多筆 entry/stop、用 ingestion order 的 `checks[-1]` 當作入場 signal、不按 entry timestamp 配對、不支援 3m/15m 動態 key、孤兒 stop 可能造成輸出 KeyError。`audit_example_data.py` 產出的 CATUSDT 等範例本身還把不合格 metrics 寫成 `triggered=True reason=all_passed`，不能用來推論策略品質。
+- 補充發現 2：`config.py` 預設已是 `0.017`，但 `.env.example` 與 `.env_template` 仍寫 `SIGNAL_3M_RETURN_PCT_MIN=0.015` / `SIGNAL_15M_RETURN_PCT_MIN=0.015`；且實際 `.env` 可能覆寫 config default（本輪未讀取 `.env`，避免碰敏感設定）。因此「正式執行門檻已變成 0.017」未被本輪證明，只能說「程式預設值已變」。
+- 補充發現 3：目前本地 log 搜尋可直接重找到 `SFPUSDT` entry / stop；未在現存 log 檔中找到 `TRUMPUSDT` 的 entry / stop。`HANDOFF.md` 先前記錄的 TRUMPUSDT 可能來自當時 DB / log 查核，但本輪未查 DB，故不重新背書。
+- 補充發現 4：[RISK] 工作區另有 `logs/app.log.5` 巨大 tracked diff、`logs/app.log.1~4` untracked、`.CLAUDE.md.swp` deleted；這些不一定是上一個核實 Agent 造成，但它的回報沒有完整交代。log 檔看起來仍在 2026-04-29 06:32~06:53 間持續輪替，任何 log-based 結論都有時間切片限制。
+- 本輪只做本地唯讀查核與本段 `HANDOFF.md` 存檔；未修改交易邏輯、未改 `.env`、未連交易所 API、未查/寫 DB、未跑測試。
+
+### 核實：上個 Agent 未提交內容（2026-04-29 06:41 +08:00）
+
+- 已讀：`HANDOFF.md`、`README.md`、`config.py`、`pump_system/execution/order_service.py`、`pump_system/state/position_state.py`、`pump_system/fallback_stop/manager.py`、`pump_system/strategy/signal_engine.py`、`audit_entry_compliance.py`、`audit_entry_detailed.py`、`audit_example_data.py`、`AUDIT_SUMMARY.md`、`ENTRY_COMPLIANCE_AUDIT.txt`、`logs/` 目錄與相關 live/app log。
+- 結論 1：已提交 commit `9e0013b`（`return_pct_min` 預設值 `0.015 -> 0.017`）方向上與現有證據一致；至少 `SFPUSDT` 真實 entry log 顯示觸發當下 `ret_3m_pct=0.015814...`，確實貼近舊門檻。`HANDOFF.md` 既有紀錄亦明確說明 `SFPUSDT` / `TRUMPUSDT` 是這次調整依據。
+- [TENTATIVE] 結論 1 補充：目前保留在工作區的 log 我能直接重找到 `SFPUSDT` 真實 entry，但未在現存 log 檔中直接重找到 `TRUMPUSDT` 當次 `market entry success` 那一行；因此 `0.017` 這個 commit 我判定為**目前沒有明顯錯誤、且和既有 handoff 一致**，但無法只靠現存檔案 100% 重新證明 `TRUMPUSDT` 那半段。
+- 結論 2：未提交的審計腳本 / 報告**不正確，不能當真**。主因有三個：
+  1. `audit_entry_compliance.py` 只掃 `logs/*.log`，會漏掉 `app.log.1~5`，卻把 `logs/example_audit_data.log` 假資料吃進去；
+  2. 腳本對每個 symbol 直接取 `checks[-1]`，使用「最後一筆 signal check」而不是「進場前那筆 signal」；
+  3. 腳本硬寫 15m key / 舊預設值 `0.015`，與目前正式 `config.py` 的 3m/15m 分流與 `0.017` 預設不一致。
+  因此 `AUDIT_SUMMARY.md`、`ENTRY_COMPLIANCE_AUDIT.txt/html` 內的 `DOGUSDT`、`CATUSDT`、`PEPEUSDT`、`SHIUSDT` 來自 synthetic example，不是真實交易紀錄。
+- 結論 3：未提交的程式修改**有邏輯回歸，不應直接保留**。
+  1. `pump_system/state/position_state.py:refresh_symbol()` 現在若 symbol 已在快取就直接 `return`，會讓人工平倉 / fallback close 前的持倉確認失真；
+  2. `pump_system/execution/order_service.py` 的 `_throttled_stop` / `_refresh_attempts` 會把上一根 bar 暫存的 stop low 帶到下一根 bar，污染新訊號的 `stop_reference_low`；
+  3. 這些未提交改動目前沒有對應測試保護。
+- 本次核實僅做本地唯讀比對與 `HANDOFF.md` 存檔；未修改交易邏輯、未改 `.env`、未連交易所 API、未寫 DB。
+
+### 交接給下個 Agent（2026-04-29 05:35:25 +08:00）
+
+- 讀過檔案：HANDOFF.md、README.md、AGENTS.md
+- 本次對話重點：
+  1. 新 symbol 出現：系統會於 symbol_refresh_loop 每 900s 自動偵測並 backfill；可立即用 `python3 main.py backfill` 強制回填。
+  2. 建議流程：backfill → 檢查 logs/backfill_15m_*.log → `python3 main.py validate` → 若 OK 再小額觀察 24-72 小時；期間保持 `ENABLE_LIVE_TRADING=false` 或使用 `FUNCTION_TEST_MODE`，並先把新幣加入 `SYMBOL_WHITELIST` 以控風險。
+  3. 風險/注意：Binance 429 會延遲回補；`SIGNAL_15M_*` 參數尚未以 15m 回測重新校準；`return_pct_min` 已於 2026-04-29 調至 0.017（會降低信號頻率）。
+- 已做/已確認：主線為 `STRATEGY_INTERVAL=15m`、15m 回補已完成（535 symbols，6,003,323 筆）、algo history fallback 測試仍為 xfail。
+- 變更紀錄：僅追加本交接摘錄至 HANDOFF.md（未改程式、.env、DB 或下單設定）。
+- 刻意未改：未修改任何交易邏輯、.env、Binance 帳戶/API、或 DB 歷史資料（遵守 AGENTS.md 規則）。
+- 風險 / 未確認事項：
+  - 若自動 backfill 遭遇 Binance 429，回補會延遲；請檢查 backfill 日誌。
+  - 若欲立刻把新 symbol 放入執行池，請先執行 `main.py validate` 並回報輸出；若要進一步動作，保持小額監控並報告結果。
+
+
 
 - 2026-04-29 +08:00：**[PARAM CHANGE] `return_pct_min` 從 `0.015` 調升至 `0.017`**（`config.py` 3m / 15m 兩組同步）。根因：兩筆真實入場（SFPUSDT、TRUMPUSDT）觸發當下 `ret_pct` 均壓線在 0.015 邊界，K 棒收盤後分別落至 0.01440 / 0.01457，皆破門檻。觸發→收盤最大滑落量 **Δ0.00141**（SFPUSDT），故加 +0.002 緩衝至 0.017。此值對應含義：in-progress K 棒相對上一根收盤已上漲 ≥1.7% 才觸發。副作用：信號頻率降低，正式盤需觀察數日確認是否漏掉有效信號；若過濾太積極可折中至 `0.016`。
 - 2026-04-28 12:08 +08:00：使用者回報 `SERVER_TIME_OFFSET_BLOCKED (offset_ms: 157704)` 在程式啟動初期發生。經診斷確認現已恢復正常 (+36 ms)。根因：TimeSyncManager 啟動時未立即進行同步，而是等待首個 60 秒週期。已改進：(1) 啟動時立即進行第一次同步；(2) 偏移超過 5000ms 時立即重新同步（不等待下一週期）。提交 3b3a4fc。
