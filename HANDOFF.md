@@ -1,6 +1,25 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM
 
-更新時間：2026-04-27
+更新時間：2026-04-28
+
+## 接手必讀 / Active Watch Items
+
+- `DAMUSDT` near-miss 案例已確認不是候選池漏單，也不是交易所規格問題；2026-04-27 log 有 74 筆 `signal check symbol=DAMUSDT`，`triggered=True` 為 0。
+- 它沒進場的原因是主策略偏抓「第一段爆發」：`vol_ratio_3m`、`ret_3m_pct`、`range_3m_pct` 未同時達標；雖有 7 次 `breakout_3m=True`，但仍被成交量、推動幅度與壓縮條件擋下。
+- 後續不要直接放寬正式盤主策略門檻。若使用者要改善這類「後面續漲但沒有第一段爆發特徵」的走勢，優先做 `near-miss` 記錄/回測，再評估是否新增第二套小倉位趨勢延續策略。
+- 若 `HANDOFF.md` 未來要瘦身，這段必須保留在熱區；完整細節見本檔尾端 `DAMUSDT 未進場原因調查`。
+- 2026-04-28 04:19-04:40 +08:00：已用既有 `BinanceClient + SymbolRegistry + BackfillService + KlineRepository` 做一次性 `15m` 回補，寫入 `public.semi_auto_price_future_15m`，固定近 120 天、只寫 finalized bar、`ON CONFLICT (code, da) DO NOTHING`；結果為 `535` 個 USDT perpetual symbol、`6,003,323` 筆、全數最新 `max_da=2026-04-27 20:00:00`，最早全域 `min_da=2025-12-28 20:30:00`，較少筆數的 symbol 為近期新上市合約（例如 `OPGUSDT` 僅 `499` 筆，起始於 `2026-04-22 15:30:00`），屬正常。執行 log：`logs/backfill_15m_20260428_041948.log`。
+- 2026-04-28 04:51 +08:00：已完成正式主線週期可配置化，新增 `.env` 字串 `STRATEGY_INTERVAL=3m|15m`；切到 `15m` 時 REST backfill、WebSocket、DB seed、in-progress CSV、SignalEngine、OrderService manual/evaluation、DB finalized flush、fallback contract trigger 都會使用 `15m`。未修改實際 `.env`。
+- 2026-04-28 04:59 +08:00：依使用者要求新增並改寫 `.env_template`，作為可自行複製修改的非機密中文詳細模板；預設安全模式 `TESTNET=true`、`ENABLE_LIVE_TRADING=false`、`FUNCTION_TEST_MODE=true`，並包含 `STRATEGY_INTERVAL=3m` / 可改 `15m`、小額固定名目與止損模式範例。未修改實際 `.env`。
+- 2026-04-28 05:11 +08:00：已修正訊號門檻命名避免誤解。現在 `STRATEGY_INTERVAL=3m` 只讀 `SIGNAL_3M_*`，`STRATEGY_INTERVAL=15m` 只讀 `SIGNAL_15M_*`；兩組門檻彼此獨立，不再讓 15m 套用 3m 名稱。未修改實際 `.env`。
+- 2026-04-28：已依使用者要求同步實際 `.env` 的訊號門檻區塊為 3m / 15m 獨立格式，並保留既有敏感與實盤設定；交接不記錄 `.env` 詳細值。
+- 2026-04-28 05:19 +08:00：已依使用者要求將主策略預設週期調整為 15m；僅記錄方向，不記錄 `.env` 其他詳細值。
+- 2026-04-28 05:21 +08:00：使用者準備在 Windows 執行 `main.py validate` 後接 `main.py run`；下一位 Agent 接手時先看使用者貼出的 validate/run 輸出，不要假設已成功啟動。
+- 2026-04-28：新增 Telegram heartbeat 背景任務。`HEARTBEAT_ENABLED`（預設 `true`）、`HEARTBEAT_INTERVAL_SECONDS`（預設 `900`，最小 `60`）由 `.env` 控制；`pump_system/app.py:_heartbeat_loop` 在 `_start_background_tasks` 啟動後每隔 interval 送一次 INFO 等級 `HEARTBEAT`，帶 uptime / active_positions / strategy_interval / live_trading / testnet / data_symbols。INFO 等級走 `disable_notification=true`，手機通常靜音抵達；若 heartbeat 突然停止抵達，代表程式可能已崩潰。未修改實際 `.env`，defaults 即可工作。
+- 2026-04-28 07:50 +08:00：驗證 15m run 無 `staging updated` / `finalized bar buffered` / `inprogress_15m.csv` 的原因；舊 URL `wss://fstream.binance.com/stream?streams=btcusdt@kline_15m` 連得上但 10 秒無資料，官方 routed endpoint `wss://fstream.binance.com/market/stream?streams=btcusdt@kline_15m` 可立即收到 kline。結論：優先修正/覆寫 USDⓈ-M Futures WebSocket base 為 `wss://fstream.binance.com/market`，不是先改 REST polling、換 VPS 或 VPN/proxy。未修改 `.env`、未啟動交易程式、未下單、未查/寫 DB。
+- 2026-04-28 07:56-07:59 +08:00：使用者依建議以 `BINANCE_WS_BASE_URL=wss://fstream.binance.com/market python3 main.py run` 啟動後，log 已確認 4 筆 `market entry success`，分別為 `C98USDT`、`WOOUSDT`、`BREVUSDT`、`ALCHUSDT`；每筆後面皆有 `native stop algo order placed` 與 `STOP_ORDER_SUCCESS`，代表程式目前仍會自動掛 native stop，不是只做紀錄。若要改成「只記錄、由使用者手動決定新止損點」，仍需另行調整交易邏輯。
+- 2026-04-28 08:0x +08:00：再次確認 fallback stop 行為：原生 stop 失敗時，`FallbackStopRecord` 會保存原 stop_price / quantity / working_type / entry_price，之後由 `FallbackStopManager` 以固定 poll 週期觀測價格；若 `MARK_PRICE` 就查 mark price，否則用 staging 的 in-progress 價格；當 `current_price <= stop_price` 才會嘗試 `MARKET SELL`，不是把 stop 單重新掛回交易所。若倉位已被人手動平掉，會先辨識 `POSITION_ALREADY_CLOSED` 再移除，不會硬平。
+- [RISK] `SIGNAL_15M_*` 已獨立，但目前預設值先與 3m 相同，尚未以 15m 回測/實盤觀察重新校準。正式盤切 15m 前至少跑 `main.py validate`，並用小額觀察。
 
 ## 本輪 (2026-04-27) - 進度查詢與 3m-only 改造
 
@@ -345,6 +364,27 @@
 - 完成：僅讀取非機密交易開關，確認 `.env` 目前為 `MAX_CONCURRENT_POSITIONS=10`、`POSITION_SIZING_MODE=FIXED_NOTIONAL`、`TARGET_NOTIONAL_USDT=50`、`STOP_PRICE_MODE=NOTIONAL_RISK_PCT`、`STOP_NOTIONAL_RISK_PCT=0.20`。
 - 注意：若 `main.py run` 是修改 `.env` 前已啟動，需重啟後 `MAX_CONCURRENT_POSITIONS=10` 才會生效。
 
+## 本輪 (2026-04-28 02:25 +08:00) - 10 倉設定與未增倉觀察
+
+- 使用者表示已重新執行新 `.env`，但昨天至今看似只剩一開始的 3 種幣，詢問是否有問題。
+- 完成：唯讀檢查 `.env`、log 與 Binance futures 持倉；確認 `MAX_CONCURRENT_POSITIONS=10` 已在 log 生效，且 `2026-04-27 06:09` 後有新進場 `USELESSUSDT`、`SNXUSDT`、`ZKCUSDT`。
+- 目前交易所實際 open positions=3：`USELESSUSDT`、`SNXUSDT`、`ZKCUSDT`，三者皆有 algo STOP_MARKET；多數後續 signal check 為 `triggered=False`，常見原因為 `3m_volume_too_low`、`3m_push_too_small`、`3m_not_breakout`。
+- 結論：不是 10 倉上限未生效；目前只剩 3 倉主要是策略條件未再觸發新單，且早先 `PIPPINUSDT`、`PROMUSDT`、`LIGHTUSDT`、`OPENUSDT` 已於 `2026-04-27 06:07` 左右平倉/止損。
+- 2026-04-28 02:28 +08:00 補充：使用者確認 `2026-04-27 06:07` 左右那批歸零是為了重試而手動把倉位變 0，後續不可誤判為策略止損績效。
+- [RISK] log 曾出現 Windows shared-folder staging CSV replace 權限錯誤 `[WinError 5]`，websocket 已自動 reconnect 並 catch-up；若頻繁出現可另行處理檔案鎖問題。
+
+## 本輪 (2026-04-28 02:37 +08:00) - 使用者再次人工全平重啟
+
+- 使用者表示會再次手動全部平倉，再重新啟動腳本。
+- 注意：此輪人工全平應視為重試/重置操作，不可納入策略自然止損或績效判讀。
+
+## 本輪 (2026-04-28 02:49 +08:00) - 全平後重啟觀察確認
+
+- 使用者貼出 `2026-04-28 02:37` validate 成功與 `02:37:56` run 啟動紀錄，隨後用 Ctrl+C 停止。
+- 完成：唯讀查詢 Binance futures，確認目前 `open_positions=0`、`open_regular_orders=0`，帳戶未實現損益為 0；本機也未發現仍在執行的 `python main.py run` 程序。
+- log 顯示本次 run 期間 position sync 持續為 `positions=0 open_order_symbols=0`，未看到 `market entry success`、`target notional resolved` 或 `triggered=True`。
+- 注意：本次 run 期間 log 也未看到平常大量的 `staging updated` / `signal check`，因此只能確認「沒有進場/沒有持倉」，不能嚴格證明所有幣都有逐一被評估後不符合；若要確認即時掃描，需重新啟動並觀察是否恢復 `staging updated` / `signal check`。
+
 ## 本輪 (2026-04-27 06:01 +08:00) - 帳戶持倉與 Windows run log 對照
 
 - 使用者明確允許唯讀查詢幣安帳戶目前持倉，並提供 Windows `main.py validate` / `main.py run` 啟動日誌要求核對。
@@ -373,3 +413,75 @@
 - 納入 commit 的檔案範圍：`.env.example`、`README.md`、`config.py`、`pump_system/app.py`、`pump_system/execution/order_service.py`、`tests/test_order_service_stop.py`、`HANDOFF.md`。
 - 排除：`Auto_buy_Crypto.txt`、`Fix Leverage Bracket Error.txt`、`task.md`、`final_files/*`、backfill/log/pid/shell script 等 transcript、輸出物與 runtime 產物。
 - 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `23 passed, 1 xfailed`。
+
+## 本輪 (2026-04-28 04:16 +08:00) - DAMUSDT 未進場原因調查
+
+- 使用者回報 2026-04-27 在 Binance app 看到 `DAMUSDT` 似乎符合標準，但程式未選到，要求檢查。
+- 完成：僅讀取 `god_rule.md`、`README.md`、`HANDOFF.md`、`config.py`、`pump_system/strategy/signal_engine.py`、`logs/app.log*` 與 Binance public exchangeInfo；未下單、未取消單、未改 `.env`、未查/寫 DB。
+- 結論：`DAMUSDT` 有進入候選與訊號評估，不是候選池漏掉；2026-04-27 log 內共有 74 筆 `signal check symbol=DAMUSDT`，`triggered=True` 為 0。
+- 主要擋下原因：63 筆為 `3m_not_compressed,3m_volume_too_low,3m_push_too_small,3m_not_breakout`，7 筆為 `3m_not_compressed,3m_volume_too_low,3m_push_too_small`，4 筆為 `missing_in_progress_3m`。
+- 關鍵數值：策略要求 `vol_ratio_3m >= 2.0`，DAMUSDT 最高約 `0.7849`；策略要求 `ret_3m_pct >= 0.015`，DAMUSDT 最高約 `0.002215`；策略要求 `range_3m_pct <= 0.035`，DAMUSDT 當時約 `0.08325`。
+- 補充：DAMUSDT 有 7 次 `breakout_3m=True`，但同時仍不符合壓縮、成交量與推動幅度，所以不會進場；`missing_in_progress_3m` 出現在 3m bar 收盤切換瞬間，屬資料狀態，不是交易所規格問題。
+- Binance public exchangeInfo 顯示 `DAMUSDT` 為 `TRADING`、`PERPETUAL`、`quoteAsset=USDT`，支援 `MARKET` 與 `STOP_MARKET`，`MIN_NOTIONAL=5`，交易所規格本身不是阻擋原因。
+- 2026-04-28 04:20 +08:00 補充說明：`vol_ratio_3m` 是當前未收 3m K 成交量除以最近 20 根已收 3m K 平均量；`ret_3m_pct` 是當前未收 3m K close 相對上一根已收 3m close 的漲幅；`range_3m_pct` 是最近 20 根已收 3m K 的最高價到最低價區間除以最低價，用來判斷是否壓縮。
+- 策略解讀：目前條件偏「第一段啟動」而非「後段追趨勢」。若幣種後續慢慢持續上漲，`range_3m_pct` 會因前 20 根區間放大而更難通過，`vol_ratio_3m` 也會因近 20 根平均量墊高而更難達到 2 倍，`ret_3m_pct` 則要求單根 3m 仍要推升 1.5%；因此 DAMUSDT 這類「後面有漲但前面不夠像瞬間爆發」的走勢，確實可能被策略刻意漏掉。
+- 2026-04-28 04:21 +08:00 取捨建議：先不要直接放寬實盤三個核心門檻，因為會同時增加追高與假突破；較穩妥路線是先新增/觀察「near-miss」或離線回測 DAMUSDT 類型，再決定是否建立第二套較小倉位的趨勢延續策略。
+- 2026-04-28 04:22 +08:00 給下一位 Agent：接手時請先讀本段。不要把 DAMUSDT 判定為候選池漏單或交易所規格錯誤；目前已確認它是策略刻意未進場。若使用者要求改善，優先方案是新增 near-miss 記錄/回測，而不是直接放寬正式盤主策略門檻。
+- 2026-04-28 04:23 +08:00 文件取捨：目前不建議另開一般性觀察文件，先留在 `HANDOFF.md` 即可；若使用者明確要開始長期統計 near-miss，才建立正式結構化觀察資料（建議 CSV/DB 或明確命名的 watchlist），避免多一份手寫文件變成第二個交接源。
+
+## 本輪 (2026-04-28 04:51 +08:00) - 主策略週期可切 3m / 15m
+
+- 使用者確認 `public.semi_auto_price_future_15m` 近 120 天資料已由另一視窗補齊，要求正式盤可用、只改字串即可自行切換 `3m` / `15m`。
+- 快照：修改前 `HEAD=d867a1e07b141805b1d7aaf9269b48ec986099cf`。
+- 完成：新增 `STRATEGY_INTERVAL=3m|15m`，預設維持 `3m`；切 `15m` 時會使用 `public.semi_auto_price_future_15m`、`data/inprogress_15m.csv`、Binance `kline_15m`、15m seed/backfill/catch-up/signal/fallback trigger。
+- 修改檔案：`config.py`、`pump_system/app.py`、`pump_system/cache/staging_store.py`、`pump_system/db/repository.py`、`pump_system/execution/order_service.py`、`pump_system/market_data/backfill.py`、`pump_system/market_data/websocket_manager.py`、`pump_system/strategy/signal_engine.py`、`tests/test_signal_engine.py`、`.env.example`、`README.md`、`HANDOFF.md`。
+- [SKIP] 未修改實際 `.env`、未啟動實盤、未下單、未取消單、未查/寫帳戶；僅做本地程式與文件修改。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `26 passed, 1 xfailed`；`STRATEGY_INTERVAL=15m python3 - <<...load_settings...>>` 確認 table=`public.semi_auto_price_future_15m`、CSV=`data/inprogress_15m.csv`、interval_ms=`900000`；`git diff --check -- config.py pump_system tests .env.example README.md` -> pass。
+- [SUPERSEDED 2026-04-28 05:11] 本段原先記錄 15m 暫時沿用 `SIGNAL_3M_*` 名稱；後續已改為 `SIGNAL_15M_*` 獨立門檻，詳見下方「拆分 3m / 15m 訊號門檻」。
+
+## 本輪 (2026-04-28 04:59 +08:00) - 新增中文 .env_template
+
+- 使用者要求提供 `.env` 模板，命名為 `.env_template`，方便自行複製修改。
+- 完成：新增並改寫 `.env_template`，所有註解改為中文且補充詳細用途、可填值與風險；不含任何真實 API / Telegram / DB secret；預設安全模式 `TESTNET=true`、`ENABLE_LIVE_TRADING=false`、`FUNCTION_TEST_MODE=true`，並保留正式盤切換註解。
+- 模板包含：`STRATEGY_INTERVAL=3m`（可改 `15m`）、`POSITION_SIZING_MODE=FIXED_NOTIONAL`、`TARGET_NOTIONAL_USDT=50`、`MAX_CONCURRENT_POSITIONS=10`、`STOP_PRICE_MODE=IN_PROGRESS_INTERVAL_LOW` 與 `NOTIONAL_RISK_PCT` 範例。
+- [SKIP] 未修改實際 `.env`、未啟動程式、未連 Binance、未查/寫 DB。
+- 驗證：`git diff --check -- .env_template HANDOFF.md` -> pass；`python-dotenv dotenv_values('.env_template')` 可解析 61 個 key；檢查 `.env_template` secret 欄位皆為空，且無非註解的無效設定行。
+
+## 本輪 (2026-04-28 05:11 +08:00) - 拆分 3m / 15m 訊號門檻
+
+- 使用者指出 `.env_template` 的訊號門檻只有 `1m` / `3m`，在已支援 `STRATEGY_INTERVAL=15m` 後容易誤解，要求改成不會誤解的方式。
+- 完成：`StrategyConfig` 改為 resolved 主週期門檻欄位；`STRATEGY_INTERVAL=3m` 讀 `SIGNAL_3M_*`，`STRATEGY_INTERVAL=15m` 讀 `SIGNAL_15M_*`，不互相 fallback。
+- 完成：移除模板中的舊 `SIGNAL_1M_*`；`.env.example` 與 `.env_template` 都新增完整 `SIGNAL_15M_*`，README 改寫為 3m / 15m 對應門檻。
+- 修改檔案：`config.py`、`pump_system/strategy/signal_engine.py`、`pump_system/execution/order_service.py`、`tests/test_signal_engine.py`、`.env.example`、`.env_template`、`README.md`、`HANDOFF.md`。
+- [SKIP] 未修改實際 `.env`、未啟動程式、未連 Binance、未下單、未查/寫 DB。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `28 passed, 1 xfailed`；環境變數測試確認 `15m` 只讀 `SIGNAL_15M_*`、`3m` 只讀 `SIGNAL_3M_*`；`python-dotenv` 可解析 `.env_template` / `.env.example` 各 62 個 key，且 `SIGNAL_1M_*` 已不在模板內；`git diff --check -- config.py pump_system tests .env.example .env_template README.md HANDOFF.md` -> pass。
+
+## 本輪 (2026-04-28) - 同步實際 .env 門檻格式
+
+- 使用者要求直接更新實際 `.env`，但不要覆蓋既有詳細資料，也不要在交接記錄 `.env` 詳細值。
+- 完成：僅同步 `.env` 的訊號門檻區塊為 3m / 15m 獨立格式，保留既有敏感值與其他實盤設定；`.env_template` 已維持同格式。
+- [SKIP] 未記錄 `.env` 具體值，未啟動程式，未連 Binance，未下單，未查/寫 DB。
+- 驗證：`.env` / `.env_template` 均可由 `python-dotenv` 解析，兩者都沒有 `SIGNAL_1M_*`，且皆包含 `SIGNAL_3M_*` 與 `SIGNAL_15M_*`；`load_settings()` 成功。
+
+## 本輪 (2026-04-28 05:19 +08:00) - 主策略預設週期改為 15m
+
+- 使用者要求預設使用 15m。
+- 完成：同步實際 `.env`、`.env_template`、`.env.example` 與程式 fallback default；若未設定 `STRATEGY_INTERVAL`，程式也會使用 15m。
+- [SKIP] 未記錄 `.env` 其他詳細值，未啟動程式，未連 Binance，未下單，未查/寫 DB。
+- 驗證：`python3 -m compileall config.py main.py pump_system tests` -> pass；`python3 -m pytest -q` -> `29 passed, 1 xfailed`；確認 `.env` / `.env_template` / `.env.example` 的主週期一致，且 unset `STRATEGY_INTERVAL` 時 `load_settings()` 預設為 15m；`git diff --check -- config.py tests/test_signal_engine.py .env_template .env.example README.md HANDOFF.md` -> pass。
+
+## 本輪 (2026-04-28 05:21 +08:00) - Windows 執行交接
+
+- 使用者詢問是否可直接在 Windows 執行：`cd C:\Users\User\Documents\agent_sanbox_vm\Auto_buy_Crypto`、`.\.venv\Scripts\python.exe main.py validate`、`.\.venv\Scripts\python.exe main.py run`。
+- 回答方向：可以，先跑 validate；只有 validate 成功結束後再跑 run。`run` 會依實際 `.env` 的 live/testnet 開關執行，若正式盤真單開關為啟用狀態，會產生真實交易。
+- 給下一位 Agent：接手時請要求使用者貼 validate/run 最新輸出，先判讀 `APP_STARTUP_SUCCESS`、`MODE_SUMMARY`、`LIVE_PRODUCTION_MODE`、`websocket connect`、`position sync complete`、`signal check`、`db flush complete` 等關鍵 log；不要重複啟動第二個 run。
+- [SKIP] 本輪未啟動程式、未連 Binance、未下單、未查/寫 DB；不記錄 `.env` 詳細值或密鑰。
+
+## 本輪 (2026-04-28 05:51 +08:00) - 純理解專案脈絡
+
+- 使用者要求先純讀理解專案，不執行交易、不修改策略。
+- 已讀：`god_rule.md`、`README.md`、`HANDOFF.md`、使用者貼上的前次對話紀錄、`main.py`、`config.py`、`pump_system/app.py`、`pump_system/strategy/signal_engine.py`、`pump_system/execution/order_service.py`、`pump_system/notify/telegram_notifier.py`。
+- 確認主線脈絡：這是 Binance USDT 永續小幣「第一段爆發」自動做多 + 原生 stop + fallback stop 系統；CLI 入口為 `main.py`，組裝核心在 `TradingApplication`。
+- 確認目前正式主線：`STRATEGY_INTERVAL` 現在支援 `3m` / `15m`，且程式 fallback default 已改為 `15m`；對應 DB 表、WebSocket、backfill、staging CSV、訊號判斷與 stop trigger 都跟主週期一起切換。
+- 確認目前熱區風險：`SIGNAL_15M_*` 雖已獨立，但數值仍先沿用 3m 同級預設，尚未完成 15m 專屬校準；另外 P1 `algo history fallback` 仍未實作，`tests/test_algo_fill_regression.py` 仍保留 1 個 xfail。
+- [SKIP] 本輪未跑測試、未啟動程式、未連 Binance、未查/寫 DB、未改 `.env`、未改交易邏輯；僅補交接紀錄。
