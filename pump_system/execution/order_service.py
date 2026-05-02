@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from collections import defaultdict
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -421,23 +422,39 @@ class OrderService:
             if self.notifier is not None:
                 await self.notifier.send_error("SET_MARGIN_TYPE_FAILED", symbol=symbol, error_message=str(exc))
             return
-        effective_leverage = sizing.leverage
-        while effective_leverage >= 1:
-            try:
-                leverage_result = await self.exchange_client.set_leverage(symbol, effective_leverage)
-                self.logger.info("leverage configured symbol=%s leverage=%s result=%s", symbol, effective_leverage, leverage_result)
-                break
-            except Exception as exc:
-                if "-4424" in str(exc) and effective_leverage > 1:
-                    self.logger.warning(
-                        "leverage rejected by exchange, retrying lower symbol=%s attempted=%s",
-                        symbol, effective_leverage,
+        effective_leverage = await self._configure_leverage_with_fallback(symbol, sizing.leverage)
+        if effective_leverage is None:
+            return
+
+        if effective_leverage != sizing.leverage:
+            adjusted_target_notional = self._resolve_target_notional(available_balance, effective_leverage)
+            adjusted_sizing = build_sizing_decision(
+                symbol_info=symbol_info,
+                price=decision.current_price or current_bar.close_price,
+                available_balance=available_balance,
+                target_notional=adjusted_target_notional,
+                max_leverage=effective_leverage,
+            )
+            self.logger.info(
+                "quantity plan adjusted after leverage fallback symbol=%s requested_leverage=%s effective_leverage=%s result=%s",
+                symbol,
+                sizing.leverage,
+                effective_leverage,
+                adjusted_sizing,
+            )
+            if not adjusted_sizing.can_trade:
+                self.logger.info("[SKIP] no legal order size after leverage fallback symbol=%s reason=%s", symbol, adjusted_sizing.reason)
+                if self.notifier is not None:
+                    await self.notifier.send_warning(
+                        "SKIP_MIN_LEGAL_ORDER_UNREACHABLE",
+                        symbol=symbol,
+                        side="BUY",
+                        entry_price=decision.current_price,
+                        stop_price=decision.stop_reference_low,
+                        error_message=adjusted_sizing.reason,
                     )
-                    effective_leverage = effective_leverage // 2
-                else:
-                    if self.notifier is not None:
-                        await self.notifier.send_error("SET_LEVERAGE_FAILED", symbol=symbol, error_message=str(exc))
-                    return
+                return
+            sizing = adjusted_sizing
 
         try:
             market_order = await self.exchange_client.create_order(
@@ -599,6 +616,53 @@ class OrderService:
             return (available_balance * Decimal(max_leverage)) / Decimal(remaining_slots)
         self.logger.error("[BLOCKED] unsupported position sizing mode mode=%s", self.settings.position_sizing_mode)
         return self.settings.target_notional_usdt
+
+    async def _configure_leverage_with_fallback(self, symbol: str, requested_leverage: int) -> int | None:
+        leverage = max(int(requested_leverage), 1)
+        attempted: set[int] = set()
+        last_error: Exception | None = None
+
+        for attempt in range(1, 4):
+            if leverage in attempted:
+                break
+            attempted.add(leverage)
+            try:
+                leverage_result = await self.exchange_client.set_leverage(symbol, leverage)
+                self.logger.info("leverage configured symbol=%s leverage=%s result=%s", symbol, leverage, leverage_result)
+                return leverage
+            except Exception as exc:
+                last_error = exc
+                fallback = self._fallback_leverage_from_error(exc, leverage)
+                if fallback is None or fallback in attempted:
+                    break
+                self.logger.warning(
+                    "leverage rejected by exchange, retrying lower symbol=%s attempted=%s fallback=%s attempt=%s/3 error=%s",
+                    symbol,
+                    leverage,
+                    fallback,
+                    attempt,
+                    exc,
+                )
+                leverage = fallback
+
+        if self.notifier is not None:
+            await self.notifier.send_error("SET_LEVERAGE_FAILED", symbol=symbol, error_message=str(last_error))
+        return None
+
+    @staticmethod
+    def _fallback_leverage_from_error(exc: Exception, attempted_leverage: int) -> int | None:
+        message = str(exc)
+        if "-4424" not in message and "cannot exceed" not in message.lower():
+            return None
+
+        match = re.search(r"cannot exceed\s+(\d+)x", message, flags=re.IGNORECASE)
+        if match:
+            capped_leverage = int(match.group(1))
+            if capped_leverage < attempted_leverage:
+                return max(capped_leverage, 1)
+
+        fallback = attempted_leverage // 2
+        return fallback if fallback >= 1 and fallback < attempted_leverage else None
 
     def _resolve_stop_price(self, symbol_info, decision: SignalDecision, market_order: dict) -> Decimal | None:
         if self.settings.stop_price_mode in {"IN_PROGRESS_INTERVAL_LOW", "IN_PROGRESS_3M_LOW", "IN_PROGRESS_15M_LOW"}:

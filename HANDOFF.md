@@ -4,6 +4,28 @@
 
 ## 接手必讀 / Active Watch Items
 
+### Codex 整合：槓桿 -4424 fallback 修正與 log 追蹤清理（2026-05-02 +08:00）
+
+- 使用者要求整合同時間另一個 agent 的修正。接手時 HEAD 已是 `43a11e7`：已還原 `_extract_max_leverage()` 的 `max()` 並加入 `-4424` 折半重試，但該 commit 仍把 `logs/app.log.1~5` 納入追蹤。
+- 本輪快照：`HEAD=43a11e7cdfc22580ee7a27956d64e76c64226f28`；live bot PID `205610` 仍在跑（啟動時間 2026-05-02 12:17:48 +08:00），本輪未停止/重啟。
+- 已整合修正（未連 API、未下單）：`pump_system/execution/order_service.py` 的 `set_leverage` fallback 改成最多 3 次；優先解析 Binance `-4424` 訊息中的實際上限（例如 `5x`）直接重試；若實際接受槓桿低於原 sizing，會用有效槓桿重新計算 sizing/quantity，避免低槓桿下沿用高槓桿名目下單。
+- 已同步 `final_files/pump_system_execution_order_service.py` 的對應邏輯；新增 `tests/test_order_service_stop.py` 測試 `10x -> 5x` fallback；`.gitignore` 新增 `logs/*.log.*`，並用 `git rm --cached` 將 `logs/app.log.1~5` 從 git 追蹤移除（本地檔案保留）。
+- 驗證：`python3 -m pytest tests/test_order_service_stop.py tests/test_sizing.py` 通過（11 passed）；`pump_system/execution/order_service.py` 與 `final_files/pump_system_execution_order_service.py` compile OK；已提交本整合 commit。
+- [RISK] live process 尚未載入本整合 commit。若要讓 live bot 使用新版，需後續明確授權重啟；未重啟前仍跑舊 process。
+- [SKIP] 本輪未改 `.env`、未改 live/testnet 設定、未連 Binance private/account/order API、未查/寫 DB、未停止 live bot。
+
+### [SUPERSEDED by 本整合 commit] Codex 查核：XNYUSDT/AINUSDT 槓桿 -4424 與前次 `min()` commit（2026-05-02 +08:00）
+
+- 使用者貼上 Claude 對 live Telegram `SET_LEVERAGE_FAILED` 的處理過程，質疑「大頭寸」解釋與 `max() -> min()` 修正違背原始槓桿效率設計。
+- 本輪已讀：`god_rule.md`、`README.md`、`HANDOFF.md`，並只做本地唯讀查核 `git status/log/show`、`pump_system/execution/order_service.py`、`pump_system/execution/sizing.py`、`logs/app.log*`、`ps`。未讀 `HANDOFF_ARCHIVE.md`。
+- 已確認 commit `04a5642` 已存在：`pump_system/execution/order_service.py` 與 `final_files/pump_system_execution_order_service.py` 的 `_extract_max_leverage()` 被改成 `min(initialLeverage)`；同一 commit 也誤納入大量 `logs/app.log.1~5` 與刪除 `.CLAUDE.md.swp`。
+- 已確認 live bot PID `205610` 自 2026-05-02 12:17:48 +08:00 起運行，早於 commit `04a5642`（13:32:36 +08:00），因此目前 live process 尚未載入 `min()` 改動；重啟才會載入當前 HEAD。
+- log 事實：XNYUSDT 觸發時 `POSITION_SIZING_MODE=FIXED_NOTIONAL`、`target_notional=75`、`active_positions=3`、`max_positions=75`，不是大頭寸；程式以 `max_leverage=10` 建立 `SizingDecision(... leverage=10 ...)`，隨後 `POST /fapi/v1/leverage` 被 Binance 回 `code=-4424 msg=Current symbol leverage cannot exceed 5x leverage.`
+- 判斷：前次「大頭寸 bracket」說法不成立；`min()` 是保守降槓桿 workaround，會犧牲「小名目時盡量用最高合法槓桿」的原始設計，不能視為已驗證的正確修復。
+- [RISK] 不建議在未修正前直接重啟 live bot 載入當前 HEAD，因為它會套用 `min()` 全域降槓桿邏輯；但不重啟則現行 process 仍可能對 XNYUSDT 類符號用 10x 並再次收到 -4424。
+- 建議下一步：先由使用者明確授權後，做最小修正：回退 `min()`，改成對 `set_leverage` 的 `-4424` 解析實際上限（例如訊息中的 `5x`）後重算 sizing 並重試一次；同時清理 `04a5642` 誤納入的 log/.swp 變更。未授權前不改交易邏輯、不重啟 live bot。
+- [SKIP] 本輪未改 `config.py` / `.env` / `pump_system/` 交易邏輯；未連 Binance private/account/order API；未查/寫 DB；未停止或重啟 live bot。
+
 ### Claude 執行：穩健性研究補充報告產出（2026-05-02 +08:00）
 
 - 進場已讀：`AGENTS.md`、`god_rule.md`（v1.5.0）、`README.md`、`HANDOFF.md`（前 200 行熱區）。未讀 `HANDOFF_ARCHIVE.md`。

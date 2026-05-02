@@ -3,6 +3,7 @@ from decimal import Decimal
 from types import SimpleNamespace
 
 from config import load_settings
+from pump_system.exchange.binance_client import BinanceAPIError
 from pump_system.execution.order_service import OrderService
 from pump_system.models import NativeStopTracker, SignalDecision
 
@@ -25,6 +26,21 @@ class DummyExchangeClient:
 
     async def get_all_orders(self, symbol, limit=20):
         return list(self.orders)
+
+
+class LeverageFallbackExchangeClient(DummyExchangeClient):
+    def __init__(self, accepted_leverage: int) -> None:
+        super().__init__()
+        self.accepted_leverage = accepted_leverage
+        self.leverage_calls = []
+
+    async def set_leverage(self, symbol, leverage):
+        self.leverage_calls.append(leverage)
+        if leverage > self.accepted_leverage:
+            raise BinanceAPIError(
+                f"status=400 code=-4424 msg=Current symbol leverage cannot exceed {self.accepted_leverage}x leverage."
+            )
+        return {"symbol": symbol, "leverage": leverage}
 
 
 class DummyPositionState:
@@ -249,6 +265,28 @@ def test_resolve_target_notional_splits_balance_by_remaining_slots(monkeypatch) 
     )
 
     assert target_notional == Decimal("200")
+
+
+def test_configure_leverage_fallback_uses_exchange_cap_from_4424() -> None:
+    settings = load_settings()
+    exchange_client = LeverageFallbackExchangeClient(accepted_leverage=5)
+    notifier = DummyNotifier()
+    service = OrderService(
+        settings=settings,
+        exchange_client=exchange_client,
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=notifier,
+    )
+
+    effective_leverage = asyncio.run(service._configure_leverage_with_fallback("XNYUSDT", 10))
+
+    assert effective_leverage == 5
+    assert exchange_client.leverage_calls == [10, 5]
+    assert notifier.error_events == []
 
 
 def test_reconcile_native_stop_reports_trigger_to_telegram() -> None:
