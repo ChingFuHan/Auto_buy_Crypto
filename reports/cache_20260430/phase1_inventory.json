@@ -1,0 +1,227 @@
+{
+  "15m": {
+    "table": "public.semi_auto_price_future_15m",
+    "columns_raw": [
+      {
+        "column_name": "code",
+        "data_type": "character varying",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "da",
+        "data_type": "timestamp without time zone",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "op",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "hi",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "lo",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "cl",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "vol",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      }
+    ],
+    "constraints": [
+      {
+        "conname": "semi_auto_price_future_15m_pkey",
+        "contype": "p",
+        "def": "PRIMARY KEY (code, da)"
+      }
+    ],
+    "indexes": [
+      {
+        "indexname": "semi_auto_price_future_15m_pkey",
+        "indexdef": "CREATE UNIQUE INDEX semi_auto_price_future_15m_pkey ON public.semi_auto_price_future_15m USING btree (code, da)"
+      }
+    ],
+    "row_count": 6095464,
+    "min_da": "2025-12-29 04:30:00",
+    "max_da": "2026-04-30 07:45:00",
+    "distinct_code_count": 536,
+    "per_symbol_count": 536,
+    "per_symbol_count_min": 39,
+    "per_symbol_count_p50": 11691,
+    "per_symbol_count_max": 11710,
+    "per_symbol_count_p10": 11679,
+    "latest_symbol_max_da": "2026-04-30 07:45:00",
+    "stale_symbols_count": 0,
+    "earliest_symbol_min_da": "2025-12-29 04:30:00",
+    "SOLVUSDT_min": "2025-12-29 04:30:00",
+    "SOLVUSDT_max": "2026-04-30 07:45:00",
+    "SOLVUSDT_count": 11710
+  },
+  "3m": {
+    "table": "public.semi_auto_price_future_3m",
+    "columns_raw": [
+      {
+        "column_name": "code",
+        "data_type": "character varying",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "da",
+        "data_type": "timestamp without time zone",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "op",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "hi",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "lo",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "cl",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "vol",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      }
+    ],
+    "constraints": [
+      {
+        "conname": "semi_auto_price_future_3m_pkey",
+        "contype": "p",
+        "def": "PRIMARY KEY (code, da)"
+      }
+    ],
+    "indexes": [
+      {
+        "indexname": "semi_auto_price_future_3m_pkey",
+        "indexdef": "CREATE UNIQUE INDEX semi_auto_price_future_3m_pkey ON public.semi_auto_price_future_3m USING btree (code, da)"
+      }
+    ],
+    "row_count": 23095071,
+    "min_da": "2026-01-22 23:30:00",
+    "max_da": "2026-04-27 06:39:00",
+    "distinct_code_count": 535,
+    "per_symbol_count": 535,
+    "per_symbol_count_min": 2022,
+    "per_symbol_count_p50": 43977,
+    "per_symbol_count_max": 45224,
+    "per_symbol_count_p10": 43698,
+    "latest_symbol_max_da": "2026-04-27 06:39:00",
+    "stale_symbols_count": 0,
+    "earliest_symbol_min_da": "2026-01-22 23:30:00",
+    "SOLVUSDT_min": "2026-01-26 04:21:00",
+    "SOLVUSDT_max": "2026-04-27 06:39:00",
+    "SOLVUSDT_count": 43698
+  },
+  "1m": {
+    "table": "public.semi_auto_price_future_1m",
+    "columns_raw": [
+      {
+        "column_name": "code",
+        "data_type": "character varying",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "da",
+        "data_type": "timestamp without time zone",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "op",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "hi",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "lo",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "cl",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "vol",
+        "data_type": "double precision",
+        "is_nullable": "YES",
+        "column_default": null
+      }
+    ],
+    "constraints": [
+      {
+        "conname": "semi_auto_price_future_1m_pkey",
+        "contype": "p",
+        "def": "PRIMARY KEY (code, da)"
+      }
+    ],
+    "indexes": [
+      {
+        "indexname": "semi_auto_price_future_1m_pkey",
+        "indexdef": "CREATE UNIQUE INDEX semi_auto_price_future_1m_pkey ON public.semi_auto_price_future_1m USING btree (code, da)"
+      }
+    ],
+    "row_count": 68559130,
+    "min_da": "2026-01-22 23:28:00",
+    "max_da": "2026-04-26 06:00:00",
+    "distinct_code_count": 535,
+    "per_symbol_count": 535,
+    "per_symbol_count_min": 4711,
+    "per_symbol_count_p50": 130578,
+    "per_symbol_count_max": 134313,
+    "per_symbol_count_p10": 129701,
+    "latest_symbol_max_da": "2026-04-26 06:00:00",
+    "stale_symbols_count": 0,
+    "earliest_symbol_min_da": "2026-01-22 23:28:00",
+    "SOLVUSDT_min": "2026-01-26 04:20:00",
+    "SOLVUSDT_max": "2026-04-26 06:00:00",
+    "SOLVUSDT_count": 129701
+  }
+}

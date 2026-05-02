@@ -1,0 +1,51 @@
+{
+  "estimates": {
+    "15m": {
+      "target_days": 365,
+      "forward_only": false,
+      "target_min_da": "2025-04-30 07:45:00",
+      "target_max_da": "2026-04-30 00:08:06.716902",
+      "symbols_with_backward_gap": 536,
+      "symbols_with_forward_gap": 8,
+      "symbols_total": 536,
+      "est_api_calls": 8702,
+      "est_new_rows": 12668589,
+      "est_wallclock_secs": 3480.8,
+      "est_wallclock_hr": 0.97,
+      "current_rows": 6095464,
+      "growth_frac": 2.0783633534707118
+    },
+    "3m": {
+      "target_days": 120,
+      "forward_only": false,
+      "target_min_da": "2025-12-28 06:39:00",
+      "target_max_da": "2026-04-30 00:08:07.697644",
+      "symbols_with_backward_gap": 535,
+      "symbols_with_forward_gap": 535,
+      "symbols_total": 535,
+      "est_api_calls": 6138,
+      "est_new_rows": 8408264,
+      "est_wallclock_secs": 2455.2000000000003,
+      "est_wallclock_hr": 0.68,
+      "current_rows": 23095071,
+      "growth_frac": 0.36407179696481556
+    }
+  },
+  "totals": {
+    "api_calls": 14840,
+    "new_rows": 21076853,
+    "wallclock_secs": 5936.0,
+    "wallclock_hr": 1.65
+  },
+  "caps": {
+    "api_calls": 50000,
+    "new_rows": 2000000,
+    "wallclock_hr": 2,
+    "table_growth_frac": 0.5
+  },
+  "breaches": [
+    "new rows 21,076,853 > cap 2,000,000",
+    "15m table growth 207.8% > cap 50%"
+  ],
+  "approved_to_backfill": false
+}

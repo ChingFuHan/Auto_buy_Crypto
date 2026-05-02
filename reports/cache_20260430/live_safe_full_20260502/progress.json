@@ -1,0 +1,11 @@
+{
+  "run_id": "live_safe_full_20260502",
+  "updated_at": "2026-05-01T23:16:55.803517+00:00",
+  "processed_symbols": 536,
+  "total_symbols": 536,
+  "batch_no": 108,
+  "total_batches": 108,
+  "candidate_rows": 17439,
+  "layer2_rows": 26848,
+  "elapsed_seconds": 415.3
+}
