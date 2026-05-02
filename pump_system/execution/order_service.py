@@ -640,4 +640,4 @@ class OrderService:
         brackets = leverage_bracket.get("brackets", [])
         if not brackets:
             raise BinanceAPIError("leverage_bracket_missing")
-        return max(int(bracket["initialLeverage"]) for bracket in brackets)
+        return min(int(bracket["initialLeverage"]) for bracket in brackets)
