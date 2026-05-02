@@ -421,13 +421,23 @@ class OrderService:
             if self.notifier is not None:
                 await self.notifier.send_error("SET_MARGIN_TYPE_FAILED", symbol=symbol, error_message=str(exc))
             return
-        try:
-            leverage_result = await self.exchange_client.set_leverage(symbol, sizing.leverage)
-            self.logger.info("leverage configured symbol=%s leverage=%s result=%s", symbol, sizing.leverage, leverage_result)
-        except Exception as exc:
-            if self.notifier is not None:
-                await self.notifier.send_error("SET_LEVERAGE_FAILED", symbol=symbol, error_message=str(exc))
-            return
+        effective_leverage = sizing.leverage
+        while effective_leverage >= 1:
+            try:
+                leverage_result = await self.exchange_client.set_leverage(symbol, effective_leverage)
+                self.logger.info("leverage configured symbol=%s leverage=%s result=%s", symbol, effective_leverage, leverage_result)
+                break
+            except Exception as exc:
+                if "-4424" in str(exc) and effective_leverage > 1:
+                    self.logger.warning(
+                        "leverage rejected by exchange, retrying lower symbol=%s attempted=%s",
+                        symbol, effective_leverage,
+                    )
+                    effective_leverage = effective_leverage // 2
+                else:
+                    if self.notifier is not None:
+                        await self.notifier.send_error("SET_LEVERAGE_FAILED", symbol=symbol, error_message=str(exc))
+                    return
 
         try:
             market_order = await self.exchange_client.create_order(
@@ -640,4 +650,4 @@ class OrderService:
         brackets = leverage_bracket.get("brackets", [])
         if not brackets:
             raise BinanceAPIError("leverage_bracket_missing")
-        return min(int(bracket["initialLeverage"]) for bracket in brackets)
+        return max(int(bracket["initialLeverage"]) for bracket in brackets)
