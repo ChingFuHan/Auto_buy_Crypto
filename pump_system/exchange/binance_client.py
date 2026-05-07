@@ -338,18 +338,11 @@ class BinanceClient:
                     delay,
                     exc,
                 )
-                if self.notifier is not None and self._is_retryable(exc):
-                    await self.notifier.send_warning(
-                        "BINANCE_API_RETRY",
-                        error_message=str(exc),
-                        details={
-                            "method": method,
-                            "path": path,
-                            "attempt": f"{attempt}/{self.retry_policy.max_attempts}",
-                            "delay_seconds": delay,
-                        },
-                    )
                 await self.ensure_time_sync(force=isinstance(exc, BinanceAPIError) and "1021" in str(exc))
+                if signed:
+                    params.pop("signature", None)
+                    params["timestamp"] = int(time.time() * 1000) + self.time_offset_ms
+                    params["signature"] = self._sign(params)
                 await asyncio.sleep(delay)
 
         raise BinanceAPIError("unexpected_retry_exit")
