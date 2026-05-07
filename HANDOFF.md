@@ -1,7 +1,7 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM 熱區
 
 更新時間：2026-05-08 05:49 +08:00
-整理快照：`git HEAD=d7a8c0e`
+整理快照：`git HEAD=2c2ec1e`
 
 ### 本次完成事項
 - 2026-05-08（本輪）：依使用者要求實作第 1 層 `Signal Decision Audit`，用 append-only JSONL 保留每次已評估候選 symbol 的訊號判斷快照。新增 `pump_system/audit/signal_decision_audit.py` 與 `pump_system/audit/__init__.py`；`TradingApplication` 建立 `SignalDecisionAuditWriter`；`OrderService._evaluate_symbol()` 每次 `SignalEngine.evaluate()` 後寫入 `SIGNAL_DECISION`，即使 `triggered=False` 也會保存。另記錄幾個後續 order gate：duplicate bar、已有倉、達持倉上限、symbol info 缺失、order type 缺失、private API unavailable、min legal order、function test 擋單、live disabled simulated、server time unhealthy、margin/leverage/entry failure、entry success。輸出路徑：`data/audit/signal_decisions/signal_decisions_<interval>_<YYYYMMDD>.jsonl`。
