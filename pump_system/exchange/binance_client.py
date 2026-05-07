@@ -44,6 +44,7 @@ class BinanceClient:
         self.last_sync_epoch_ms = 0
         self.last_sync_rtt_ms = 0
         self.rate_limit_wait_until_ms = 0.0
+        self.consecutive_sync_failures = 0
 
     @property
     def has_private_api(self) -> bool:
@@ -73,10 +74,36 @@ class BinanceClient:
         if not self.settings.server_time_sync_enabled:
             return True
 
+        if self.consecutive_sync_failures >= 3:
+            self.logger.error(
+                "[BLOCKED] consecutive time sync failures=%s, pausing evaluation",
+                self.consecutive_sync_failures,
+            )
+            if self.notifier is not None:
+                await self.notifier.send_error(
+                    "SERVER_TIME_SYNC_FAILED",
+                    error_message="consecutive_failures",
+                    details={"failures": self.consecutive_sync_failures},
+                )
+            return False
+
         now_ms = int(time.time() * 1000)
         stale = now_ms - self.last_sync_epoch_ms >= self.settings.server_time_resync_interval_seconds * 1000
-        if force or self.last_sync_epoch_ms == 0 or stale:
-            await self.sync_server_time()
+        approaching_threshold = abs(self.time_offset_ms) > self.settings.max_server_time_offset_ms * 0.8
+
+        if force or self.last_sync_epoch_ms == 0 or stale or approaching_threshold:
+            try:
+                await self.sync_server_time()
+                self.consecutive_sync_failures = 0
+            except Exception as exc:
+                self.consecutive_sync_failures += 1
+                self.logger.error(
+                    "time sync failed attempt=%s error=%s",
+                    self.consecutive_sync_failures,
+                    exc,
+                )
+                if self.consecutive_sync_failures >= 3:
+                    return False
 
         if abs(self.time_offset_ms) > self.settings.max_server_time_offset_ms:
             self.logger.error(

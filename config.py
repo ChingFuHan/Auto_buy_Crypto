@@ -245,7 +245,7 @@ def load_settings() -> Settings:
         stop_price_mode=stop_price_mode,
         stop_notional_risk_pct=stop_notional_risk_pct,
         server_time_sync_enabled=_env_bool("SERVER_TIME_SYNC_ENABLED", True),
-        server_time_resync_interval_seconds=_env_int("SERVER_TIME_RESYNC_INTERVAL_SECONDS", 300),
+        server_time_resync_interval_seconds=_env_int("SERVER_TIME_RESYNC_INTERVAL_SECONDS", 60),
         max_server_time_offset_ms=_env_int("MAX_SERVER_TIME_OFFSET_MS", 5000),
         recv_window=_env_int("RECV_WINDOW", 10000),
         retry=RetryConfig(
