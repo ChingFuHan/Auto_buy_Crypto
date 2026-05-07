@@ -54,9 +54,36 @@ class PositionState:
             self.open_order_counts = counts
 
     async def refresh_symbol(self, symbol: str) -> None:
-        """Refresh a single symbol position by refetching position risk."""
-        await self.refresh()
-        if symbol not in self.positions:
+        """Refresh a single symbol position by refetching only that symbol's risk."""
+        if not self.exchange_client.has_private_api:
+            self.positions.pop(symbol, None)
+            return
+
+        try:
+            payload = await self.exchange_client.get_position_risk(symbol=symbol)
+        except Exception as exc:
+            self.logger.warning("refresh_symbol failed symbol=%s error=%s; falling back to full refresh", symbol, exc)
+            await self.refresh()
+            return
+
+        found = False
+        for item in payload:
+            if item.get("symbol") != symbol:
+                continue
+            quantity = Decimal(str(item.get("positionAmt", "0")))
+            if quantity <= Decimal("0"):
+                continue
+            self.positions[symbol] = PositionSnapshot(
+                symbol=symbol,
+                quantity=quantity.copy_abs(),
+                entry_price=Decimal(str(item.get("entryPrice", "0"))),
+                leverage=int(str(item.get("leverage", "1"))),
+                margin_type=str(item.get("marginType", "cross")).lower(),
+                unrealized_pnl=Decimal(str(item.get("unRealizedProfit", item.get("unrealizedProfit", "0")))),
+            )
+            found = True
+            break
+        if not found:
             self.positions.pop(symbol, None)
 
     def has_open_position(self, symbol: str) -> bool:

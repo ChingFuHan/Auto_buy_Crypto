@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from config import Settings
 from pump_system.cache.staging_store import StagingStore
+from pump_system.audit.signal_decision_audit import SignalDecisionAuditWriter
 from pump_system.db.repository import KlineRepository
 from pump_system.exchange.binance_client import BinanceClient
 from pump_system.exchange.symbol_registry import SymbolRegistry
@@ -47,6 +48,7 @@ class TradingApplication:
         self.staging_store = StagingStore(settings)
         self.position_state = PositionState(self.exchange_client)
         self.signal_engine = SignalEngine(settings.strategy)
+        self.signal_audit_writer = SignalDecisionAuditWriter(settings)
         self.fallback_manager = FallbackStopManager(
             settings,
             self.exchange_client,
@@ -70,6 +72,7 @@ class TradingApplication:
             signal_engine=self.signal_engine,
             fallback_manager=self.fallback_manager,
             notifier=self.notifier,
+            signal_audit_writer=self.signal_audit_writer,
         )
         self.websocket_manager = WebSocketManager(
             settings=settings,
@@ -202,7 +205,6 @@ class TradingApplication:
         if finalized is not None:
             async with self._pending_lock:
                 self._pending_finalized[finalized.interval].append(finalized)
-            await self.staging_store.flush_dirty()
             self.logger.info("finalized bar buffered symbol=%s interval=%s", finalized.symbol, finalized.interval)
         else:
             self.logger.info("staging updated symbol=%s interval=%s", kline.symbol, kline.interval)
@@ -247,6 +249,7 @@ class TradingApplication:
                         await self.backfill_service.backfill_universe(added)
                     await self._seed_strategy_history()
                     await self.websocket_manager.restart(sorted(self.symbol_registry.data_symbols))
+                    self.order_service.cleanup_stale_symbols(set(self.symbol_registry.data_symbols))
                     self.logger.info(
                         "symbol universe refreshed data_symbols=%s candidate_symbols=%s",
                         len(self.symbol_registry.data_symbols),

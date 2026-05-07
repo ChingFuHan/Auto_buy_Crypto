@@ -77,8 +77,11 @@ class SignalEngine:
 
     @staticmethod
     def _avg_range_pct(bars: list[Kline]) -> Decimal:
-        total = sum((bar.high_price - bar.low_price) / bar.close_price for bar in bars if bar.close_price > 0)
-        return total / Decimal(len(bars))
+        valid = [bar for bar in bars if bar.close_price > 0]
+        if not valid:
+            return Decimal("0")
+        total = sum((bar.high_price - bar.low_price) / bar.close_price for bar in valid)
+        return total / Decimal(len(valid))
 
     @staticmethod
     def _window_range_pct(bars: list[Kline]) -> Decimal:

@@ -102,10 +102,17 @@ class FallbackStopManager:
             await self._poll_active_stops()
 
     async def _poll_active_stops(self) -> None:
-        for symbol, record in list(self.records.items()):
-            if not record.active:
+        active_records = [record for record in list(self.records.values()) if record.active]
+        if not active_records:
+            return
+        prices = await asyncio.gather(
+            *(self._current_price(record) for record in active_records),
+            return_exceptions=True,
+        )
+        for record, current_price in zip(active_records, prices):
+            if isinstance(current_price, Exception):
+                self.logger.warning("fallback price fetch failed symbol=%s error=%s", record.symbol, current_price)
                 continue
-            current_price = await self._current_price(record)
             if current_price is None:
                 continue
             if current_price > record.stop_price:

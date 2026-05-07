@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
+import uuid
 from collections import defaultdict
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from config import Settings
+from pump_system.audit.signal_decision_audit import SignalDecisionAuditWriter
 from pump_system.cache.staging_store import StagingStore
 from pump_system.exchange.binance_client import BinanceClient, BinanceAPIError
 from pump_system.exchange.symbol_registry import SymbolRegistry
@@ -35,6 +37,7 @@ class OrderService:
         signal_engine: SignalEngine,
         fallback_manager: FallbackStopManager,
         notifier: "TelegramNotifier | None" = None,
+        signal_audit_writer: SignalDecisionAuditWriter | None = None,
     ) -> None:
         self.settings = settings
         self.exchange_client = exchange_client
@@ -44,6 +47,7 @@ class OrderService:
         self.signal_engine = signal_engine
         self.fallback_manager = fallback_manager
         self.notifier = notifier
+        self.signal_audit_writer = signal_audit_writer
         self.logger = logging.getLogger("execution.order")
         self._symbol_locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
         self._last_handled_bar: dict[str, str] = {}
@@ -69,6 +73,28 @@ class OrderService:
                         error_message=str(exc),
                     )
 
+    def cleanup_stale_symbols(self, active_symbols: set[str]) -> int:
+        """Drop in-memory tracking for symbols no longer in the active universe."""
+        removed = 0
+        for symbol in list(self._symbol_locks.keys()):
+            if symbol in active_symbols:
+                continue
+            lock = self._symbol_locks.get(symbol)
+            if lock is not None and lock.locked():
+                continue
+            if symbol in self._active_native_stops:
+                continue
+            self._symbol_locks.pop(symbol, None)
+            self._last_handled_bar.pop(symbol, None)
+            removed += 1
+        for symbol in list(self._last_handled_bar.keys()):
+            if symbol in active_symbols or symbol in self._active_native_stops:
+                continue
+            self._last_handled_bar.pop(symbol, None)
+        if removed:
+            self.logger.info("symbol cache cleaned removed=%s remaining_locks=%s", removed, len(self._symbol_locks))
+        return removed
+
     async def restore_native_stop_watchlist(self) -> None:
         if not self.exchange_client.has_private_api:
             return
@@ -77,6 +103,7 @@ class OrderService:
             if snapshot.quantity <= Decimal("0"):
                 continue
             algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
+            attached = False
             for order in algo_orders:
                 client_order_id = str(order.get("clientAlgoId", ""))
                 if order.get("orderType") != "STOP_MARKET":
@@ -94,7 +121,36 @@ class OrderService:
                     working_type=str(order.get("workingType", self.settings.stop_working_type)),
                     entry_price=snapshot.entry_price,
                 )
+                attached = True
                 break
+
+            if attached:
+                continue
+
+            if symbol in self.fallback_manager.records and self.fallback_manager.records[symbol].active:
+                self.logger.warning(
+                    "[RESTORE] position has fallback stop already active symbol=%s qty=%s",
+                    symbol,
+                    snapshot.quantity,
+                )
+                continue
+
+            self.logger.error(
+                "[CRITICAL] position without protective stop detected on restore symbol=%s qty=%s entry=%s",
+                symbol,
+                snapshot.quantity,
+                snapshot.entry_price,
+            )
+            if self.notifier is not None:
+                await self.notifier.send_error(
+                    "POSITION_WITHOUT_STOP_DETECTED",
+                    symbol=symbol,
+                    side="SELL",
+                    quantity=snapshot.quantity,
+                    entry_price=snapshot.entry_price,
+                    error_message="position_without_stop_on_restore — manual intervention required",
+                    details={"reason": "crash_gap_or_manual_cancel"},
+                )
 
     async def run_native_stop_monitor(self, stop_event: asyncio.Event) -> None:
         while not stop_event.is_set():
@@ -250,11 +306,19 @@ class OrderService:
 
         decision = self.signal_engine.evaluate(symbol, finalized_bars, current_bar)
         self.logger.info("signal check symbol=%s triggered=%s reason=%s metrics=%s", symbol, decision.triggered, decision.reason, decision.metrics)
+        self._audit_signal_decision(symbol, finalized_bars, current_bar, decision)
         if not decision.triggered or current_bar is None:
             return
 
         bar_key = f"{symbol}:{current_bar.open_time.isoformat()}"
         if self._last_handled_bar.get(symbol) == bar_key:
+            self._audit_order_gate(
+                "ORDER_GATE_DUPLICATE_BAR_SKIPPED",
+                symbol,
+                current_bar,
+                decision,
+                {"bar_key": bar_key},
+            )
             return
 
         self.logger.info(
@@ -269,6 +333,7 @@ class OrderService:
         if self.notifier is not None:
             signal_details = dict(decision.metrics)
             signal_details["stop_price_mode"] = self.settings.stop_price_mode
+            signal_details["bar_key"] = current_bar.open_time.isoformat()
             await self.notifier.send_info(
                 "SIGNAL_TRIGGERED",
                 symbol=symbol,
@@ -281,11 +346,22 @@ class OrderService:
         await self.position_state.refresh_symbol(symbol)
         if self.position_state.has_open_position(symbol):
             self.logger.info("[SKIP] existing position symbol=%s", symbol)
+            self._audit_order_gate("ORDER_GATE_EXISTING_POSITION_SKIPPED", symbol, current_bar, decision)
             if self.notifier is not None:
                 await self.notifier.send_info("SKIP_EXISTING_POSITION", symbol=symbol)
             return
         if self.position_state.active_position_count() >= self.settings.max_concurrent_positions:
             self.logger.info("[SKIP] max concurrent positions reached symbol=%s", symbol)
+            self._audit_order_gate(
+                "ORDER_GATE_MAX_CONCURRENT_POSITIONS_SKIPPED",
+                symbol,
+                current_bar,
+                decision,
+                {
+                    "active_positions": self.position_state.active_position_count(),
+                    "max_concurrent_positions": self.settings.max_concurrent_positions,
+                },
+            )
             if self.notifier is not None:
                 await self.notifier.send_warning(
                     "SKIP_MAX_CONCURRENT_POSITIONS",
@@ -296,6 +372,7 @@ class OrderService:
 
         symbol_info = self.symbol_registry.get(symbol)
         if symbol_info is None:
+            self._audit_order_gate("ORDER_GATE_SYMBOL_INFO_MISSING", symbol, current_bar, decision)
             return
         await self._execute_trade(symbol, decision, current_bar, symbol_info, bar_key)
 
@@ -309,12 +386,14 @@ class OrderService:
     ) -> None:
         if "STOP_MARKET" not in symbol_info.order_types or "MARKET" not in symbol_info.order_types:
             self.logger.warning("[SKIP] required order types missing symbol=%s", symbol)
+            self._audit_order_gate("ORDER_GATE_REQUIRED_ORDER_TYPES_MISSING", symbol, current_bar, decision)
             if self.notifier is not None:
                 await self.notifier.send_warning("SKIP_REQUIRED_ORDER_TYPES_MISSING", symbol=symbol)
             return
 
         if not self.exchange_client.has_private_api:
             self.logger.warning("[BLOCKED] private API unavailable; order flow skipped symbol=%s", symbol)
+            self._audit_order_gate("ORDER_GATE_PRIVATE_API_UNAVAILABLE", symbol, current_bar, decision)
             if self.notifier is not None:
                 await self.notifier.send_error("PRIVATE_API_UNAVAILABLE", symbol=symbol)
             return
@@ -355,6 +434,13 @@ class OrderService:
 
         if not sizing.can_trade:
             self.logger.info("[SKIP] no legal order size symbol=%s reason=%s", symbol, sizing.reason)
+            self._audit_order_gate(
+                "ORDER_GATE_MIN_LEGAL_ORDER_UNREACHABLE",
+                symbol,
+                current_bar,
+                decision,
+                {"sizing_reason": sizing.reason},
+            )
             if self.notifier is not None:
                 await self.notifier.send_warning(
                     "SKIP_MIN_LEGAL_ORDER_UNREACHABLE",
@@ -374,6 +460,17 @@ class OrderService:
                 {"avgPrice": decimal_to_str(decision.current_price or current_bar.close_price), "executedQty": decimal_to_str(sizing.quantity)},
             )
             self.logger.warning("[SKIP] function test mode blocked live order symbol=%s test_symbol=%s", symbol, self.settings.function_test_symbol)
+            self._audit_order_gate(
+                "ORDER_GATE_FUNCTION_TEST_MODE_SKIPPED",
+                symbol,
+                current_bar,
+                decision,
+                {
+                    "function_test_symbol": self.settings.function_test_symbol,
+                    "quantity": sizing.quantity,
+                    "estimated_stop_price": estimated_stop_price or decision.stop_reference_low,
+                },
+            )
             if self.notifier is not None:
                 await self.notifier.send_warning(
                     "FUNCTION_TEST_MODE_SKIPPED_LIVE_ORDER",
@@ -407,10 +504,22 @@ class OrderService:
                 sizing.leverage,
                 sizing.used_max_affordable,
             )
+            self._audit_order_gate(
+                "ORDER_GATE_LIVE_TRADING_DISABLED_SIMULATED",
+                symbol,
+                current_bar,
+                decision,
+                {
+                    "quantity": sizing.quantity,
+                    "estimated_stop_price": estimated_stop_price or decision.stop_reference_low,
+                    "leverage": sizing.leverage,
+                },
+            )
             return
 
         if not await self.exchange_client.ensure_time_sync(force=True):
             self.logger.error("[BLOCKED] abort trade due to unhealthy server time symbol=%s", symbol)
+            self._audit_order_gate("ORDER_GATE_SERVER_TIME_UNHEALTHY", symbol, current_bar, decision)
             if self.notifier is not None:
                 await self.notifier.send_error("SERVER_TIME_UNHEALTHY_ABORT_TRADE", symbol=symbol)
             return
@@ -419,11 +528,19 @@ class OrderService:
             margin_result = await self.exchange_client.set_margin_type(symbol, "CROSSED")
             self.logger.info("margin type configured symbol=%s result=%s", symbol, margin_result)
         except Exception as exc:
+            self._audit_order_gate(
+                "ORDER_GATE_SET_MARGIN_TYPE_FAILED",
+                symbol,
+                current_bar,
+                decision,
+                {"error": str(exc)},
+            )
             if self.notifier is not None:
                 await self.notifier.send_error("SET_MARGIN_TYPE_FAILED", symbol=symbol, error_message=str(exc))
             return
         effective_leverage = await self._configure_leverage_with_fallback(symbol, sizing.leverage)
         if effective_leverage is None:
+            self._audit_order_gate("ORDER_GATE_SET_LEVERAGE_FAILED", symbol, current_bar, decision)
             return
 
         if effective_leverage != sizing.leverage:
@@ -444,6 +561,13 @@ class OrderService:
             )
             if not adjusted_sizing.can_trade:
                 self.logger.info("[SKIP] no legal order size after leverage fallback symbol=%s reason=%s", symbol, adjusted_sizing.reason)
+                self._audit_order_gate(
+                    "ORDER_GATE_MIN_LEGAL_ORDER_UNREACHABLE_AFTER_LEVERAGE_FALLBACK",
+                    symbol,
+                    current_bar,
+                    decision,
+                    {"sizing_reason": adjusted_sizing.reason},
+                )
                 if self.notifier is not None:
                     await self.notifier.send_warning(
                         "SKIP_MIN_LEGAL_ORDER_UNREACHABLE",
@@ -465,10 +589,17 @@ class OrderService:
                     "type": "MARKET",
                     "quantity": decimal_to_str(sizing.quantity),
                     "newOrderRespType": "RESULT",
-                    "newClientOrderId": f"entry_{symbol.lower()}_{int(utc_now().timestamp())}",
+                    "newClientOrderId": f"entry_{symbol.lower()}_{int(utc_now().timestamp() * 1000)}_{uuid.uuid4().hex[:6]}",
                 }
             )
         except Exception as exc:
+            self._audit_order_gate(
+                "ORDER_GATE_ENTRY_ORDER_FAILED",
+                symbol,
+                current_bar,
+                decision,
+                {"quantity": sizing.quantity, "error": str(exc)},
+            )
             if self.notifier is not None:
                 await self.notifier.send_error(
                     "ENTRY_ORDER_FAILED",
@@ -481,6 +612,17 @@ class OrderService:
                 )
             return
         self.logger.info("market entry success symbol=%s result=%s", symbol, market_order)
+        self._audit_order_gate(
+            "ORDER_GATE_ENTRY_ORDER_SUCCESS",
+            symbol,
+            current_bar,
+            decision,
+            {
+                "quantity": sizing.quantity,
+                "order_id": market_order.get("orderId"),
+                "executed_qty": market_order.get("executedQty"),
+            },
+        )
         entry_price = self._resolve_entry_price(decision, market_order)
         stop_price = self._resolve_stop_price(symbol_info, decision, market_order)
         if stop_price is None:
@@ -534,6 +676,46 @@ class OrderService:
             updated_at=utc_now(),
         )
         await self.fallback_manager.activate(fallback_record)
+
+    def _audit_signal_decision(
+        self,
+        symbol: str,
+        finalized_bars: list[Kline],
+        current_bar: Kline | None,
+        decision: SignalDecision,
+    ) -> None:
+        if self.signal_audit_writer is None:
+            return
+        try:
+            self.signal_audit_writer.record_signal_decision(
+                symbol=symbol,
+                finalized_bars=finalized_bars,
+                current_bar=current_bar,
+                decision=decision,
+            )
+        except Exception as exc:
+            self.logger.warning("signal decision audit write failed symbol=%s error=%s", symbol, exc)
+
+    def _audit_order_gate(
+        self,
+        event_type: str,
+        symbol: str,
+        current_bar: Kline | None,
+        decision: SignalDecision | None = None,
+        details: dict | None = None,
+    ) -> None:
+        if self.signal_audit_writer is None:
+            return
+        try:
+            self.signal_audit_writer.record_order_gate(
+                event_type=event_type,
+                symbol=symbol,
+                current_bar=current_bar,
+                decision=decision,
+                details=details,
+            )
+        except Exception as exc:
+            self.logger.warning("order gate audit write failed symbol=%s event_type=%s error=%s", symbol, event_type, exc)
 
     async def _place_exchange_stop(
         self,
