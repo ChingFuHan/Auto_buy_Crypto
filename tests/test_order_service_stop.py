@@ -128,6 +128,30 @@ def test_native_stop_uses_algo_order_endpoint(monkeypatch) -> None:
     assert notifier.trade_events[0][0] == "STOP_ORDER_SUCCESS"
 
 
+def test_entry_client_order_id_stays_within_binance_limit() -> None:
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+
+    client_order_id = service._build_entry_client_order_id(
+        "RESOLVUSDT",
+        timestamp_ms=1746657862858,
+        entropy="abcdef",
+    )
+
+    assert client_order_id.startswith("entry_resolvusdt_")
+    assert client_order_id.endswith("_abcd")
+    assert len(client_order_id) <= 36
+
+
 def test_resolve_stop_price_can_use_notional_risk_pct(monkeypatch) -> None:
     monkeypatch.setenv("STOP_PRICE_MODE", "NOTIONAL_RISK_PCT")
     monkeypatch.setenv("STOP_NOTIONAL_RISK_PCT", "0.50")

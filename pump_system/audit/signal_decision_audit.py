@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from config import Settings
+from pump_system.audit.jsonl_parquet import AuditMaintenanceResult, compact_json, maintain_jsonl_audit_dir
 from pump_system.models import Kline, SignalDecision, UTC_PLUS_8, utc_now
 
 
@@ -15,6 +16,7 @@ class SignalDecisionAuditWriter:
     def __init__(self, settings: Settings, audit_dir: Path | None = None) -> None:
         self.settings = settings
         self.audit_dir = audit_dir or settings.data_dir / "audit" / "signal_decisions"
+        self.file_prefix = f"signal_decisions_{self.settings.strategy_interval}"
 
     def record_signal_decision(
         self,
@@ -63,7 +65,18 @@ class SignalDecisionAuditWriter:
     def _path_for(self, current_bar: Kline | None) -> Path:
         stamp = current_bar.event_time or current_bar.open_time if current_bar is not None else utc_now()
         local_stamp = stamp.astimezone(UTC_PLUS_8)
-        return self.audit_dir / f"signal_decisions_{self.settings.strategy_interval}_{local_stamp:%Y%m%d}.jsonl"
+        return self.audit_dir / f"{self.file_prefix}_{local_stamp:%Y%m%d}.jsonl"
+
+    def run_maintenance(self) -> AuditMaintenanceResult:
+        return maintain_jsonl_audit_dir(
+            audit_dir=self.audit_dir,
+            file_prefix=self.file_prefix,
+            row_builder=self._parquet_row,
+            archive_after_days=self.settings.signal_audit_archive_after_days,
+            retention_days=self.settings.signal_audit_retention_days,
+            archive_format=self.settings.signal_audit_archive_format,
+            gzip_compresslevel=self.settings.signal_audit_gzip_compresslevel,
+        )
 
     def _base_payload(self, event_type: str, symbol: str, current_bar: Kline | None) -> dict[str, Any]:
         return {
@@ -154,3 +167,34 @@ class SignalDecisionAuditWriter:
             safe[key] = str(value)
         return safe
 
+    def _parquet_row(self, payload: dict[str, Any]) -> dict[str, Any]:
+        decision = payload.get("decision") or {}
+        current_bar = payload.get("current_bar") or {}
+        finalized_window = payload.get("finalized_window") or {}
+        return {
+            "schema_version": payload.get("schema_version"),
+            "event_type": payload.get("event_type"),
+            "recorded_at": payload.get("recorded_at"),
+            "symbol": payload.get("symbol"),
+            "strategy_interval": payload.get("strategy_interval"),
+            "bar_open_time": payload.get("bar_open_time"),
+            "bar_event_time": payload.get("bar_event_time"),
+            "decision_triggered": decision.get("triggered"),
+            "decision_reason": decision.get("reason"),
+            "decision_current_price": decision.get("current_price"),
+            "decision_stop_reference_low": decision.get("stop_reference_low"),
+            "decision_metrics_json": compact_json(decision.get("metrics")),
+            "current_open": current_bar.get("open"),
+            "current_high": current_bar.get("high"),
+            "current_low": current_bar.get("low"),
+            "current_close": current_bar.get("close"),
+            "current_volume": current_bar.get("volume"),
+            "current_closed": current_bar.get("closed"),
+            "finalized_count": finalized_window.get("count"),
+            "finalized_first_open_time": finalized_window.get("first_open_time"),
+            "finalized_last_open_time": finalized_window.get("last_open_time"),
+            "finalized_hash": finalized_window.get("hash"),
+            "details_json": compact_json(payload.get("details")),
+            "strategy_json": compact_json(payload.get("strategy")),
+            "payload_json": compact_json(payload),
+        }

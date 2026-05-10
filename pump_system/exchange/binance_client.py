@@ -45,6 +45,7 @@ class BinanceClient:
         self.last_sync_rtt_ms = 0
         self.rate_limit_wait_until_ms = 0.0
         self.consecutive_sync_failures = 0
+        self._last_sync_failed_notified_at: float = 0.0
 
     @property
     def has_private_api(self) -> bool:
@@ -80,11 +81,14 @@ class BinanceClient:
                 self.consecutive_sync_failures,
             )
             if self.notifier is not None:
-                await self.notifier.send_error(
-                    "SERVER_TIME_SYNC_FAILED",
-                    error_message="consecutive_failures",
-                    details={"failures": self.consecutive_sync_failures},
-                )
+                _now = time.time()
+                if _now - self._last_sync_failed_notified_at > 60:
+                    self._last_sync_failed_notified_at = _now
+                    await self.notifier.send_error(
+                        "SERVER_TIME_SYNC_FAILED",
+                        error_message="consecutive_failures",
+                        details={"failures": self.consecutive_sync_failures},
+                    )
             return False
 
         now_ms = int(time.time() * 1000)

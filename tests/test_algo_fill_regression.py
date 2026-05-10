@@ -149,7 +149,8 @@ def test_restore_watchlist_extracts_all_algo_response_fields() -> None:
     """All field names read from open-algo-orders response are explicitly asserted.
 
     If Binance renames any of these keys, this test will fail immediately.
-    Fields: clientAlgoId, algoId, orderType, positionSide, triggerPrice, workingType.
+    Fields: clientAlgoId, algoId, orderType, positionSide, triggerPrice, workingType,
+    closePosition, reduceOnly, side.
     """
     exchange = _FakeExchange()
     notifier = _DummyNotifier()
@@ -160,13 +161,15 @@ def test_restore_watchlist_extracts_all_algo_response_fields() -> None:
     exchange.open_algo_orders = [
         {
             "symbol": "BTCUSDT",
-            "clientAlgoId": "stop_btcusdt_99999",  # → tracker.client_order_id
+            "clientAlgoId": "ct-ldr-btc-99999",     # → tracker.client_order_id
             "algoId": "40001234",                   # → tracker.algo_id
             "orderType": "STOP_MARKET",             # gate: must be STOP_MARKET
             "positionSide": "LONG",                 # gate: must be LONG
+            "side": "SELL",                         # gate: must be SELL
             "triggerPrice": "78000.5",              # → tracker.stop_price
             "workingType": "MARK_PRICE",            # → tracker.working_type
-            "side": "SELL",
+            "closePosition": True,                  # gate: must be protective
+            "reduceOnly": True,                     # extra protective hint
         }
     ]
 
@@ -174,18 +177,19 @@ def test_restore_watchlist_extracts_all_algo_response_fields() -> None:
 
     assert "BTCUSDT" in service._active_native_stops
     tracker = service._active_native_stops["BTCUSDT"]
-    assert tracker.client_order_id == "stop_btcusdt_99999"
+    assert tracker.client_order_id == "ct-ldr-btc-99999"
     assert tracker.algo_id == "40001234"
     assert tracker.stop_price == Decimal("78000.5")
     assert tracker.working_type == "MARK_PRICE"
 
 
-def test_restore_watchlist_skips_orders_with_wrong_type_side_or_prefix() -> None:
-    """restore_native_stop_watchlist must filter by orderType, positionSide, and clientAlgoId prefix.
+def test_restore_watchlist_skips_orders_without_protective_flags() -> None:
+    """restore_native_stop_watchlist must filter by orderType, positionSide, side, and protective flags.
 
-    Only the order with orderType=STOP_MARKET, positionSide=LONG, and clientAlgoId
-    starting with 'stop_' must be restored. The other three distractor orders must
-    not produce a tracker entry, even though they share the same symbol.
+    Only the order with orderType=STOP_MARKET, positionSide=LONG, side=SELL, and
+    a protective flag such as closePosition/reduceOnly must be restored. The other
+    distractor orders must not produce a tracker entry, even though they share the
+    same symbol.
     """
     exchange = _FakeExchange()
     service = _make_service(exchange, _DummyNotifier())
@@ -198,24 +202,28 @@ def test_restore_watchlist_skips_orders_with_wrong_type_side_or_prefix() -> None
             "symbol": "BTCUSDT", "clientAlgoId": "stop_btcusdt_1", "algoId": "1",
             "orderType": "TAKE_PROFIT", "positionSide": "LONG",
             "triggerPrice": "80000", "workingType": "MARK_PRICE",
+            "side": "SELL", "closePosition": True, "reduceOnly": True,
         },
         # wrong positionSide — must be skipped
         {
             "symbol": "BTCUSDT", "clientAlgoId": "stop_btcusdt_2", "algoId": "2",
             "orderType": "STOP_MARKET", "positionSide": "SHORT",
             "triggerPrice": "80000", "workingType": "MARK_PRICE",
+            "side": "SELL", "closePosition": True, "reduceOnly": True,
         },
-        # wrong clientAlgoId prefix (Android-originated stop) — must be skipped
+        # missing protective flags — must be skipped
         {
-            "symbol": "BTCUSDT", "clientAlgoId": "android_btcusdt_3", "algoId": "3",
+            "symbol": "BTCUSDT", "clientAlgoId": "ct-ldr-btc-3", "algoId": "3",
             "orderType": "STOP_MARKET", "positionSide": "LONG",
             "triggerPrice": "80000", "workingType": "MARK_PRICE",
+            "side": "SELL", "closePosition": False, "reduceOnly": False,
         },
         # valid — must be the only one restored
         {
-            "symbol": "BTCUSDT", "clientAlgoId": "stop_btcusdt_4", "algoId": "4",
+            "symbol": "BTCUSDT", "clientAlgoId": "ct-ldr-btc-4", "algoId": "4",
             "orderType": "STOP_MARKET", "positionSide": "LONG",
             "triggerPrice": "77999.0", "workingType": "CONTRACT_PRICE",
+            "side": "SELL", "closePosition": True, "reduceOnly": True,
         },
     ]
 

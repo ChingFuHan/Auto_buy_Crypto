@@ -39,6 +39,31 @@ def test_settings_rejects_heartbeat_interval_below_60s(monkeypatch) -> None:
         load_settings()
 
 
+def test_settings_default_signal_audit_maintenance(monkeypatch) -> None:
+    monkeypatch.delenv("SIGNAL_AUDIT_MAINTENANCE_ENABLED", raising=False)
+    monkeypatch.delenv("SIGNAL_AUDIT_ARCHIVE_AFTER_DAYS", raising=False)
+    monkeypatch.delenv("SIGNAL_AUDIT_RETENTION_DAYS", raising=False)
+    monkeypatch.delenv("SIGNAL_AUDIT_MAINTENANCE_INTERVAL_SECONDS", raising=False)
+    monkeypatch.delenv("SIGNAL_AUDIT_ARCHIVE_FORMAT", raising=False)
+    monkeypatch.delenv("SIGNAL_AUDIT_GZIP_COMPRESSLEVEL", raising=False)
+
+    settings = load_settings()
+
+    assert settings.signal_audit_maintenance_enabled is True
+    assert settings.signal_audit_archive_after_days == 1
+    assert settings.signal_audit_retention_days == 7
+    assert settings.signal_audit_maintenance_interval_seconds == 3600
+    assert settings.signal_audit_archive_format == "gzip"
+    assert settings.signal_audit_gzip_compresslevel == 6
+
+
+def test_settings_rejects_invalid_signal_audit_archive_format(monkeypatch) -> None:
+    monkeypatch.setenv("SIGNAL_AUDIT_ARCHIVE_FORMAT", "zip")
+
+    with pytest.raises(ValueError, match="SIGNAL_AUDIT_ARCHIVE_FORMAT"):
+        load_settings()
+
+
 def test_format_uptime_below_one_hour() -> None:
     assert _format_uptime(0) == "00:00:00"
     assert _format_uptime(59) == "00:00:59"

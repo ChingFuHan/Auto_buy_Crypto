@@ -197,6 +197,7 @@ class TradingApplication:
             asyncio.create_task(self._symbol_refresh_loop()),
             asyncio.create_task(self._db_flush_loop()),
             asyncio.create_task(self._heartbeat_loop()),
+            asyncio.create_task(self._signal_audit_maintenance_loop()),
         ]
 
     async def _handle_kline_payload(self, payload: dict) -> None:
@@ -291,6 +292,36 @@ class TradingApplication:
                 )
             except Exception as exc:
                 self.logger.error("heartbeat send failed error=%s", exc)
+
+    async def _signal_audit_maintenance_loop(self) -> None:
+        if not self.settings.signal_audit_maintenance_enabled:
+            return
+        interval = self.settings.signal_audit_maintenance_interval_seconds
+        while not self.stop_event.is_set():
+            await self._run_signal_audit_maintenance()
+            try:
+                await asyncio.wait_for(self.stop_event.wait(), timeout=interval)
+            except asyncio.TimeoutError:
+                continue
+
+    async def _run_signal_audit_maintenance(self) -> None:
+        try:
+            result = await asyncio.to_thread(self.signal_audit_writer.run_maintenance)
+        except Exception as exc:
+            self.logger.error("signal audit maintenance failed error=%s", exc)
+            return
+        if result.archived or result.deleted:
+            self.logger.info(
+                "signal audit maintenance complete archived=%s deleted=%s skipped=%s failed=%s",
+                len(result.archived),
+                len(result.deleted),
+                len(result.skipped),
+                len(result.failed),
+            )
+        if result.skipped:
+            self.logger.warning("signal audit maintenance skipped items=%s", result.skipped[:5])
+        if result.failed:
+            self.logger.error("signal audit maintenance failed items=%s", result.failed[:5])
 
     async def _flush_finalized_batches(self) -> None:
         async with self._pending_lock:

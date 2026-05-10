@@ -2,9 +2,11 @@ import asyncio
 from types import SimpleNamespace
 
 import httpx
+import pytest
 
 from config import RetryConfig
 from pump_system.exchange.binance_client import BinanceClient
+from pump_system.sync.time_sync_manager import TimeSyncManager
 
 
 class DummyNotifier:
@@ -89,3 +91,56 @@ def test_signed_retry_rebuilds_timestamp_and_signature_after_1021(monkeypatch) -
     assert first_params["signature"] != second_params["signature"]
     assert True in ensure_calls
     assert notifier.warning_events == []
+
+
+def test_ensure_time_sync_blocked_sends_notification_once_per_minute() -> None:
+    """consecutive_sync_failures >= 3 should not spam Telegram — 60s cooldown."""
+    import time as real_time
+
+    notifier = DummyNotifier()
+    client = BinanceClient(_settings(), notifier=notifier)
+    client.consecutive_sync_failures = 4
+
+    async def run():
+        r1 = await client.ensure_time_sync()
+        count_after_r1 = len([e for e in notifier.error_events if e[0] == "SERVER_TIME_SYNC_FAILED"])
+
+        # Simulate second call within cooldown window by pinning notified_at to now
+        client._last_sync_failed_notified_at = real_time.time()
+        r2 = await client.ensure_time_sync()
+        count_after_r2 = len([e for e in notifier.error_events if e[0] == "SERVER_TIME_SYNC_FAILED"])
+
+        return r1, r2, count_after_r1, count_after_r2
+
+    r1, r2, c1, c2 = asyncio.run(run())
+    assert r1 is False
+    assert r2 is False
+    assert c1 == 1
+    assert c2 == 1  # cooldown suppressed second notification
+
+
+def test_time_sync_manager_resets_consecutive_failures_on_success(monkeypatch) -> None:
+    """TimeSyncManager._perform_sync_check must reset consecutive_sync_failures after success."""
+    notifier = DummyNotifier()
+    client = BinanceClient(_settings(), notifier=notifier)
+    client.consecutive_sync_failures = 5  # stuck in deadlock
+    client.time_offset_ms = 100
+    client.last_sync_rtt_ms = 10
+
+    async def fake_sync_server_time():
+        client.time_offset_ms = 50
+        client.last_sync_rtt_ms = 8
+        client.last_sync_epoch_ms = 999_000
+        return 50
+
+    client.sync_server_time = fake_sync_server_time
+
+    mgr = TimeSyncManager(
+        exchange_client=client,
+        notifier=notifier,
+        resync_interval_seconds=60,
+    )
+
+    asyncio.run(mgr._perform_sync_check())
+
+    assert client.consecutive_sync_failures == 0

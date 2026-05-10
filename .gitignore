@@ -6,4 +6,7 @@ __pycache__/
 logs/*.log
 logs/*.log.*
 data/*.csv
+data/*.tmp
+data/audit/
 snapshots/
+tools/outputs/

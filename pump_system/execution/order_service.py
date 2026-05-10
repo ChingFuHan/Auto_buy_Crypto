@@ -27,6 +27,9 @@ if TYPE_CHECKING:
 class OrderService:
     """Signal evaluation, pre-trade checks, entry order, and native stop placement."""
 
+    _MAX_CLIENT_ORDER_ID_LENGTH = 36
+    _ENTRY_ORDER_ID_ENTROPY_LENGTH = 4
+
     def __init__(
         self,
         settings: Settings,
@@ -105,13 +108,9 @@ class OrderService:
             algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
             attached = False
             for order in algo_orders:
+                if not self._is_native_stop_order(order):
+                    continue
                 client_order_id = str(order.get("clientAlgoId", ""))
-                if order.get("orderType") != "STOP_MARKET":
-                    continue
-                if order.get("positionSide") != "LONG":
-                    continue
-                if not client_order_id.startswith("stop_"):
-                    continue
                 self._active_native_stops[symbol] = NativeStopTracker(
                     symbol=symbol,
                     client_order_id=client_order_id,
@@ -151,6 +150,28 @@ class OrderService:
                     error_message="position_without_stop_on_restore — manual intervention required",
                     details={"reason": "crash_gap_or_manual_cancel"},
                 )
+
+    @staticmethod
+    def _is_native_stop_order(order: dict) -> bool:
+        if str(order.get("orderType", "")).upper() != "STOP_MARKET":
+            return False
+        if str(order.get("positionSide", "")).upper() != "LONG":
+            return False
+        if str(order.get("side", "")).upper() != "SELL":
+            return False
+        if OrderService._is_truthy(order.get("closePosition")):
+            return True
+        if OrderService._is_truthy(order.get("reduceOnly")):
+            return True
+        return False
+
+    @staticmethod
+    def _is_truthy(value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if value is None:
+            return False
+        return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
 
     async def run_native_stop_monitor(self, stop_event: asyncio.Event) -> None:
         while not stop_event.is_set():
@@ -589,7 +610,7 @@ class OrderService:
                     "type": "MARKET",
                     "quantity": decimal_to_str(sizing.quantity),
                     "newOrderRespType": "RESULT",
-                    "newClientOrderId": f"entry_{symbol.lower()}_{int(utc_now().timestamp() * 1000)}_{uuid.uuid4().hex[:6]}",
+                    "newClientOrderId": self._build_entry_client_order_id(symbol),
                 }
             )
         except Exception as exc:
@@ -788,6 +809,35 @@ class OrderService:
         if entry_price <= Decimal("0") and decision.current_price is not None:
             return decision.current_price
         return entry_price
+
+    @classmethod
+    def _build_entry_client_order_id(
+        cls,
+        symbol: str,
+        *,
+        timestamp_ms: int | None = None,
+        entropy: str | None = None,
+    ) -> str:
+        timestamp_value = timestamp_ms if timestamp_ms is not None else int(utc_now().timestamp() * 1000)
+        timestamp_part = cls._to_base36(timestamp_value)
+        entropy_part = (entropy or uuid.uuid4().hex)[: cls._ENTRY_ORDER_ID_ENTROPY_LENGTH]
+        reserved_length = len("entry") + len(timestamp_part) + len(entropy_part) + 3
+        max_symbol_length = max(cls._MAX_CLIENT_ORDER_ID_LENGTH - reserved_length, 1)
+        symbol_part = symbol.lower()[:max_symbol_length]
+        return f"entry_{symbol_part}_{timestamp_part}_{entropy_part}"
+
+    @staticmethod
+    def _to_base36(value: int) -> str:
+        if value < 0:
+            raise ValueError("base36 value must be non-negative")
+        if value == 0:
+            return "0"
+        digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+        encoded: list[str] = []
+        while value:
+            value, remainder = divmod(value, 36)
+            encoded.append(digits[remainder])
+        return "".join(reversed(encoded))
 
     def _resolve_target_notional(self, available_balance: Decimal, max_leverage: int) -> Decimal:
         if self.settings.position_sizing_mode == "FIXED_NOTIONAL":

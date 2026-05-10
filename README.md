@@ -265,6 +265,15 @@ TELEGRAM_CHAT_ID=***
 - `data/fallback_stop_state.csv`
   - 只存 fallback stop 狀態
 
+## Signal Decision Audit 保留與壓縮
+
+- 每次已評估 candidate 的訊號決策會寫入 `data/audit/signal_decisions/signal_decisions_<interval>_<YYYYMMDD>.jsonl`。
+- 預設 `SIGNAL_AUDIT_MAINTENANCE_ENABLED=true`，服務啟動背景任務後會定期維護 audit 檔案。
+- `SIGNAL_AUDIT_ARCHIVE_AFTER_DAYS=1`：只壓縮已跨日的 JSONL，不處理今天仍在寫入的檔案。
+- `SIGNAL_AUDIT_ARCHIVE_FORMAT=gzip`：預設寫成 `.jsonl.gz`；先寫 `.tmp`，成功後才替換並刪除原 `.jsonl`。
+- `SIGNAL_AUDIT_RETENTION_DAYS=7`：刪除超過保留天數的已封存檔；若舊 `.jsonl` 尚未封存，會保留並記錄 skipped，不會直接刪除。
+- `SIGNAL_AUDIT_MAINTENANCE_INTERVAL_SECONDS=3600`：背景維護週期，最低 60 秒。
+
 ### 未收盤 K bar 暫存 CSV 如何更新與清理
 
 - 收到 websocket in-progress 更新時，先寫入 staging memory。

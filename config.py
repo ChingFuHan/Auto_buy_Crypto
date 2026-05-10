@@ -104,6 +104,12 @@ class Settings:
     position_refresh_interval_seconds: int
     fallback_poll_interval_seconds: int
     staging_flush_interval_seconds: int
+    signal_audit_maintenance_enabled: bool
+    signal_audit_archive_after_days: int
+    signal_audit_retention_days: int
+    signal_audit_maintenance_interval_seconds: int
+    signal_audit_archive_format: str
+    signal_audit_gzip_compresslevel: int
     ws_max_streams_per_connection: int
     ws_max_reconnect_attempts: int
     heartbeat_enabled: bool
@@ -219,6 +225,21 @@ def load_settings() -> Settings:
     heartbeat_interval_seconds = _env_int("HEARTBEAT_INTERVAL_SECONDS", 900)
     if heartbeat_interval_seconds < 60:
         raise ValueError("HEARTBEAT_INTERVAL_SECONDS must be at least 60")
+    signal_audit_archive_after_days = _env_int("SIGNAL_AUDIT_ARCHIVE_AFTER_DAYS", 1)
+    if signal_audit_archive_after_days < 1:
+        raise ValueError("SIGNAL_AUDIT_ARCHIVE_AFTER_DAYS must be at least 1")
+    signal_audit_retention_days = _env_int("SIGNAL_AUDIT_RETENTION_DAYS", 7)
+    if signal_audit_retention_days < 0:
+        raise ValueError("SIGNAL_AUDIT_RETENTION_DAYS must be greater than or equal to 0")
+    signal_audit_maintenance_interval_seconds = _env_int("SIGNAL_AUDIT_MAINTENANCE_INTERVAL_SECONDS", 3600)
+    if signal_audit_maintenance_interval_seconds < 60:
+        raise ValueError("SIGNAL_AUDIT_MAINTENANCE_INTERVAL_SECONDS must be at least 60")
+    signal_audit_archive_format = os.getenv("SIGNAL_AUDIT_ARCHIVE_FORMAT", "gzip").strip().lower()
+    if signal_audit_archive_format not in {"gzip", "parquet"}:
+        raise ValueError("SIGNAL_AUDIT_ARCHIVE_FORMAT must be gzip or parquet")
+    signal_audit_gzip_compresslevel = _env_int("SIGNAL_AUDIT_GZIP_COMPRESSLEVEL", 6)
+    if signal_audit_gzip_compresslevel < 1 or signal_audit_gzip_compresslevel > 9:
+        raise ValueError("SIGNAL_AUDIT_GZIP_COMPRESSLEVEL must be between 1 and 9")
 
     return Settings(
         base_dir=BASE_DIR,
@@ -263,6 +284,12 @@ def load_settings() -> Settings:
         position_refresh_interval_seconds=_env_int("POSITION_REFRESH_INTERVAL_SECONDS", 30),
         fallback_poll_interval_seconds=_env_int("FALLBACK_POLL_INTERVAL_SECONDS", 1),
         staging_flush_interval_seconds=_env_int("STAGING_FLUSH_INTERVAL_SECONDS", 1),
+        signal_audit_maintenance_enabled=_env_bool("SIGNAL_AUDIT_MAINTENANCE_ENABLED", True),
+        signal_audit_archive_after_days=signal_audit_archive_after_days,
+        signal_audit_retention_days=signal_audit_retention_days,
+        signal_audit_maintenance_interval_seconds=signal_audit_maintenance_interval_seconds,
+        signal_audit_archive_format=signal_audit_archive_format,
+        signal_audit_gzip_compresslevel=signal_audit_gzip_compresslevel,
         ws_max_streams_per_connection=_env_int("WS_MAX_STREAMS_PER_CONNECTION", 200),
         ws_max_reconnect_attempts=_env_int("WS_MAX_RECONNECT_ATTEMPTS", 3),
         heartbeat_enabled=_env_bool("HEARTBEAT_ENABLED", True),

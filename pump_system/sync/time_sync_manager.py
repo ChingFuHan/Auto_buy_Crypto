@@ -98,6 +98,7 @@ class TimeSyncManager:
         try:
             # 執行時間同步
             offset_ms = await self.exchange_client.sync_server_time()
+            self.exchange_client.consecutive_sync_failures = 0
             self.sync_count += 1
             self.last_offset_ms = offset_ms
             abs_offset = abs(offset_ms)
