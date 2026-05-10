@@ -18,6 +18,7 @@ from pump_system.fallback_stop.manager import FallbackStopManager
 from pump_system.models import FallbackStopRecord, Kline, NativeStopTracker, SignalDecision, utc_now
 from pump_system.state.position_state import PositionState
 from pump_system.strategy.signal_engine import SignalEngine
+from pump_system.utils.client_order_id import build_binance_client_order_id
 from pump_system.utils.decimal_utils import decimal_to_str, floor_to_step
 
 if TYPE_CHECKING:
@@ -27,7 +28,6 @@ if TYPE_CHECKING:
 class OrderService:
     """Signal evaluation, pre-trade checks, entry order, and native stop placement."""
 
-    _MAX_CLIENT_ORDER_ID_LENGTH = 36
     _ENTRY_ORDER_ID_ENTROPY_LENGTH = 4
 
     def __init__(
@@ -750,7 +750,7 @@ class OrderService:
             self.logger.error("[BLOCKED] missing stop price symbol=%s stop_price_mode=%s", symbol, self.settings.stop_price_mode)
             return False
 
-        client_order_id = f"stop_{symbol.lower()}_{int(utc_now().timestamp())}"
+        client_order_id = build_binance_client_order_id("stop", symbol, int(utc_now().timestamp()))
         try:
             stop_order = await self.exchange_client.create_algo_order(
                 {
@@ -821,10 +821,7 @@ class OrderService:
         timestamp_value = timestamp_ms if timestamp_ms is not None else int(utc_now().timestamp() * 1000)
         timestamp_part = cls._to_base36(timestamp_value)
         entropy_part = (entropy or uuid.uuid4().hex)[: cls._ENTRY_ORDER_ID_ENTROPY_LENGTH]
-        reserved_length = len("entry") + len(timestamp_part) + len(entropy_part) + 3
-        max_symbol_length = max(cls._MAX_CLIENT_ORDER_ID_LENGTH - reserved_length, 1)
-        symbol_part = symbol.lower()[:max_symbol_length]
-        return f"entry_{symbol_part}_{timestamp_part}_{entropy_part}"
+        return build_binance_client_order_id("entry", symbol, timestamp_part, entropy_part)
 
     @staticmethod
     def _to_base36(value: int) -> str:

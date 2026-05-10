@@ -6,6 +6,7 @@ from config import load_settings
 from pump_system.exchange.binance_client import BinanceAPIError
 from pump_system.execution.order_service import OrderService
 from pump_system.models import NativeStopTracker, SignalDecision
+from pump_system.utils.client_order_id import is_valid_binance_client_order_id
 
 
 class DummyExchangeClient:
@@ -150,6 +151,72 @@ def test_entry_client_order_id_stays_within_binance_limit() -> None:
     assert client_order_id.startswith("entry_resolvusdt_")
     assert client_order_id.endswith("_abcd")
     assert len(client_order_id) <= 36
+    assert is_valid_binance_client_order_id(client_order_id)
+
+
+def test_entry_client_order_id_sanitizes_non_ascii_symbol() -> None:
+    settings = load_settings()
+    service = OrderService(
+        settings=settings,
+        exchange_client=DummyExchangeClient(),
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+
+    client_order_id = service._build_entry_client_order_id(
+        "币安人生USDT",
+        timestamp_ms=1746657862858,
+        entropy="abcdef",
+    )
+
+    assert client_order_id.startswith("entry_usdt_")
+    assert client_order_id.endswith("_abcd")
+    assert "币" not in client_order_id
+    assert len(client_order_id) <= 36
+    assert is_valid_binance_client_order_id(client_order_id)
+
+
+def test_native_stop_client_order_id_sanitizes_non_ascii_symbol(monkeypatch) -> None:
+    monkeypatch.setenv("STOP_WORKING_TYPE", "MARK_PRICE")
+    settings = load_settings()
+    exchange_client = DummyExchangeClient()
+    service = OrderService(
+        settings=settings,
+        exchange_client=exchange_client,
+        symbol_registry=DummySymbolRegistry(),
+        staging_store=DummyStagingStore(),
+        position_state=DummyPositionState(),
+        signal_engine=DummySignalEngine(),
+        fallback_manager=DummyFallbackManager(),
+        notifier=DummyNotifier(),
+    )
+    decision = SignalDecision(
+        symbol="币安人生USDT",
+        triggered=True,
+        reason="test",
+        stop_reference_low=Decimal("0.38819"),
+        current_price=Decimal("0.39550"),
+    )
+
+    result = asyncio.run(
+        service._place_exchange_stop(
+            "币安人生USDT",
+            decision,
+            {"executedQty": "189", "avgPrice": "0.39550"},
+        )
+    )
+
+    assert result is True
+    assert exchange_client.params["symbol"] == "币安人生USDT"
+    client_algo_id = exchange_client.params["clientAlgoId"]
+    assert client_algo_id.startswith("stop_usdt_")
+    assert "币" not in client_algo_id
+    assert len(client_algo_id) <= 36
+    assert is_valid_binance_client_order_id(client_algo_id)
 
 
 def test_resolve_stop_price_can_use_notional_risk_pct(monkeypatch) -> None:

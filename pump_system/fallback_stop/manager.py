@@ -11,6 +11,7 @@ from pump_system.exchange.binance_client import BinanceClient
 from pump_system.models import FallbackStopRecord, utc_now
 from pump_system.state.csv_state import AtomicCsvState
 from pump_system.state.position_state import PositionState
+from pump_system.utils.client_order_id import build_binance_client_order_id
 from pump_system.utils.decimal_utils import decimal_to_str
 
 if TYPE_CHECKING:
@@ -193,7 +194,7 @@ class FallbackStopManager:
                         "positionSide": "LONG",
                         "type": "MARKET",
                         "quantity": decimal_to_str(quantity),
-                        "newClientOrderId": f"fallback_{record.symbol.lower()}_{attempt}",
+                        "newClientOrderId": build_binance_client_order_id("fallback", record.symbol, attempt),
                     }
                 )
                 record.active = False

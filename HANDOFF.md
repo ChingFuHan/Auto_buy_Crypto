@@ -1,9 +1,10 @@
 ## HANDOFF - BINANCE_SMALLCAP_FIRST_PUMP_ENTRY_STOP_SYSTEM 熱區
 
-更新時間：2026-05-10 22:47 +08:00
-整理快照：`git HEAD=236b7e1`
+更新時間：2026-05-11 03:05 +08:00
+整理快照：`git HEAD=8c5cda7`（client id 修復前基準）
 
 ### 本次完成事項
+- 2026-05-11（本輪提交基準後修復 Binance client order id）：使用者要求「先提交變更，再解 bug」。已先將既有工作區變更提交為 `8c5cda7 chore: save current trading bot updates`。隨後修復 `newClientOrderId/clientAlgoId` 非 ASCII 問題：新增 `pump_system/utils/client_order_id.py`，以 Binance regex `^[.A-Z:/a-z0-9_-]{1,36}$` 產生安全 id；entry、native stop、fallback close 均改用此 builder。真正送 Binance 的交易 `symbol` 保持原值，例如 `币安人生USDT` 不被改名；只把 client id 轉成類似 `entry_usdt_<hash>_...` / `stop_usdt_<hash>_...` / `fallback_usdt_<hash>_...`。新增回歸測試覆蓋中文 symbol 的 entry id、stop `clientAlgoId`、fallback close `newClientOrderId`。驗證：`python3 -m py_compile pump_system/utils/client_order_id.py pump_system/execution/order_service.py pump_system/fallback_stop/manager.py tests/test_order_service_stop.py tests/test_fallback_stop_manager.py` 通過；`python3 -m pytest -q tests/test_order_service_stop.py tests/test_fallback_stop_manager.py` 得 `13 passed`；`python3 -m pytest -q` 得 `53 passed, 1 xfailed`。本輪未改 `.env`、未連 Binance API、未查帳戶、未查/寫 DB、未啟動/停止/重啟 bot、未改訊號條件或 sizing。
 - 2026-05-10（本輪 `ENTRY_ORDER_FAILED newclientorderid` 只讀排查）：使用者貼出 live Telegram 連續 `ENTRY_ORDER_FAILED`，symbol=`币安人生USDT`，Binance 回 `status=400 code=-1100`，指出 `newclientorderid` 僅允許 `^[.A-Z:/a-z0-9_-]{1,36}$`。本輪依序讀 `god_rule.md`、`README.md`、`HANDOFF.md`，再只讀查 `pump_system/execution/order_service.py`、`pump_system/fallback_stop/manager.py`、`pump_system/exchange/symbol_registry.py`、`pump_system/exchange/binance_client.py`、`tests/test_order_service_stop.py` 與 `logs/app.log.5`。結論：`_build_entry_client_order_id()` 目前只處理長度，未把 symbol 做 ASCII 白名單清洗；對中文 symbol 會產生類似 `entry_币安人生usdt_...` 的 `newClientOrderId`，因此被 Binance 拒單。`logs/app.log.5` 於 2026-05-10 22:29:22 至 22:30:34 共 73 筆同類 `newclientorderid` 錯誤；同一 bar 內連續重試的次因是 `_last_handled_bar` 只在 entry 成功後才設定，entry 失敗會讓後續 market update 再次嘗試。另發現 stop `clientAlgoId` 與 fallback close `newClientOrderId` 也直接拼 `symbol.lower()`，遇到非 ASCII symbol 時有同類風險。本輪未改交易邏輯、未改 `.env`、未連 Binance API、未查帳戶、未查/寫 DB、未啟動/停止/重啟 bot、未跑測試。
 - 2026-05-10（本輪 v1 read-only income 工具實作）：使用者貼上 v1 執行規格，要求新增 Binance USD-M Futures 近 N days 帳戶 income read-only 工具。本輪先讀 `AGENTS.md`、`god_rule.md`、`README.md`、`HANDOFF.md`；確認規格限制交付檔案與 `god_rule.md` RULE 01 存檔義務有衝突，依上位規則額外更新 `HANDOFF.md`。已新增 `tools/binance_usdm_income_readonly.py`、`tools/binance_usdm_income_readonly_GUIDE.md`，並在 `.gitignore` 末尾追加 `tools/outputs/`。工具 v1 僅支援 `COMMISSION` 與 `FUNDING_FEE`，預設 dry-run，execute 需 `--execute --confirm-readonly`，只 allowlist `GET /fapi/v1/time` 與 `GET /fapi/v1/income`，報表只寫入 `tools/outputs/`。驗證：`python3 -m py_compile tools/binance_usdm_income_readonly.py` 通過；`python3 tools/binance_usdm_income_readonly.py --help` 通過；使用 `/tmp/binance_income_fake.env` dry-run 通過，輸出 `WILL_SEND_BINANCE_REQUEST: NO`、`request_count: 0`。未讀真實 `.env`、未發 Binance request、未查帳戶、未寫 DB、未啟動/停止/重啟 bot、未改交易邏輯。dry-run 偵測到疑似 `main.py run`，工具只輸出 WARNING，未操作該進程。
 - 2026-05-10（本輪 prompt review）：使用者貼出 Claude Code 對 Binance USD-M income read-only 工具執行 prompt 的 review，要求本輪完整理解專案脈絡後只做 prompt review、不要執行 prompt 內任務。本輪已讀 `god_rule.md`、`README.md`、`HANDOFF.md`、`AGENTS.md`，並補核 Binance 官方 `/fapi/v1/income` 文件與 API-Agent futures rebate 文件。結論：prompt 大方向可用，但需補強「可見 prompt 不完整限制」、`.env` 預設與 fake env 驗證衝突、final 回報/HANDOFF 不得寫金額與 report 可寫金額的範圍衝突、fingerprint 禁止輸出與 fingerprint function 的衝突、lead trader/帶單員語意與 endpoint allowlist、`/fapi/v1/income` 3 個月限制、retry 對 `-1003`/429/418/5xx 的處理、`.gitignore` 重複追加與完成回報重複段落。未執行 prompt、未讀 `.env`、未建立工具檔、未啟動/重啟 bot、未連 Binance 帳戶/API、未查帳戶、未查/寫 DB。
@@ -76,6 +77,8 @@
 | `pump_system/audit/jsonl_parquet.py` | signal decision audit 跨日壓縮與 retention 維護器 |
 | `pump_system/strategy/signal_engine.py` | 主策略訊號條件與 fail reasons |
 | `pump_system/execution/order_service.py` | 下單、槓桿設定、native stop、fallback 觸發入口 |
+| `pump_system/fallback_stop/manager.py` | fallback stop 觸發與市價平倉入口 |
+| `pump_system/utils/client_order_id.py` | Binance-safe client order id builder，處理非 ASCII symbol |
 | `pump_system/notify/telegram_notifier.py` | Telegram flood-wait / 節流 / 高低優先級 / signal 去重 |
 | `pump_system/execution/sizing.py` | quantity / notional / leverage sizing |
 | `pump_system/exchange/binance_client.py` | Binance public/private wrapper；P1 algo history 會動到這裡 |
@@ -139,6 +142,7 @@
 - DAMUSDT / SOLVUSDT 等歷史案例目前屬策略取捨與回測研究脈絡，不是已確認的候選池漏單 bug。
 
 ### 資源回報
+- 2026-05-11 本輪類型：先提交既有變更，再修復 Binance `newClientOrderId/clientAlgoId` 非 ASCII bug。驗證方式：`df -h` 確認空間已釋出；`git add -A && git commit -m "chore: save current trading bot updates"` 成功產生 `8c5cda7`；修改 `pump_system/utils/client_order_id.py`、`pump_system/execution/order_service.py`、`pump_system/fallback_stop/manager.py`、`tests/test_order_service_stop.py`、`tests/test_fallback_stop_manager.py`、`HANDOFF.md`；跑 py_compile、目標 pytest、全 pytest。未改 `.env`、未啟動/停止/重啟 bot、未連 Binance、未查帳戶、未查/寫 DB、未改交易訊號條件、未改 sizing。
 - 2026-05-10 本輪類型：v1 Binance USD-M Futures income read-only 工具實作。驗證方式：讀 `AGENTS.md`、`god_rule.md`、`README.md`、`HANDOFF.md`；記錄 `git HEAD=236b7e1`；新增 `tools/binance_usdm_income_readonly.py`、`tools/binance_usdm_income_readonly_GUIDE.md`；修改 `.gitignore` 追加 `tools/outputs/`；更新 `HANDOFF.md` 履行 RULE 01；跑 `python3 -m py_compile tools/binance_usdm_income_readonly.py`、`python3 tools/binance_usdm_income_readonly.py --help`、fake env dry-run。未讀真實 `.env`、未改 `.env`、未發 Binance request、未查帳戶、未查/寫 DB、未啟動/停止/重啟 bot、未改交易邏輯、未執行 `main.py run/backfill/validate`。
 - 2026-05-10 本輪類型：Claude Code prompt review 結果再審。驗證方式：讀 `god_rule.md`、`README.md`、`HANDOFF.md`、`AGENTS.md`，補核 Binance 官方 `/fapi/v1/income` 與 API-Agent futures rebate 文件；只修改 `HANDOFF.md` 以履行 RULE 01。未讀 `.env`、未改 `.env`、未建立工具檔、未啟動/重啟 bot、未連 Binance 帳戶/API、未查帳戶、未查/寫 DB、未改交易邏輯、未執行被審查 prompt。
 - 2026-05-10 本輪類型：修正版完整 prompt 交付。驗證方式：沿用前序 context 與 Binance 官方 `/fapi/v1/income` 分頁核對結果，整理成完整最終 prompt；只修改 `HANDOFF.md`。未讀 `.env`、未建立工具檔、未建立 key profile 設定檔、未啟動/重啟 bot、未連 Binance 帳戶/API、未查帳戶、未查/寫 DB、未執行 prompt 內容。
