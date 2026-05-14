@@ -102,6 +102,7 @@ class Settings:
     kline_seed_limit: int
     symbol_refresh_interval_seconds: int
     position_refresh_interval_seconds: int
+    account_snapshot_max_age_seconds: float
     fallback_poll_interval_seconds: int
     staging_flush_interval_seconds: int
     signal_audit_maintenance_enabled: bool
@@ -282,6 +283,7 @@ def load_settings() -> Settings:
         kline_seed_limit=_env_int("KLINE_SEED_LIMIT", 90),
         symbol_refresh_interval_seconds=_env_int("SYMBOL_REFRESH_INTERVAL_SECONDS", 900),
         position_refresh_interval_seconds=_env_int("POSITION_REFRESH_INTERVAL_SECONDS", 30),
+        account_snapshot_max_age_seconds=_env_float("ACCOUNT_SNAPSHOT_MAX_AGE_SECONDS", 10.0),
         fallback_poll_interval_seconds=_env_int("FALLBACK_POLL_INTERVAL_SECONDS", 1),
         staging_flush_interval_seconds=_env_int("STAGING_FLUSH_INTERVAL_SECONDS", 1),
         signal_audit_maintenance_enabled=_env_bool("SIGNAL_AUDIT_MAINTENANCE_ENABLED", True),

@@ -15,7 +15,7 @@ from pump_system.exchange.binance_client import BinanceClient, BinanceAPIError
 from pump_system.exchange.symbol_registry import SymbolRegistry
 from pump_system.execution.sizing import build_sizing_decision
 from pump_system.fallback_stop.manager import FallbackStopManager
-from pump_system.models import FallbackStopRecord, Kline, NativeStopTracker, SignalDecision, utc_now
+from pump_system.models import FallbackStopRecord, Kline, NativeStopTracker, PositionSnapshot, SignalDecision, utc_now
 from pump_system.state.position_state import PositionState
 from pump_system.strategy.signal_engine import SignalEngine
 from pump_system.utils.client_order_id import build_binance_client_order_id
@@ -185,9 +185,12 @@ class OrderService:
         if not self._active_native_stops or not self.exchange_client.has_private_api:
             return
 
+        snapshot_max_age_seconds = max(1.0, float(self.settings.account_snapshot_max_age_seconds))
+        await self.position_state.ensure_fresh(snapshot_max_age_seconds)
+
         for symbol, tracker in list(self._active_native_stops.items()):
-            quantity = await self._get_current_long_quantity(symbol)
-            algo_orders = await self.exchange_client.get_open_algo_orders(symbol=symbol, algo_type="CONDITIONAL")
+            quantity = self.position_state.get_quantity(symbol)
+            algo_orders = self.position_state.get_open_algo_orders(symbol)
             matching_order = next(
                 (order for order in algo_orders if str(order.get("clientAlgoId", "")) == tracker.client_order_id),
                 None,
@@ -777,6 +780,7 @@ class OrderService:
                 entry_price=entry_price,
             )
             self._active_native_stops[symbol] = tracker
+            self._record_native_stop_snapshot(symbol, stop_order, tracker)
             self.logger.info(
                 "native stop algo order placed symbol=%s trigger_price=%s algo_id=%s",
                 symbol,
@@ -802,6 +806,38 @@ class OrderService:
         except Exception as exc:
             self.logger.error("native stop order failed symbol=%s stop_price=%s error=%s", symbol, stop_price, exc)
             return False
+
+    def _record_native_stop_snapshot(
+        self,
+        symbol: str,
+        stop_order: dict,
+        tracker: NativeStopTracker,
+    ) -> None:
+        if tracker.quantity > Decimal("0"):
+            self.position_state.upsert_position(
+                PositionSnapshot(
+                    symbol=symbol,
+                    quantity=tracker.quantity.copy_abs(),
+                    entry_price=tracker.entry_price,
+                    leverage=1,
+                    margin_type="cross",
+                    unrealized_pnl=Decimal("0"),
+                )
+            )
+        self.position_state.upsert_open_algo_order(
+            symbol,
+            {
+                "symbol": symbol,
+                "clientAlgoId": tracker.client_order_id,
+                "algoId": tracker.algo_id or stop_order.get("algoId", ""),
+                "orderType": "STOP_MARKET",
+                "positionSide": "LONG",
+                "side": "SELL",
+                "triggerPrice": decimal_to_str(tracker.stop_price),
+                "workingType": tracker.working_type,
+                "closePosition": True,
+            },
+        )
 
     @staticmethod
     def _resolve_entry_price(decision: SignalDecision, market_order: dict) -> Decimal:

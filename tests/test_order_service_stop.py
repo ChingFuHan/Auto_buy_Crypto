@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from config import load_settings
 from pump_system.exchange.binance_client import BinanceAPIError
 from pump_system.execution.order_service import OrderService
-from pump_system.models import NativeStopTracker, SignalDecision
+from pump_system.models import NativeStopTracker, PositionSnapshot, SignalDecision
 from pump_system.utils.client_order_id import is_valid_binance_client_order_id
 
 
@@ -47,9 +47,27 @@ class LeverageFallbackExchangeClient(DummyExchangeClient):
 class DummyPositionState:
     def __init__(self, active_count: int = 0) -> None:
         self.active_count = active_count
+        self.positions = {}
+        self.open_algo_orders = {}
 
     def active_position_count(self) -> int:
         return self.active_count
+
+    async def ensure_fresh(self, max_age_seconds: float) -> None:
+        return None
+
+    def get_quantity(self, symbol: str) -> Decimal:
+        snapshot = self.positions.get(symbol)
+        return Decimal("0") if snapshot is None else snapshot.quantity
+
+    def get_open_algo_orders(self, symbol: str) -> list[dict]:
+        return list(self.open_algo_orders.get(symbol, []))
+
+    def upsert_position(self, snapshot: PositionSnapshot) -> None:
+        self.positions[snapshot.symbol] = snapshot
+
+    def upsert_open_algo_order(self, symbol: str, order: dict) -> None:
+        self.open_algo_orders.setdefault(symbol, []).append(dict(order))
 
 
 class DummySymbolRegistry:

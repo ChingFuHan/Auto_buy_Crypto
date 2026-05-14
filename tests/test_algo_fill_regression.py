@@ -14,6 +14,7 @@ Known Gap (documented explicitly below):
 """
 
 import asyncio
+import time
 from decimal import Decimal
 
 import pytest
@@ -40,23 +41,31 @@ class _FakeExchange:
         self.all_orders: list[dict] = []
         # Future: populated when get_historical_algo_orders() is implemented
         self.historical_algo_orders: list[dict] = []
+        self.position_risk_calls = 0
+        self.open_algo_orders_calls = 0
+        self.open_orders_calls = 0
+        self.all_orders_calls = 0
 
     async def get_position_risk(self, symbol: str | None = None) -> list[dict]:
+        self.position_risk_calls += 1
         if symbol:
             return [p for p in self.position_risk if p.get("symbol") == symbol]
         return list(self.position_risk)
 
     async def get_open_algo_orders(self, symbol: str | None = None, algo_type: str | None = None) -> list[dict]:
+        self.open_algo_orders_calls += 1
         result = list(self.open_algo_orders)
         if symbol:
             result = [o for o in result if o.get("symbol") == symbol]
         return result
 
     async def get_all_orders(self, symbol: str, limit: int = 20) -> list[dict]:
+        self.all_orders_calls += 1
         result = [o for o in self.all_orders if o.get("symbol") == symbol]
         return result[-limit:] if len(result) > limit else result
 
     async def get_open_orders(self, symbol: str | None = None) -> list[dict]:
+        self.open_orders_calls += 1
         return []
 
     # Placeholder for the future fallback method (not yet implemented in BinanceClient)
@@ -91,7 +100,7 @@ class _DummyStub:
 
 def _make_service(exchange: _FakeExchange, notifier: _DummyNotifier) -> OrderService:
     settings = load_settings()
-    position_state = PositionState(exchange, enable_open_order_sync=False)
+    position_state = PositionState(exchange)
     return OrderService(
         settings=settings,
         exchange_client=exchange,
@@ -334,6 +343,58 @@ def test_reconcile_continues_when_position_open_and_algo_present() -> None:
     asyncio.run(service.reconcile_native_stops())
 
     assert "BTCUSDT" in service._active_native_stops
+    assert notifier.trade_events == []
+    assert notifier.error_events == []
+    assert notifier.warning_events == []
+
+
+def test_reconcile_uses_fresh_shared_snapshot_without_private_rest() -> None:
+    """Native stop monitor must not poll positionRisk/openAlgoOrders per symbol while snapshot is fresh."""
+    exchange = _FakeExchange()
+    notifier = _DummyNotifier()
+    service = _make_service(exchange, notifier)
+
+    _seed_position(service, "BTCUSDT", qty="0.003")
+    _seed_tracker(service, "BTCUSDT", client_order_id="stop_btcusdt_cached", algo_id="5555")
+    service.position_state.open_algo_orders["BTCUSDT"] = [
+        {"symbol": "BTCUSDT", "clientAlgoId": "stop_btcusdt_cached", "algoId": "5555"}
+    ]
+    service.position_state.last_refresh_monotonic = time.monotonic()
+
+    asyncio.run(service.reconcile_native_stops())
+
+    assert exchange.position_risk_calls == 0
+    assert exchange.open_algo_orders_calls == 0
+    assert exchange.open_orders_calls == 0
+    assert "BTCUSDT" in service._active_native_stops
+    assert notifier.trade_events == []
+    assert notifier.error_events == []
+    assert notifier.warning_events == []
+
+
+def test_reconcile_refreshes_stale_snapshot_once_for_multiple_trackers() -> None:
+    """A stale native stop monitor pass should use one shared account snapshot."""
+    exchange = _FakeExchange()
+    notifier = _DummyNotifier()
+    service = _make_service(exchange, notifier)
+
+    _seed_tracker(service, "BTCUSDT", client_order_id="stop_btcusdt_1", algo_id="1")
+    _seed_tracker(service, "ETHUSDT", client_order_id="stop_ethusdt_1", algo_id="2")
+    exchange.position_risk = [
+        {"symbol": "BTCUSDT", "positionSide": "LONG", "positionAmt": "0.003", "entryPrice": "78960", "leverage": "10", "marginType": "cross"},
+        {"symbol": "ETHUSDT", "positionSide": "LONG", "positionAmt": "0.04", "entryPrice": "3000", "leverage": "10", "marginType": "cross"},
+    ]
+    exchange.open_algo_orders = [
+        {"symbol": "BTCUSDT", "clientAlgoId": "stop_btcusdt_1", "algoId": "1"},
+        {"symbol": "ETHUSDT", "clientAlgoId": "stop_ethusdt_1", "algoId": "2"},
+    ]
+
+    asyncio.run(service.reconcile_native_stops())
+
+    assert exchange.position_risk_calls == 1
+    assert exchange.open_orders_calls == 1
+    assert exchange.open_algo_orders_calls == 2
+    assert set(service._active_native_stops) == {"BTCUSDT", "ETHUSDT"}
     assert notifier.trade_events == []
     assert notifier.error_events == []
     assert notifier.warning_events == []
