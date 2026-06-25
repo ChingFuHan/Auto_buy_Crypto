@@ -7,6 +7,9 @@ logs/*.log
 logs/*.log.*
 data/*.csv
 data/*.tmp
-data/audit/
+data/audit/**
+!data/audit/.gitkeep
+data/klines/**
+!data/klines/.gitkeep
 snapshots/
 tools/outputs/
